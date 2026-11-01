@@ -74,6 +74,8 @@ a.piece::after { content: "→" / ""; color: var(--accent); }
 .machines ul { display: grid; gap: 8px; margin: 4px 0 0; padding: 0; list-style: none; }
 .machines li { display: grid; justify-items: start; gap: 4px; font-size: 13px; }
 .machines .about, .mame-note { color: var(--muted); }
+/* The name of the one running, over its buttons. */
+.machine-name { font-weight: 600; }
 .machines .sound { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; margin-top: 4px; font-size: 13px; cursor: pointer; }
 .machines .sound input { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); }
 .mame-note { margin: 2px 0 0; font-size: 13px; }
@@ -199,9 +201,9 @@ html.tv .machines .sound input { width: 20px; height: 20px; }
 
 /* A machine played on a screen (play.js): over the room, which isn't drawn, its picture as large as
    it goes beside the card or under it (play.js places it), scaled up pixel for pixel; the card
-   holding only the way back and the machine's buttons, narrower beside it; on a touch screen its
-   pad, at the foot above the buttons there. MAME's own frame is never seen. In VR the layer is
-   hidden, kept laid out. */
+   holding only the way back and the machine's buttons, narrower beside it; on a touch screen a
+   console's pad, at the foot above the buttons there, and on any a computer's keys under its picture
+   (below). MAME's own frame is never seen. In VR the layer is hidden, kept laid out. */
 #play { position: fixed; inset: 0; z-index: 5; background: #000; visibility: hidden; }
 html.playing #play { visibility: visible; }
 .play-area { position: absolute; }
@@ -241,9 +243,51 @@ html.tv.playing .card { width: 300px; }
   .pad-mid { justify-self: center; }
 }
 
+/* A computer's keyboard (screen-keys.js), under its picture, where play.js places it: its keys as the
+   machine's, each with its legend, its keyword, and its symbol in red, and where they are large its
+   E mode's too (green above, red below), all sized by how far apart the keys are (--pitch); small,
+   their legends alone. A key held, or a shift down for the next key, lit; the current key, which a
+   gamepad or a remote moves and presses, ringed. */
+.machine-keys {
+  position: absolute; display: grid; grid-template-columns: repeat(var(--cols, 10), 1fr); grid-auto-rows: 1fr;
+  gap: max(2px, calc(var(--pitch, 40px) * 0.06));
+  user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+.machine-key {
+  display: grid; grid-template: "label symbol" 1fr "word word" auto / auto 1fr; align-items: center; gap: 0 2px;
+  min-width: 0; min-height: 0; padding: 1px 4px 2px; border: 1px solid #6c6772; border-radius: 4px;
+  background: #1d1b20; color: #f4f1ea; line-height: 1.1; text-align: left; overflow: hidden; touch-action: none;
+}
+.machine-key > span { min-width: 0; white-space: nowrap; letter-spacing: -0.01em; }
+.k-label { grid-area: label; font-size: calc(var(--pitch) * 0.34); font-weight: 600; }
+.machine-keys.roomy .k-label { font-size: calc(var(--pitch) * 0.3); }
+.machine-keys .machine-key.long .k-label { font-size: max(8px, calc(var(--pitch) * 0.17)); white-space: normal; }
+.machine-key.symbol .k-label { color: #ff6b5e; }
+.k-symbol { grid-area: symbol; justify-self: end; align-self: start; color: #ff6b5e; font-size: max(8px, calc(var(--pitch) * 0.17)); }
+.k-word { grid-area: word; color: #dcd6c8; font-size: max(7px, calc(var(--pitch) * 0.15)); }
+.k-ext { grid-area: ext; color: #76d671; font-size: calc(var(--pitch) * 0.13); }
+.k-ext-symbol { grid-area: xsym; color: #ff6b5e; font-size: calc(var(--pitch) * 0.13); }
+.k-short, .k-ext, .k-ext-symbol { display: none; }
+/* Large: E mode's above and below. */
+.machine-keys.roomy .machine-key { grid-template: "ext ext" auto "label symbol" 1fr "word word" auto "xsym xsym" auto / auto 1fr; }
+.machine-keys.roomy .k-ext, .machine-keys.roomy .k-ext-symbol { display: block; }
+/* Small: the legend alone, in the middle. */
+.machine-keys.tight .machine-key { grid-template: "label" 1fr / 1fr; place-items: center; padding: 0; text-align: center; }
+.machine-keys.tight .k-label { font-size: max(12px, calc(var(--pitch) * 0.4)); }
+.machine-keys.tight .machine-key.long .k-label { font-size: max(8px, calc(var(--pitch) * 0.27)); }
+.machine-keys.tight .k-word, .machine-keys.tight .k-symbol, .machine-keys.tight .k-long { display: none; }
+.machine-keys.tight .k-short { display: block; }
+.machine-key.held, .machine-key[aria-pressed="true"] { background: var(--accent); border-color: var(--accent); }
+.machine-keys .machine-key.held > span, .machine-keys .machine-key[aria-pressed="true"] > span { color: #1a1208; }
+.machine-keys.nav .machine-key.current { position: relative; z-index: 1; outline: 2px solid var(--accent); outline-offset: 1px; }
+html.tv .machine-keys.nav .machine-key.current { outline: 4px solid #ffd98a; outline-offset: 2px; box-shadow: 0 0 0 7px rgba(0, 0, 0, 0.65); }
+
 @media (forced-colors: active) {
-  .card, .hint, .toast, .chip, .pill, .way-back, .piece, .my-name, .pad-button { border: 1px solid CanvasText; }
+  .card, .hint, .toast, .chip, .pill, .way-back, .piece, .my-name, .pad-button, .machine-key { border: 1px solid CanvasText; }
   .pill.on, .chip[aria-expanded="true"], .pad-button.held { forced-color-adjust: none; background: Highlight; color: HighlightText; border-color: Highlight; }
+  .machine-key.held, .machine-key[aria-pressed="true"] { forced-color-adjust: none; background: Highlight; border-color: Highlight; }
+  .machine-keys .machine-key.held > span, .machine-keys .machine-key[aria-pressed="true"] > span { color: HighlightText; }
+  .machine-keys.nav .machine-key.current { outline-color: Highlight; }
   .aim { forced-color-adjust: none; border-color: CanvasText; box-shadow: none; }
   .aim.hover { background: Highlight; }
   :focus-visible { outline-color: Highlight; }

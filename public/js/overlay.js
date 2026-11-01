@@ -14,6 +14,7 @@
 // On a TV (common's tv.js) the remote reaches only the card, so Wave is in it, and there is nothing
 // to copy a link to: the invite link is shown to type on another device. Fullscreen and Enter VR
 // are not offered there (main.js).
+import { keyByCode } from './keyboards.js';
 
 function el(tag, attrs = {}, ...children) {
   const e = document.createElement(tag);
@@ -52,17 +53,31 @@ const MACHINE_HINTS = {
   tv: 'Arrows: walk and turn · OK: the doorway, a machine or the panel in the middle · Menu or hold Back: the machines, settings and the shared session\nWith TalkBack: channel up and down walk, rewind and fast-forward turn',
 };
 /**
- * A machine running, on a screen (play.js): how to play it with what was used last. On a TV the
- * card (Menu) has what the remote's keys don't.
+ * A machine running, on a screen (play.js): how to play it with what was used last; a computer's,
+ * how to type on it, on its keys under its picture too (screen-keys.js). On a TV the card (Menu) has
+ * what the remote's keys don't.
  * @param {import('./machines.js').Machine} m
  */
-const playHints = (m) => ({
-  mouse: `${m.help} · Esc: stop`,
-  touch: 'Play with its pad and buttons on the screen · Stop is in the card',
-  gamepad: 'D-pad or left stick: its pad · A, B: its A and B · Start, Back: Start and Select · LB or RB: stop',
-  tv: 'Arrows: its pad · OK: its A · Menu: B, Start, Select, Reset and Stop · Back: stop',
-  'tv-card': 'Up, down: from button to button · OK: press it · Back: play again',
-});
+const playHints = (m) => {
+  const kb = m.keyboard;
+  if (!kb) {
+    return {
+      mouse: `${m.help} · Esc: stop`,
+      touch: 'Play with its pad and buttons on the screen · Stop is in the card',
+      gamepad: 'D-pad or left stick: its pad · A, B: its A and B · Start, Back: Start and Select · LB or RB: stop',
+      tv: 'Arrows: its pad · OK: its A · Menu: B, Start, Select, Reset and Stop · Back: stop',
+      'tv-card': 'Up, down: from button to button · OK: press it · Back: play again',
+    };
+  }
+  const [one, other] = kb.shifts.map((code) => keyByCode(kb, code)?.label ?? code);
+  return {
+    mouse: `${m.help} · Esc: stop`,
+    touch: `Type on its keys on the screen · ${one} and ${other} stay down for the next key · Stop is in the card`,
+    gamepad: `D-pad or left stick: from key to key · A: press it · X, Y: ${one}, ${other} · B: DELETE · Start: ENTER · LB or RB: stop`,
+    tv: 'Arrows: from key to key · OK: press it · Menu: Reset and Stop · Back: stop',
+    'tv-card': 'Up, down: from button to button · OK: press it · Back: type again',
+  };
+};
 /** The buttons of a machine running, in the card, by play.js's names. */
 const MACHINE_BUTTONS = { start: 'Start', select: 'Select', a: 'A', b: 'B', reset: 'Reset', stop: 'Stop' };
 /** Where MAME's source is, at the tag it was built from (tools/build-mame.sh). */
@@ -77,7 +92,8 @@ export class Overlay {
    * @param {(i: number) => string} [o.pieceHref] the address piece i's link opens now (likewise)
    * @param {(i: number) => void} [o.onLeave] called when a link is followed: the way back's (-1), or piece i's
    * @param {boolean} [o.tv] the TV app's page (common's tv.js tvMode)
-   * @param {{ title: string, about: string }[]} [o.machines] the machines on their stands (stands.js), each one's name and what runs on it
+   * @param {{ title: string, about: string, buttons: string[] }[]} [o.machines] the machines on their stands (stands.js), each one's
+   *   name, what runs on it, and its buttons while it runs (machines.js machineButtons)
    */
   constructor(room, way, { href = () => way.url, pieceHref = () => '#', onLeave = () => {}, tv = false, machines = [] } = {}) {
     this.root = document.getElementById('overlay');
@@ -109,7 +125,8 @@ export class Overlay {
         return el('li', {}, use, el('span', { class: 'about', id: about }, p.description));
       }))) : null;
     // The machines: a button for each, which walks up to it and starts it, and while it runs, in its
-    // place, its buttons (as on the panel beside it on the wall; on a TV its A and B too).
+    // place, its buttons (as on the panel beside it on the wall, but a computer's keys, which are under
+    // its picture; on a TV a console's A and B too).
     /** (i) machine i chosen in the card. @type {(i: number) => void} */
     this.onMachine = () => {};
     /** (i, id) a button of machine i, running: MACHINE_BUTTONS's. @type {(i: number, id: string) => void} */
@@ -120,6 +137,8 @@ export class Overlay {
     this.machineButtons = [];
     /** The buttons of each machine, while it runs. @type {HTMLElement[]} */
     this.machineControls = [];
+    /** Each one's name over them, while it runs. @type {HTMLElement[]} */
+    this.machineNames = [];
     this.sound = el('input', { type: 'checkbox', name: 'sound' });
     this.sound.checked = true;
     this.sound.addEventListener('change', () => this.onSound(this.sound.checked));
@@ -129,15 +148,16 @@ export class Overlay {
         const about = `machine-${i}-about`;
         const play = el('button', { class: 'piece machine', type: 'button', title: 'Walk up to it and play it', 'aria-describedby': about }, m.title);
         play.addEventListener('click', () => this.onMachine(i));
-        const ids = ['start', 'select', ...(tv ? ['a', 'b'] : []), 'reset', 'stop'];
-        const controls = el('div', { class: 'actions machine-controls', role: 'group', 'aria-label': `The ${m.title}'s buttons`, hidden: '' }, ...ids.map((id) => {
+        const controls = el('div', { class: 'actions machine-controls', role: 'group', 'aria-label': `The ${m.title}'s buttons`, hidden: '' }, ...m.buttons.map((id) => {
           const b = el('button', { class: 'chip', type: 'button' }, MACHINE_BUTTONS[id]);
           b.addEventListener('click', () => this.onMachineButton(i, id));
           return b;
         }));
+        const name = el('span', { class: 'machine-name', hidden: '' }, m.title);
         this.machineButtons.push(play);
         this.machineControls.push(controls);
-        return el('li', {}, play, el('span', { class: 'about', id: about }, m.about), controls);
+        this.machineNames.push(name);
+        return el('li', {}, play, name, el('span', { class: 'about', id: about }, m.about), controls);
       })),
       this.soundLabel = el('label', { class: 'sound' }, this.sound, 'Sound'),
       el('p', { class: 'mame-note' }, 'They run in MAME 0.289: ', el('a', { href: 'mame/COPYING.txt' }, 'its licence'), ', ', el('a', { href: MAME_SOURCE }, 'its source'), '.')) : null;
@@ -278,7 +298,8 @@ export class Overlay {
   /**
    * Keeps the hint clear of the buttons at the foot: in the middle where it fits beside them, else
    * in the space beside them (wrapping within it), else above them (a narrow screen). Outside's.
-   * Then, in the middle again, above what else it would cover (hintClear).
+   * Then, in the middle again, above what else it would cover (hintClear), and beside the card if
+   * it would cover that there (a phone on its side).
    */
   _placeHint() {
     const s = this.hint.style;
@@ -308,6 +329,14 @@ export class Overlay {
     if (over === Infinity) return;
     s.left = s.maxWidth = '';
     s.bottom = `${innerHeight - over + 8}px`;
+    if (this.tv) return; // there beside the card already (style.css)
+    const c = this.card.getBoundingClientRect();
+    h = this.hint.getBoundingClientRect();
+    const room = innerWidth - c.right - gap - margin;
+    if (c.right > h.left && c.left < h.right && c.bottom > h.top && c.top < h.bottom && room >= 200) {
+      s.left = `${c.right + gap + room / 2}px`;
+      s.maxWidth = `${room}px`;
+    }
   }
 
   /**
@@ -322,12 +351,14 @@ export class Overlay {
 
   /**
    * Machine i runs (play.js), or none (-1): in Machines, its buttons in place of the one that
-   * started it (the focus with them, if it was on that one, and back again), and the hint says how to
-   * play it (machine: machines.js's), or again how to walk.
+   * started it (the focus with them, if it was on that one, or to `focus`, and back again), and the
+   * hint says how to play it (machine: machines.js's), or again how to walk.
    * @param {number} i
    * @param {import('./machines.js').Machine | null} [machine]
+   * @param {HTMLElement | null} [focus] where the focus goes from the button that started it, if not
+   *   to its buttons: a computer's screen, so that Enter and Space are the computer's
    */
-  setPlaying(i, machine = null) {
+  setPlaying(i, machine = null, focus = null) {
     const was = this.playing;
     if (i === was) return;
     const focused = document.activeElement;
@@ -339,7 +370,10 @@ export class Overlay {
     this.machineControls.forEach((g, j) => {
       g.hidden = j !== i;
     });
-    if (i >= 0 && focused === this.machineButtons[i]) /** @type {HTMLElement | undefined} */ (this.machineControls[i].children[0])?.focus?.();
+    this.machineNames.forEach((n, j) => {
+      n.hidden = j !== i;
+    });
+    if (i >= 0 && focused === this.machineButtons[i]) (focus ?? /** @type {HTMLElement | undefined} */ (this.machineControls[i].children[0]))?.focus?.();
     else if (was >= 0 && focused && this.machineControls[was]?.contains?.(focused)) this.machineButtons[was]?.focus?.();
     this._hints = i >= 0 && machine ? playHints(machine) : this._roomHints;
     this.setHint(this._how);

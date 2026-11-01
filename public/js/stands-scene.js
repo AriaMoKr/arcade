@@ -1,13 +1,17 @@
 // The machines' stands in 3D (stands.js): every stand's parts as boxes in one mesh, with the room's
-// light baked into them (scene.js's lit); each machine's screen; and the panel of its buttons on the
-// wall beside it, redrawn only when what it shows changes. A screen shows the machine's own picture
-// while it runs (MAME's canvas, copied each time it changes while the room is drawn: play.js), what
-// it last showed once it stops, and before it has run, a screen switched off.
+// light baked into them (scene.js's lit); each machine's screen; a computer's keys on its top; and
+// the panel of its buttons on the wall beside it (a computer's keys among them), redrawn only when
+// what it shows changes, the button pointed at lit by a pane over it. A screen shows the machine's
+// own picture while it runs (MAME's canvas, copied each time it changes while the room is drawn:
+// play.js), what it last showed once it stops, and before it has run, a screen switched off.
 import * as THREE from 'three';
 import { Builder } from './builder.js';
 import { machineById } from './machines.js';
-import { STAND_BUTTONS, STAND_PANEL_PX } from './stands.js';
+import { PANEL_KEYS } from './stands.js';
 import { GOLD, SANS, SERIF, enamel } from './textures.js';
+
+/** @typedef {import('./keyboards.js').Keyboard} Keyboard */
+/** @typedef {import('./keyboards.js').Key} Key */
 
 /** @param {string} hex */
 const lin = (hex) => {
@@ -53,6 +57,23 @@ export function buildStands(S, { lit, lightColor, anisotropy = 1 }) {
     return { material, still, stillTexture, /** @type {THREE.CanvasTexture | null} */ live: null };
   });
 
+  // A computer's keys, on its top: its rows along the wall, the first row furthest from the room.
+  for (const s of S) {
+    const keyboard = machineById(s.machine)?.keyboard;
+    const k = s.keys;
+    if (!k || !keyboard) continue;
+    const texture = new THREE.CanvasTexture(computerTop(keyboard));
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = anisotropy;
+    const mid = s.at((k.a[0] + k.a[1]) / 2, k.y, (k.d[0] + k.d[1]) / 2);
+    const top = new THREE.Mesh(new THREE.PlaneGeometry(k.a[1] - k.a[0], k.d[1] - k.d[0]), new THREE.MeshBasicMaterial({ map: texture, color: lightColor(mid, [0, 1, 0]) }));
+    top.name = `keys ${s.machine}`;
+    top.position.set(mid[0], mid[1], mid[2]);
+    top.rotation.order = 'YXZ';
+    top.rotation.set(-Math.PI / 2, Math.atan2(s.nx, s.nz), 0);
+    group.add(top);
+  }
+
   const panels = S.map((s) => {
     const p = s.panel;
     const a = (p.a[0] + p.a[1]) / 2, y = (p.y[0] + p.y[1]) / 2;
@@ -60,6 +81,7 @@ export function buildStands(S, { lit, lightColor, anisotropy = 1 }) {
     const panel = new StandPanel({
       machine: /** @type {import('./machines.js').Machine} */ (machineById(s.machine)),
       about: s.about,
+      layout: s.buttons,
       width: p.a[1] - p.a[0],
       height: p.y[1] - p.y[0],
       color: lightColor(at, [s.nx, 0, s.nz]),
@@ -136,65 +158,160 @@ function switchedOff(/** @type {CanvasRenderingContext2D} */ g, /** @type {numbe
   g.fillRect(0, 0, w, h);
 }
 
+/**
+ * The ZX Spectrum's top, as one looks down on it: black, its name over its grey rubber keys, which
+ * step to the right row by row as a typewriter's do, and the rainbow across its corner.
+ * @param {Keyboard} keyboard
+ */
+function computerTop(keyboard) {
+  const W = 512, H = 316;
+  const c = document.createElement('canvas');
+  c.width = W;
+  c.height = H;
+  const g = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d'));
+  g.fillStyle = '#121114';
+  g.fillRect(0, 0, W, H);
+  g.fillStyle = '#e9e6df';
+  g.font = `600 22px ${SANS}`;
+  g.textBaseline = 'alphabetic';
+  g.fillText('sinclair', 24, 38);
+  const pitch = 43, key = 35, rowPitch = 48, stagger = [0, 0.5, 0.75, 0.25];
+  keyboard.rows.forEach((row, r) => {
+    row.forEach((k, i) => {
+      const x = 22 + (i + stagger[r % 4]) * pitch, y = 56 + r * rowPitch;
+      g.fillStyle = '#7d838b';
+      g.beginPath();
+      g.roundRect(x, y, key, key - 4, 5);
+      g.fill();
+      g.fillStyle = k.code === 'ShiftRight' ? '#ff5a4e' : '#ffffff';
+      const text = k.short ?? k.label;
+      g.font = `700 ${text.length > 1 ? 9 : 16}px ${SANS}`;
+      g.fillText(text, x + 4, y + (text.length > 1 ? 13 : 17));
+    });
+  });
+  // The rainbow: red, yellow, green and cyan, across the bottom right corner, and its name over it.
+  const bands = ['#e8312a', '#f2c418', '#3caa3c', '#21a8d8'];
+  bands.forEach((color, i) => {
+    g.fillStyle = color;
+    g.beginPath();
+    const x = W - 150 + i * 16;
+    g.moveTo(x, H);
+    g.lineTo(x + 16, H);
+    g.lineTo(x + 16 + 60, H - 60);
+    g.lineTo(x + 60, H - 60);
+    g.fill();
+  });
+  g.fillStyle = '#e9e6df';
+  g.font = `italic 600 20px ${SANS}`;
+  g.fillText('ZX Spectrum', 24, H - 22);
+  return c;
+}
+
 const LABELS = { play: 'Play', select: 'Select', start: 'Start', reset: 'Reset', stop: 'Stop' };
-const VR_HINTS = ['Left stick: the pad · A and B: A and B', 'X: Select · Y: Start'];
+/** How to play a console in VR, and to type on a computer. */
+const VR_PAD = ['Left stick: the pad · A and B: A and B', 'X: Select · Y: Start'];
+const VR_KEYS = ['Trigger: the key pointed at · CAPS SHIFT and SYMBOL SHIFT stay down for the next', 'Left X, Y: CAPS SHIFT, SYMBOL SHIFT · Right A: ENTER · B: DELETE'];
+const VR_STOPPED = ['Or point at its screen and pull the trigger'];
+/** The red of the Spectrum's SYMBOL SHIFT legends, and the green of its E mode's. */
+const RED = '#ff6b5e', GREEN = '#76d671';
 
 /**
- * The panel of a machine's buttons on the wall beside it, in the control panel's enamel
- * (panel.js): its name and what runs on it, Play, or while it runs Select, Start, Reset and Stop,
- * and how to play it in VR. Redrawn only when it changes.
+ * The panel of a machine's buttons on the wall beside it, in the control panel's enamel (panel.js):
+ * its name and what runs on it, Play, or while it runs a console's Select, Start, Reset and Stop, or
+ * a computer's Reset and Stop and its keys (its shifts lit while they are down for the next key);
+ * and how to play it in VR. Redrawn only when that changes; the button pointed at is lit by a pane
+ * over it, which moves.
  */
 export class StandPanel {
   /**
-   * @param {{ machine: import('./machines.js').Machine, about: string, width: number, height: number, color: THREE.Color, anisotropy?: number }} o
+   * @param {{ machine: import('./machines.js').Machine, about: string, layout: import('./stands.js').PanelLayout, width: number, height: number, color: THREE.Color, anisotropy?: number }} o
    */
-  constructor({ machine, about, width, height, color, anisotropy = 1 }) {
+  constructor({ machine, about, layout, width, height, color, anisotropy = 1 }) {
     this.machine = machine;
     this.about = about;
+    this.layout = layout;
     this.canvas = document.createElement('canvas');
-    this.canvas.width = STAND_PANEL_PX.width;
-    this.canvas.height = STAND_PANEL_PX.height;
+    this.canvas.width = layout.width;
+    this.canvas.height = layout.height;
     this.ctx = /** @type {CanvasRenderingContext2D} */ (this.canvas.getContext('2d'));
     this.texture = new THREE.CanvasTexture(this.canvas);
     this.texture.colorSpace = THREE.SRGBColorSpace;
     this.texture.anisotropy = anisotropy;
     this.mesh = new THREE.Mesh(new THREE.PlaneGeometry(width, height), new THREE.MeshBasicMaterial({ map: this.texture, color }));
     this.mesh.name = `panel ${machine.id}`;
+    // The button pointed at: a pane of the gold light over it, a canvas pixel being this many metres.
+    this.px = { x: width / layout.width, y: height / layout.height };
+    this.lit = new THREE.Mesh(new THREE.PlaneGeometry(1, 1), new THREE.MeshBasicMaterial({ color: new THREE.Color(GOLD).multiply(color), transparent: true, opacity: 0.32, depthWrite: false }));
+    this.lit.name = `pointed at ${machine.id}`;
+    this.lit.position.z = 0.002;
+    this.lit.visible = false;
+    this.mesh.add(this.lit);
     this.running = false;
     /** @type {string | null} */
     this.hover = null;
+    this.latched = 0;
     this._draw();
   }
 
   /**
-   * What it shows: whether its machine runs, and the button pointed at (or null). Each frame, so
-   * nothing is made for it.
+   * What it shows: whether its machine runs, the button pointed at (or null), and which of a
+   * computer's shifts are down for the next key (bits, in the order of its keyboard's shifts). Each
+   * frame, so nothing is made for it.
    * @param {boolean} running
    * @param {string | null} hover
+   * @param {number} [latched]
    */
-  set(running, hover) {
-    if (running === this.running && hover === this.hover) return;
+  set(running, hover, latched = 0) {
+    const redraw = running !== this.running || latched !== this.latched;
+    if (!redraw && hover === this.hover) return;
     this.running = running;
+    this.latched = latched;
     this.hover = hover;
-    this._draw();
+    if (redraw) this._draw();
+    this._light();
+  }
+
+  /** The pane over the button pointed at, or none. */
+  _light() {
+    const b = this.hover === null ? undefined : this.layout[this.running ? 'running' : 'stopped'].find((b) => b[0] === this.hover);
+    this.lit.visible = !!b;
+    if (!b) return;
+    const [, x0, y0, x1, y1] = b;
+    this.lit.scale.set((x1 - x0) * this.px.x, (y1 - y0) * this.px.y, 1);
+    this.lit.position.x = ((x0 + x1) / 2 - this.layout.width / 2) * this.px.x;
+    this.lit.position.y = (this.layout.height / 2 - (y0 + y1) / 2) * this.px.y;
   }
 
   _draw() {
-    const g = this.ctx, W = STAND_PANEL_PX.width;
-    enamel(g, W, STAND_PANEL_PX.height, 8);
+    const g = this.ctx, { width: W, height: H } = this.layout;
+    enamel(g, W, H, 8);
     g.textAlign = 'center';
     g.textBaseline = 'alphabetic';
-    g.fillStyle = GOLD;
-    fitText(g, this.machine.title, W - 72, 28, SERIF, '600 ');
-    g.fillText(this.machine.title, W / 2, 62);
-    g.fillStyle = '#b9a98d';
-    fitText(g, this.about, W - 72, 21, SANS);
-    g.fillText(this.about, W / 2, 96);
-    for (const [id, x0, y0, x1, y1] of STAND_BUTTONS[this.running ? 'running' : 'stopped']) {
-      const hover = this.hover === id;
+    const keyboard = this.machine.keyboard;
+    if (keyboard) {
+      // Its name on the left, its buttons on the right, its keys under them.
+      g.textAlign = 'left';
+      g.fillStyle = GOLD;
+      fitText(g, this.machine.title, 536, 30, SERIF, '600 ');
+      g.fillText(this.machine.title, 34, 56);
+      g.fillStyle = '#b9a98d';
+      fitText(g, this.about, 536, 20, SANS);
+      g.fillText(this.about, 34, 86);
+      g.textAlign = 'center';
+      this._drawKeys(keyboard);
+    } else {
+      g.fillStyle = GOLD;
+      fitText(g, this.machine.title, W - 72, 28, SERIF, '600 ');
+      g.fillText(this.machine.title, W / 2, 62);
+      g.fillStyle = '#b9a98d';
+      fitText(g, this.about, W - 72, 21, SANS);
+      g.fillText(this.about, W / 2, 96);
+    }
+    for (const [id, x0, y0, x1, y1] of this.layout[this.running ? 'running' : 'stopped']) {
+      if (!Object.hasOwn(LABELS, id)) continue; // a key, drawn above
       g.beginPath();
       g.roundRect(x0, y0, x1 - x0, y1 - y0, 12);
-      g.fillStyle = hover ? 'rgba(224,187,114,0.32)' : 'rgba(255,255,255,0.06)';
+      g.fillStyle = 'rgba(255,255,255,0.06)';
       g.fill();
       g.lineWidth = 2;
       g.strokeStyle = GOLD;
@@ -206,18 +323,90 @@ export class StandPanel {
       g.textBaseline = 'alphabetic';
     }
     g.fillStyle = '#b9a98d';
-    const lines = this.running ? VR_HINTS : ['Or point at its screen and pull the trigger'];
+    const lines = !this.running ? VR_STOPPED : keyboard ? VR_KEYS : VR_PAD;
+    const top = keyboard ? H - 68 : 318;
     lines.forEach((line, i) => {
       fitText(g, line, W - 72, 20, SANS);
-      g.fillText(line, W / 2, 318 + i * 30);
+      g.fillText(line, W / 2, top + i * 30);
     });
     this.texture.needsUpdate = true;
   }
+
+  /**
+   * A computer's keys, as on it: each with its legend and keyword in white, what SYMBOL SHIFT types
+   * in red on it, E mode's in green over that and in red under it. Dimmed while it is stopped (only
+   * Play is a button then); a shift down for the next key lit.
+   * @param {Keyboard} keyboard
+   */
+  _drawKeys(keyboard) {
+    const g = this.ctx, k = PANEL_KEYS;
+    g.save();
+    if (!this.running) g.globalAlpha = 0.5;
+    keyboard.rows.forEach((row, r) => {
+      row.forEach((key, c) => {
+        const x = k.x + c * k.pitchX, y = k.y + r * k.pitchY, w = k.width, h = k.height;
+        const shift = keyboard.shifts.indexOf(key.code);
+        const down = shift >= 0 && (this.latched & (1 << shift)) !== 0;
+        g.beginPath();
+        g.roundRect(x, y, w, h, 10);
+        g.fillStyle = down ? 'rgba(224,187,114,0.55)' : '#25242a';
+        g.fill();
+        g.lineWidth = 1.5;
+        g.strokeStyle = '#55525e';
+        g.stroke();
+        legends(g, key, x, y, w, h);
+      });
+    });
+    g.restore();
+  }
+}
+
+/**
+ * A key's legends in the box (x, y, w, h): E mode's over the rest, its own and its symbol, its word,
+ * and E mode's with SYMBOL SHIFT under them; a long legend (ENTER, CAPS SHIFT) in the middle.
+ * @param {CanvasRenderingContext2D} g
+ * @param {Key} key
+ * @param {number} x
+ * @param {number} y
+ * @param {number} w
+ * @param {number} h
+ */
+function legends(g, key, x, y, w, h) {
+  const small = (/** @type {string | undefined} */ text, /** @type {string} */ color, /** @type {number} */ at, size = 14) => {
+    if (!text) return;
+    g.fillStyle = color;
+    fitText(g, text, w - 8, size, SANS, '600 ');
+    g.fillText(text, x + w / 2, at);
+  };
+  small(key.ext, GREEN, y + 18, 13);
+  if (key.label.length > 1) {
+    g.fillStyle = key.code === 'ShiftRight' ? RED : '#f4f1ea';
+    const words = key.label.split(' ');
+    const size = 16;
+    g.font = `700 ${size}px ${SANS}`;
+    words.forEach((word, i) => g.fillText(word, x + w / 2, y + h / 2 + 6 + (i - (words.length - 1) / 2) * (size + 2)));
+  } else {
+    g.textAlign = 'left';
+    g.fillStyle = '#f4f1ea';
+    g.font = `700 30px ${SANS}`;
+    g.fillText(key.label, x + 10, y + 52);
+    g.textAlign = 'right';
+    if (key.symbol) {
+      // In the space right of its legend: a word (STOP, THEN) smaller.
+      const from = x + 10 + g.measureText(key.label).width + 5;
+      g.fillStyle = RED;
+      fitText(g, key.symbol, x + w - 8 - from, 20, SANS, '700 ');
+      g.fillText(key.symbol, x + w - 8, y + 50);
+    }
+    g.textAlign = 'center';
+  }
+  small(key.word, '#dcd6c8', y + 74, 13);
+  small(key.extSymbol, RED, y + 94, 13);
 }
 
 /** Sets the largest font, from `size` px down, at which `text` fits `width`. */
 function fitText(/** @type {CanvasRenderingContext2D} */ g, /** @type {string} */ text, /** @type {number} */ width, /** @type {number} */ size, family = SANS, weight = '') {
-  for (let s = size; s >= 12; s--) {
+  for (let s = size; s >= 9; s--) {
     g.font = `${weight}${s}px ${family}`;
     if (g.measureText(text).width <= width) return;
   }

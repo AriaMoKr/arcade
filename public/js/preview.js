@@ -7,8 +7,8 @@
 //     at eye height and 56 % up), so through the doorway it looks like the room with some parallax.
 //     Outside's preview.js.
 //   social.jpg, 1280 × 640, for the link-preview tags (index.html og:image): the room from the
-//     corner across from the doorway, so the doorway and the window are both in it (arcade's, from
-//     the far corner, so its machine is too).
+//     corner across from the doorway, so the doorway and the window are both in it (arcade's, down
+//     the room from the doorway, so its machines are).
 import * as THREE from 'three';
 import { EYE } from './room.js';
 
@@ -30,12 +30,14 @@ export function previewView(p = PREVIEW, from = { x: 0, y: 0, z: -0.6 }) {
  * side (not so far that the doorway's picture is seen edge on), looking back across the room to the
  * doorway's wall. With the window in a side wall, the side across from it, so the window is in view
  * along with the doorway; with the window in the far wall, from beside the doorway, looking at it.
- * With `also` (a point to show too: arcade's machine, against the window's wall), from that side's
- * far corner, looking between the doorway and it. Pure.
+ * With `also` (points to show too: arcade's machines, against both side walls near the far one,
+ * which no view of the doorway takes in), from just inside the doorway, a little raised and to the
+ * side across from the window, looking down the room past them, the window's side a little nearer
+ * the middle. Pure.
  * @param {object} L the room's layout (room.js layoutRoom)
- * @param {{ x: number, y: number, z: number } | null} [also]
+ * @param {{ x: number, y: number, z: number }[]} [also]
  */
-export function socialView(L, also = null) {
+export function socialView(L, also = []) {
   const inset = 0.55;
   const side = L.window.wall === 'right' ? -1 : 1; // the camera's side: across from a side window
   if (L.window.wall === 'far') {
@@ -46,10 +48,12 @@ export function socialView(L, also = null) {
   }
   const x = side * Math.min(L.width / 2 - inset, Math.max(L.door.width * 0.8, L.width * 0.15));
   const target = { x: -side * L.door.width * 0.9, y: L.door.height * 0.55, z: 0 };
-  if (also) {
+  if (also.length) {
+    const n = also.length;
+    const mid = also.reduce((m, p) => ({ x: m.x + p.x / n, y: m.y + p.y / n, z: m.z + p.z / n }), { x: 0, y: 0, z: 0 });
     return {
-      eye: { x: side * (L.width / 2 - inset), y: EYE, z: L.z1 + inset },
-      target: { x: (target.x + also.x) / 2, y: (target.y + also.y) / 2, z: (target.z + also.z) / 2 },
+      eye: { x: side * 0.5, y: EYE + 0.35, z: -0.75 },
+      target: { x: mid.x - side * 0.35, y: mid.y, z: mid.z - 0.9 },
     };
   }
   return { eye: { x, y: EYE, z: L.z1 + inset }, target };
@@ -104,7 +108,7 @@ export function renderPreview(renderer, scene, camera, { hide = [], from, view =
 }
 
 /** The social picture of the room, in a canvas; `also` as socialView's. */
-export function renderSocial(renderer, scene, camera, L, { hide = [], view = SOCIAL, also = null } = {}) {
+export function renderSocial(renderer, scene, camera, L, { hide = [], view = SOCIAL, also = [] } = {}) {
   const v = socialView(L, also);
   const shot = new THREE.PerspectiveCamera(view.fov, view.width / view.height, 0.05, 150);
   shot.position.set(v.eye.x, v.eye.y, v.eye.z);

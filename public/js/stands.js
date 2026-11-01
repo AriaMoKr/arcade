@@ -1,11 +1,13 @@
 // Where the room's machines stand (README, "The machines"): each on the floor against a wall, its
 // parts boxes a ray meets and a visitor walks round, its screen, a panel of its buttons on the wall
-// beside it, and where to stand to play it. Pure, as room.js is, so the tests run it in Node; the
-// page builds the stands from it (stands-scene.js) and asks it what a ray meets (controls.js).
+// beside it (a computer's has its keys), and where to stand to play it. Pure, as room.js is, so the
+// tests run it in Node; the page builds the stands from it (stands-scene.js) and asks it what a ray
+// meets (controls.js).
 //
 // A stand is laid out in its wall's own terms: `a` along the wall, to the right facing it, from the
 // stand's middle; `y` up from the floor; `d` out from the wall into the room. Metres.
 import { MARGIN } from './room.js';
+import { machineById } from './machines.js';
 
 /** @type {(v: number, lo: number, hi: number) => number} */
 const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
@@ -21,8 +23,11 @@ const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
  * @property {{ a: number, y: number, d: number, width: number, height: number }} screen the machine's
  *   screen: its middle, on the face it is on, and its size
  * @property {{ a: [number, number], y: [number, number], d: number }} panel the panel of its buttons,
- *   on the wall
- * @property {number} distance how far in front of the screen one stands to play
+ *   on the wall, as wide over high as its canvas (panelLayout)
+ * @property {{ a: number, d: number }} front where one stands to play it, facing the wall: in front
+ *   of its screen, or between the screen and a computer's keys on the panel
+ * @property {{ a: [number, number], y: number, d: [number, number] }} [keys] a computer's keyboard,
+ *   drawn on the top of the part it is
  * @property {string} about what runs on it, on the panel and in the card
  */
 /**
@@ -46,18 +51,47 @@ export const STANDS = [
     ],
     screen: { a: -0.12, y: 1.0, d: 0.471, width: 0.54, height: 0.405 },
     panel: { a: [0.25, 0.55], y: [1.09, 1.35], d: 0.012 },
-    distance: 1.0,
+    front: { a: -0.12, d: 1.471 },
     about: 'Concentration Room, a memory game',
+  },
+  {
+    // The ZX Spectrum on a desk against the left-hand wall, across the room from the NES: a portable
+    // TV on the desk, the computer in front of it, and its keyboard large on the wall beside them, to
+    // type on in VR. One plays it between the two.
+    machine: 'spectrum',
+    wall: 'left',
+    at: 2.5,
+    parts: [
+      { part: 'desk', a: [-0.85, 0.85], y: [0.68, 0.72], d: [0, 0.7], color: '#5e412e' },
+      { part: 'desk-left', a: [-0.85, -0.8], y: [0, 0.68], d: [0.02, 0.68], color: '#4c3426' },
+      { part: 'desk-right', a: [0.8, 0.85], y: [0, 0.68], d: [0.02, 0.68], color: '#4c3426' },
+      { part: 'desk-back', a: [-0.8, 0.8], y: [0.3, 0.68], d: [0.02, 0.05], color: '#4c3426' },
+      { part: 'tv', a: [-0.8, -0.24], y: [0.72, 1.2], d: [0.06, 0.5], color: '#2c2a2e' },
+      // 233 × 144 × 30 mm, as the 48K is.
+      { part: 'computer', a: [-0.64, -0.407], y: [0.72, 0.75], d: [0.52, 0.664], color: '#1b1a1d' },
+    ],
+    screen: { a: -0.52, y: 0.97, d: 0.501, width: 0.4, height: 0.3 },
+    keys: { a: [-0.64, -0.407], y: 0.751, d: [0.52, 0.664] },
+    panel: { a: [-0.14, 0.82], y: [0.9, 1.5], d: 0.012 },
+    front: { a: -0.09, d: 1.4 },
+    about: 'Sinclair BASIC, to write programs in',
   },
 ];
 
 /**
- * The panel's canvas, and its buttons on it as [id, x0, y0, x1, y1] in canvas pixels (y down): Play
- * while the machine is stopped; while it runs, its own Select and Start, Reset, and Stop.
+ * A button on a panel: its id and its corners in the panel's canvas pixels (y down).
+ * @typedef {[id: string, x0: number, y0: number, x1: number, y1: number]} PanelButton
  */
-export const STAND_PANEL_PX = { width: 480, height: 416 };
-/** @type {{ stopped: [id: string, x0: number, y0: number, x1: number, y1: number][], running: [id: string, x0: number, y0: number, x1: number, y1: number][] }} */
-export const STAND_BUTTONS = {
+/**
+ * The panel beside a machine: its canvas's size, and its buttons while the machine is stopped and
+ * while it runs.
+ * @typedef {{ width: number, height: number, stopped: PanelButton[], running: PanelButton[] }} PanelLayout
+ */
+
+/** A console's panel: Play while it is stopped; while it runs, its own Select and Start, Reset, and Stop. @type {PanelLayout} */
+const CONSOLE_PANEL = {
+  width: 480,
+  height: 416,
   stopped: [['play', 32, 118, 448, 196]],
   running: [
     ['select', 32, 118, 232, 184],
@@ -67,15 +101,36 @@ export const STAND_BUTTONS = {
   ],
 };
 
+/** On a computer's panel, its keys: ten to a row, four rows, from (x, y), each width × height. */
+export const PANEL_KEYS = { x: 32, y: 112, pitchX: 96, pitchY: 108, width: 88, height: 100 };
+
 /**
- * The panel's button at (u, v) (0…1 from its bottom left, as castStands reports), or null.
+ * The panel beside machine m: a console's, or a computer's, 1024 × 640: its name and Play at the
+ * top, or while it runs Reset and Stop there, and its keys below (PANEL_KEYS), each a button while
+ * it runs ('key:' and MAME's key).
+ * @param {import('./machines.js').Machine | undefined} m
+ * @returns {PanelLayout}
+ */
+export function panelLayout(m) {
+  if (!m?.keyboard) return CONSOLE_PANEL;
+  const k = PANEL_KEYS;
+  const keys = m.keyboard.rows.flatMap((row, r) => row.map((key, c) => {
+    const x = k.x + c * k.pitchX, y = k.y + r * k.pitchY;
+    return /** @type {PanelButton} */ ([`key:${key.code}`, x, y, x + k.width, y + k.height]);
+  }));
+  return { width: 1024, height: 640, stopped: [['play', 592, 24, 992, 88]], running: [['reset', 592, 24, 784, 88], ['stop', 800, 24, 992, 88], ...keys] };
+}
+
+/**
+ * A panel's button at (u, v) (0…1 from its bottom left, as castStands reports), or null.
+ * @param {PanelLayout} layout the stand's (layoutStands's buttons)
  * @param {number} u
  * @param {number} v
  * @param {boolean} running
  */
-export function standButtonAt(u, v, running) {
-  const x = u * STAND_PANEL_PX.width, y = (1 - v) * STAND_PANEL_PX.height;
-  for (const b of STAND_BUTTONS[running ? 'running' : 'stopped']) {
+export function standButtonAt(layout, u, v, running) {
+  const x = u * layout.width, y = (1 - v) * layout.height;
+  for (const b of layout[running ? 'running' : 'stopped']) {
     if (x >= b[1] && x <= b[3] && y >= b[2] && y <= b[4]) return b[0];
   }
   return null;
@@ -97,7 +152,7 @@ export function wallTerms(L, wall, at) {
 /**
  * The stands in the room: each with its wall's terms, its parts as boxes in the room's coordinates
  * (min and max corners), its footprint on the floor, its screen's middle, where to stand to play it
- * (facing the screen) and its panel.
+ * (facing the wall), its panel and the buttons on it, and a computer's keys on its top.
  * @param {import('./room.js').Layout} L
  * @param {Stand[]} [stands]
  */
@@ -118,13 +173,15 @@ export function layoutStands(L, stands = STANDS) {
       z0: Math.min(...boxes.map((b) => b.min[2])), z1: Math.max(...boxes.map((b) => b.max[2])),
     };
     const sc = at(s.screen.a, s.screen.y, s.screen.d);
+    const fp = at(s.front.a, 0, s.front.d);
     const m = MARGIN + 0.05;
-    const fx = clamp(sc[0] + w.nx * s.distance, L.x0 + m, L.x1 - m), fz = clamp(sc[2] + w.nz * s.distance, L.z1 + m, -m);
     return {
       machine: s.machine, wall: s.wall, about: s.about, ...w, at, boxes, foot,
       screen: { x: sc[0], y: sc[1], z: sc[2], width: s.screen.width, height: s.screen.height },
       panel: s.panel,
-      front: { x: fx, z: fz, yaw: Math.atan2(w.nx, w.nz) },
+      buttons: panelLayout(machineById(s.machine)),
+      keys: s.keys ?? null,
+      front: { x: clamp(fp[0], L.x0 + m, L.x1 - m), z: clamp(fp[2], L.z1 + m, -m), yaw: Math.atan2(w.nx, w.nz) },
     };
   });
 }
@@ -261,8 +318,9 @@ export function clampStands(S, x, z, out = { x: 0, z: 0 }) {
 /**
  * What is wrong with the stands in this room, in words (none: []): each for a machine there is,
  * on a wall a stand can be against, inside the room and off its doorway's wall, clear of the window
- * and of the others, with its screen on a face of its parts, its panel on the wall clear of them,
- * and the place to play it somewhere to stand.
+ * and of the others, with its screen on a face of its parts, its panel on the wall clear of them and
+ * the shape of its canvas, a computer's keys on the top of a part, and the place to play it
+ * somewhere to stand.
  * @param {import('./room.js').Layout} L
  * @param {string[]} machines the machines' ids (machines.js)
  * @param {Stand[]} [stands]
@@ -290,6 +348,9 @@ export function standProblems(L, machines, stands = STANDS) {
     const st = stands[i];
     if (!st.parts.some((p) => Math.abs(p.d[1] - st.screen.d) < 0.01 && st.screen.a - st.screen.width / 2 >= p.a[0] && st.screen.a + st.screen.width / 2 <= p.a[1] && st.screen.y - st.screen.height / 2 >= p.y[0] && st.screen.y + st.screen.height / 2 <= p.y[1])) say('its screen is not on the face of one of its parts');
     if (st.parts.some((p) => p.a[0] < st.panel.a[1] && p.a[1] > st.panel.a[0] && p.y[0] < st.panel.y[1] && p.y[1] > st.panel.y[0])) say('its panel is behind one of its parts');
+    if (Math.abs((st.panel.a[1] - st.panel.a[0]) / (st.panel.y[1] - st.panel.y[0]) - s.buttons.width / s.buttons.height) > 0.01) say("its panel is not the shape of its buttons' canvas");
+    const keys = st.keys;
+    if (keys && !st.parts.some((p) => Math.abs(p.y[1] - keys.y) < 0.01 && keys.a[0] >= p.a[0] && keys.a[1] <= p.a[1] && keys.d[0] >= p.d[0] && keys.d[1] <= p.d[1])) say('its keys are not on the top of one of its parts');
     const c = clampStands(S, s.front.x, s.front.z);
     if (Math.hypot(c.x - s.front.x, c.z - s.front.z) > 1e-9 || s.front.x < L.x0 + MARGIN || s.front.x > L.x1 - MARGIN || s.front.z < L.z1 + MARGIN || s.front.z > -MARGIN) say('where one plays it is not somewhere to stand');
   });

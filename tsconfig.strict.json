@@ -6,5 +6,5 @@
   "compilerOptions": {
     "strict": true
   },
-  "include": ["public/js/config.js", "public/js/presence.js", "public/js/room.js", "public/js/controls.js", "public/js/stands.js", "public/js/machines.js", "public/js/emulator.js", "public/js/mame-frame.js", "types/*.d.ts"]
+  "include": ["public/js/config.js", "public/js/presence.js", "public/js/room.js", "public/js/controls.js", "public/js/stands.js", "public/js/machines.js", "public/js/keyboards.js", "public/js/screen-keys.js","public/js/emulator.js", "public/js/mame-frame.js", "types/*.d.ts"]
 }

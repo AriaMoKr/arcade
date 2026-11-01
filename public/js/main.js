@@ -1,7 +1,7 @@
 // arcade: a room behind the Hallway's door, an arcade of old computers, game consoles and arcade
-// machines, so far a Nintendo Entertainment System on its stand (stands.js), played as play.js
-// says; the rest is the room RoomTemplateEmpty makes (what a room made from it changes is
-// config.js). Coming in through the door, the visitor
+// machines, so far a Nintendo Entertainment System and a ZX Spectrum on their stands (stands.js),
+// played as play.js says; the rest is the room RoomTemplateEmpty makes (what a room made from it
+// changes is config.js). Coming in through the door, the visitor
 // carries on from how they went through it (the Hallway's link: where in the doorway, which way
 // they faced); behind them the doorway glows and shows the hall, and going back through it leads
 // back to the Hallway, in front of this room's door (common's door.js). In the room: a floor, four
@@ -22,7 +22,7 @@ import { setAnisotropy } from './textures.js';
 import { renderPreview, renderSocial, previewView, socialView } from './preview.js';
 import { STANDS, layoutStands } from './stands.js';
 import { buildStands } from './stands-scene.js';
-import { machineById } from './machines.js';
+import { machineButtons, machineById } from './machines.js';
 import { Play } from './play.js';
 import { hallLink, hallwayViews, keptWay, leaveUrl, readVisit, wayBack, withoutVisit } from 'common/door.js';
 import { Fade } from 'common/fade.js';
@@ -98,8 +98,11 @@ function pieceUrl(i) {
 
 let together = null; // the shared session, made once the scene is (below)
 let leftBy = -1; // the piece the visitor went by, else -1 (the doorway)
-// The machines on their stands, by name, and what runs on each.
-const machines = STANDS.map((s) => ({ title: machineById(s.machine).title, about: s.about }));
+// The machines on their stands, by name, what runs on each, and its buttons in the card.
+const machines = STANDS.map((s) => {
+  const m = machineById(s.machine);
+  return { title: m.title, about: s.about, buttons: machineButtons(m, tv) };
+});
 const overlay = new Overlay(ROOM, way, {
   href: () => leaveUrl(way, together?.room ?? null),
   pieceHref: pieceUrl,
@@ -549,9 +552,9 @@ window.__room = {
   preview(quality = 0.9) {
     return { jpeg: renderPreview(renderer, scene, camera, { hide: [fade.mesh, vignette.mesh] }).toDataURL('image/jpeg', quality), params: previewView().params };
   },
-  /** The picture for link previews (preview.js), as a data: URL, with where it is taken from: the machine in it too. */
+  /** The picture for link previews (preview.js), as a data: URL, with where it is taken from: the machines in it too. */
   social(quality = 0.88) {
-    const also = S[0]?.screen ?? null;
+    const also = S.map((s) => s.screen);
     return { jpeg: renderSocial(renderer, scene, camera, L, { hide: [fade.mesh, vignette.mesh], also }).toDataURL('image/jpeg', quality), view: socialView(L, also) };
   },
   tick(dt = 1 / 60, n = 1) {

@@ -7,7 +7,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ID } from '../public/js/config.js';
-import { MACHINES, RESET, machineById, mameArgs } from '../public/js/machines.js';
+import { MACHINES, RESET, codesOf, machineButtons, machineById, machineCodes, mameArgs } from '../public/js/machines.js';
 import { keyOf, pace } from '../public/js/emulator.js';
 
 const mame = join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'mame');
@@ -66,10 +66,34 @@ test("only the machine's own keys reach MAME, never one of MAME's own controls (
   const ui = new Set(['Escape', 'Tab', 'ScrollLock', 'Pause', 'Backquote', 'Insert', 'Delete', 'PageUp', 'PageDown', 'Home', 'End', ...Array.from({ length: 12 }, (_, i) => `F${i + 1}`)]);
   for (const m of MACHINES) {
     for (const [from, to] of Object.entries(m.keys)) {
-      assert.ok(!ui.has(to), `${m.id}: ${from} would press ${to}`);
+      assert.ok(codesOf(to).length > 0, `${m.id}: ${from} presses nothing`);
+      for (const code of codesOf(to)) assert.ok(!ui.has(code), `${m.id}: ${from} would press ${code}`);
       assert.ok(!ui.has(from), `${m.id}: ${from} is the page's`);
     }
+    for (const code of machineCodes(m)) assert.ok(!ui.has(code), `${m.id} takes ${code}`);
   }
+});
+
+test("a computer's keys are its keyboard's, and its card has Reset and Stop; a console's, its Start and Select too (on a TV, its A and B)", () => {
+  for (const m of MACHINES) {
+    const codes = machineCodes(m);
+    assert.equal(new Set(codes).size, codes.length);
+    for (const to of Object.values(m.keys)) for (const code of codesOf(to)) assert.ok(codes.includes(code), code);
+    if (m.keyboard) {
+      for (const k of m.keyboard.rows.flat()) assert.ok(codes.includes(k.code), k.code);
+      assert.ok(!m.pad, `${m.id}: a pad and a keyboard`);
+      assert.deepEqual(machineButtons(m), ['reset', 'stop']);
+      assert.deepEqual(machineButtons(m, true), ['reset', 'stop']);
+    }
+    if (m.pad) {
+      assert.deepEqual(machineButtons(m), ['start', 'select', 'reset', 'stop']);
+      assert.deepEqual(machineButtons(m, true), ['start', 'select', 'a', 'b', 'reset', 'stop']);
+    }
+  }
+  // Backspace and the arrows are the Spectrum's own: CAPS SHIFT with 0, and with 5 to 8.
+  const spectrum = /** @type {import('../public/js/machines.js').Machine} */ (machineById('spectrum'));
+  assert.deepEqual(codesOf(spectrum.keys.Backspace), ['ShiftLeft', 'Digit0']);
+  assert.deepEqual(['ArrowLeft', 'ArrowDown', 'ArrowUp', 'ArrowRight'].map((k) => codesOf(spectrum.keys[k])[1]), ['Digit5', 'Digit6', 'Digit7', 'Digit8']);
 });
 
 test("a console's pad presses MAME's keys for its eight controls, its own keys among them; MAME's reset only the Reset button's", () => {
@@ -80,14 +104,14 @@ test("a console's pad presses MAME's keys for its eight controls, its own keys a
     const pad = /** @type {import('../public/js/machines.js').Pad} */ (m.pad);
     assert.deepEqual(Object.keys(pad).sort(), ['a', 'b', 'down', 'left', 'right', 'select', 'start', 'up']);
     assert.equal(new Set(Object.values(pad)).size, 8, `${m.id}: two controls press one key`);
-    const own = new Set(Object.values(m.keys));
+    const own = new Set(Object.values(m.keys).flatMap(codesOf));
     for (const [control, code] of Object.entries(pad)) {
       assert.ok(!ui.has(code), `${m.id}: ${control} would press ${code}`);
       assert.ok(own.has(code), `${m.id}: ${control} presses ${code}, which none of its keys does`);
     }
   }
   assert.equal(RESET, 'F3');
-  for (const m of MACHINES) assert.ok(!Object.values(m.keys).includes(RESET), `${m.id}: a key resets it`);
+  for (const m of MACHINES) assert.ok(!machineCodes(m).includes(RESET), `${m.id}: a key resets it`);
 });
 
 test("a key event's key for its code, as a US keyboard gives it", () => {

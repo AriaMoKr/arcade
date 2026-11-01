@@ -9,8 +9,8 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ROOM, hallwayDoor } from '../public/js/config.js';
 import { PANEL_BUTTONS } from '../public/js/room.js';
-import { STANDS, STAND_BUTTONS } from '../public/js/stands.js';
-import { machineById } from '../public/js/machines.js';
+import { STANDS, panelLayout } from '../public/js/stands.js';
+import { machineButtons, machineById } from '../public/js/machines.js';
 import { installDom } from './helpers/dom.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'public');
@@ -118,12 +118,16 @@ test('every button of the control panel in 3D is a control on the page too, doin
   }
 });
 
-test("every button of a machine's panel on the wall is a control in the card too, doing the same, and Sound is there", async () => {
+test("every button of a machine's panel on the wall is a control on the page too, doing the same, and Sound is there", async () => {
   for (const tv of [false, true]) {
     const remove = installDom();
     try {
       const { Overlay } = await import('../public/js/overlay.js');
-      const machines = STANDS.map((s) => ({ title: machineById(s.machine).title, about: s.about }));
+      const { ScreenKeys } = await import('../public/js/screen-keys.js');
+      const machines = STANDS.map((s) => {
+        const m = machineById(s.machine);
+        return { title: m.title, about: s.about, buttons: machineButtons(m, tv) };
+      });
       const o = new Overlay(ROOM, { url: 'https://ariamokr.github.io/hallway/', label: '← Hallway', title: 'Back to the Hallway' }, { tv, machines });
       const did = [];
       o.onMachine = (i) => did.push(`play:${i}`);
@@ -131,30 +135,49 @@ test("every button of a machine's panel on the wall is a control in the card too
       const inCard = (e) => o.card.findAll((c) => c === e).length === 1;
       for (let i = 0; i < STANDS.length; i++) {
         const m = machineById(STANDS[i].machine);
+        const panel = panelLayout(m);
         // Stopped: Play is the machine's button, which says what it is.
         assert.ok(inCard(o.machineButtons[i]) && !o.machineButtons[i].hidden);
         assert.equal(o.machineButtons[i].textContent, m.title);
         assert.ok(o.machineControls[i].hidden);
-        for (const [id] of STAND_BUTTONS.stopped) {
+        for (const [id] of panel.stopped) {
           did.length = 0;
           assert.equal(id, 'play');
           o.machineButtons[i].fire('click');
           assert.deepEqual(did, [`play:${i}`]);
         }
-        // Running: its buttons in place of that one, each as on the panel; on a TV its A and B too.
+        // Running: its buttons in place of that one, each as on the panel; on a TV a console's A and B
+        // too. A computer's keys are under its picture (screen-keys.js), each pressing the same key.
         o.setPlaying(i, m);
         assert.ok(o.machineButtons[i].hidden && !o.machineControls[i].hidden && inCard(o.machineControls[i]));
+        // Named over them, so that they are told from another machine's button.
+        assert.ok(!o.machineNames[i].hidden && o.machineNames[i].textContent === m.title);
+        assert.ok(o.machineNames.every((n, j) => n.hidden === (j !== i)));
         const chips = new Map(o.machineControls[i].children.map((b) => [b.textContent.toLowerCase(), b]));
-        for (const [id] of STAND_BUTTONS.running) {
+        const keys = m.keyboard ? new ScreenKeys(m.keyboard, `The ${m.title}'s keyboard`) : null;
+        /** @type {string[]} */
+        const pressed = [];
+        if (keys) keys.onKey = (key, down) => pressed.push(`key:${key.code}:${down}`);
+        for (const [id] of panel.running) {
+          if (id.startsWith('key:')) {
+            const b = keys?.buttons[keys.keys.findIndex((k) => `key:${k.code}` === id)];
+            assert.ok(b, `no ${id} on the screen`);
+            pressed.length = 0;
+            b.fire('click', { detail: 0 }); // a press that isn't a finger's or the mouse's: Enter, a screen reader
+            assert.deepEqual(pressed, [`${id}:null`]);
+            continue;
+          }
           did.length = 0;
           assert.ok(chips.has(id), `no ${id} in the card`);
           chips.get(id).fire('click');
           assert.deepEqual(did, [`${id}:${i}`]);
         }
-        assert.equal(chips.has('a') && chips.has('b'), tv);
+        assert.equal(keys?.keys.length ?? 0, panel.running.filter(([id]) => id.startsWith('key:')).length);
+        assert.deepEqual([...chips.keys()].filter((id) => id !== 'a' && id !== 'b').sort(), panel.running.map(([id]) => id).filter((id) => !id.startsWith('key:')).sort());
+        assert.equal(chips.has('a') && chips.has('b'), tv && !!m.pad);
         // And how to play it, then how to walk again.
         o.setHint(tv ? 'tv' : 'mouse');
-        assert.match(o.hint.textContent, tv ? /^Arrows: its pad · OK: its A/ : /Esc: stop$/);
+        assert.match(o.hint.textContent, !tv ? /Esc: stop$/ : m.keyboard ? /^Arrows: from key to key · OK: press it/ : /^Arrows: its pad · OK: its A/);
         o.setPlaying(-1);
         assert.ok(!o.machineButtons[i].hidden && o.machineControls[i].hidden);
         assert.match(o.hint.textContent, /a machine/);

@@ -8,18 +8,21 @@ arcade: a WebXR room behind one of the Hallway's doors, becoming an arcade of ol
 consoles and arcade machines (three.js 0.186, plain ES modules, no bundler or build step). It is the
 room AriaMoKr/RoomTemplateEmpty makes (a checkout at `../RoomTemplateEmpty`): a floor, four walls, a
 ceiling with lamps, a window in the right-hand wall onto common's afternoon sky, the doorway back to
-the Hallway, and the control panel beside it; and so far one machine, the NES with Concentration
-Room, on its stand against the right-hand wall past the window. Its own are `public/js/config.js`
+the Hallway, and the control panel beside it; and so far two machines, the NES with Concentration
+Room, on its stand against the right-hand wall past the window, and across from it, on a desk
+against the left-hand wall, the ZX Spectrum 48K with its BASIC. Its own are `public/js/config.js`
 (7 × 9 m, violet walls, a dark ceiling, the magenta glow), the page's title and link-preview tags,
 package.json, `main.js`'s opening comment, the pictures, these docs and the machines (below); the
 rest is the template's code, which follows the Hallway (https://ariamokr.github.io/hallway/,
 AriaMoKr/hallway, a checkout at `../hallway`) and outside (AriaMoKr/outside, `../outside`), said
 so at the top of each such file. The machines (README, "The machines"), agreed with the user: MAME
 0.289 built for the web (`public/mame/`, by `tools/build-mame.sh`) runs the NES with Concentration
-Room, the ZX Spectrum 48K and Breakout on the bare test page `public/mame/test.html`, and the NES in
-the room, played on a screen (its picture over the view) or in VR (on its TV) with the keyboard, a
-phone's touch pad, a gamepad, the VR controllers or the TV's remote. They come into the room a step
-at a time, each checked and pushed: the NES (done), then the Spectrum with its keyboard, then an
+Room, the ZX Spectrum 48K and Breakout on the bare test page `public/mame/test.html`, and the NES and
+the Spectrum in the room, played on a screen (its picture over the view) or in VR (on its TV) with
+the keyboard, a phone's touch pad (the NES's) or its keys on the screen (the Spectrum's, on every
+screen), a gamepad, the VR controllers (and the Spectrum's keys on the panel beside it) or the TV's
+remote. They come into the room a step at a time, each checked and pushed: the NES and the Spectrum
+with its keyboard (done), then an
 arcade cabinet holding an NES running Thwaite, the user's choice, as Breakout can't keep up on the
 web (README, "How fast"), with Breakout's driver then dropped from MAME's build. `public/` is the
 whole site. The user asked for the hallway to be left alone, so change `../hallway` only when
@@ -102,10 +105,13 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   radio buttons and checkboxes), the hint (`#hint`, kept clear of the buttons and of `hintClear`,
   `_placeHint`), Wave, Copy invite link, Fullscreen, Enter VR, the aiming dot, and toasts
   (`role="status"`, polite). With `machines`, the card's Machines (a button per machine, `onMachine`;
-  while it runs, its buttons instead, `MACHINE_BUTTONS`, `onMachineButton`, and on a TV A and B too;
-  Sound, `onSound`; MAME's licence and source, `MAME_SOURCE`), `setPlaying(i, machine)` (the card,
-  the focus and the hints, `playHints`, while one runs; `.machines.running`), and the room's hints
-  `MACHINE_HINTS`. With
+  while it runs, its name, `machineNames`, and its buttons instead, machines.js's `machineButtons`
+  labelled by `MACHINE_BUTTONS`, `onMachineButton`; Sound, `onSound`; MAME's licence and source,
+  `MAME_SOURCE`), `setPlaying(i, machine, focus)` (the card, the focus, to `focus` (a computer's
+  picture, for its keys) or the first button, and the hints, `playHints`, a console's or a
+  computer's, while one runs; `.machines.running`), and the room's hints `MACHINE_HINTS`. Outside a
+  TV, a hint the card would cover moves beside it when there is room (`_placeHint`, a phone held
+  sideways). With
   `tv`, Wave is in the card and the invite is text there (`inviteText`), and the hints are the
   remote's (`tv`, `tv-card`). With pieces, the hints name the pictures (`PIECE_HINTS`, else an
   empty room's `HINTS`), and on a TV `setAimed(i)` (main.js's frame loop, the piece under the dot)
@@ -113,8 +119,9 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   hint is `aria-hidden` (out of TalkBack's reading order) but stays the canvas's description
   (`aria-describedby`). `presence.js`: the session's status and notices in words.
 - `preview.js`: the two pictures (`renderPreview`, hung as the hallway hangs its doorways', and
-  `renderSocial`, from `socialView`; with `also`, main.js's the NES's screen, from the far corner
-  so the machine is in it with the doorway and the window).
+  `renderSocial`, from `socialView`; with `also`, main.js's the stands' screens, from just inside
+  the doorway looking down the room at both machines and the window, as they face each other near
+  the far wall and no view takes them in with the doorway).
 - `main.js`: the visit and the way back (common's `door.js`; `<id>.visit` in sessionStorage),
   arrival (at the doorway, or back from a piece's link, `?from=<piece id>` with no `back`, in front
   of it with the kept way back), `go(piece)` (fade, then `location.assign`: the way back, or the
@@ -134,18 +141,22 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   beside the card). While a machine plays on a screen, `html.playing`: `#play` over the view (its
   picture pixelated, `.machine-host` for MAME's frame, 0 × 0), the card narrower and holding only
   the way back and the machine's buttons, and on a touch screen `.touch-pad` (two rows, one from
-  561 px wide).
+  561 px wide). A computer's keys on the screen, `.machine-keys` (a grid of `--cols`, sized by
+  `--pitch`; `.tight` shows a key's own legend alone, `.roomy` the E-mode ones too), a key held or a
+  shift down lit, and with a gamepad or the remote the current key ringed (`.nav .current`).
 - The machines. `machines.js`: pure, `MACHINES` (each a `Machine`: MAME's driver, the files it
   reads, fetched into its file system, its screen in pixels and the aspect it is shown at, the
-  visitor's keys and MAME's they press, never one of MAME's UI keys, tested; a console's `pad`, its
-  controls by name), `RESET` (MAME's soft reset, F3, the room's Reset button's alone),
-  `machineById`, `mameArgs` (MAME's command line: `-video accel -renderdriver software`, as MAME's
+  visitor's keys and MAME's they press (a key or keys together: the Spectrum's Backspace is CAPS
+  SHIFT and 0), never one of MAME's UI keys, tested; a console's `pad`, its controls by name; a
+  computer's `keyboard`), `RESET` (MAME's soft reset, F3, the room's Reset button's alone),
+  `machineById`, `codesOf`, `machineCodes` (every key of MAME's a machine takes), `machineButtons`
+  (the card's while it runs), `mameArgs` (MAME's command line: `-video accel -renderdriver software`, as MAME's
   web build has no `soft` video; `-nothrottle`, as the page paces it; `-sound js` at the page's
   sample rate). `emulator.js`: `Emulator`, one machine at a time in an iframe of its own
   (`public/mame/machine.html`), `step(now)` from the page's frame loop (`pace`: 60 steps a second at
   any display rate, at most 3 owed, so it keeps time down to 20 page frames a second),
-  `key(code, down)` (a KeyboardEvent made in the frame, on MAME's canvas), `tap(code)` (pressed for
-  6 steps), the page's one AudioContext (a master gain for Sound, a gain per machine; `prime()` from
+  `key(code, down)` (a KeyboardEvent made in the frame, on MAME's canvas), `tap(code, steps)`
+  (pressed, then let go after that many steps, 6 unless said), the page's one AudioContext (a master gain for Sound, a gain per machine; `prime()` from
   the gesture that chose a machine, else it starts at the next pointerdown or keydown, as a
   gamepad's press is no gesture), `stop()` (disconnects the sound, removes the frame).
   `mame-frame.js`, in the frame: holds MAME's `requestAnimationFrame` calls until the page steps it
@@ -156,30 +167,54 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   `tools/measure-machines.mjs`). `public/mame/`: MAME's build (`arcade.js`, `arcade.wasm`, its
   licence `COPYING.txt` and `legal/`, with `emscripten.txt` for what Emscripten adds),
   `roms/<machine>/` and `software/<name>/`, each with a README giving its source and licence.
+- `keyboards.js`: pure. `SPECTRUM`, a `Keyboard`: its forty keys in four rows, each a `Key` (MAME's
+  `code`, its `label`, `short` where keys are small, and what it types in the other modes: `word`
+  in K mode or with CAPS SHIFT, `symbol` with SYMBOL SHIFT, `ext` and `extSymbol` in E mode,
+  checked against the ROM's own tables by `test/keyboards.test.js`), its `shifts`, and `chords`
+  (what a gamepad's and a VR controller's buttons press: the shifts, ENTER, DELETE); `keyByCode`.
+  `screen-keys.js`: `ScreenKeys`, a computer's keyboard on the screen (a button per key, pressed
+  with the pointer as a key held, `onKey`; `place(r)` sets `--pitch` and `.tight`/`.roomy`;
+  `move(dx, dy)` and `current` for a gamepad or the remote, `setNav` showing the ring; `setHeld`,
+  `setLatched`, `reset`), and `keysIn` (where it goes, at the foot of the picture's space and in its
+  middle: as wide as it goes up to 72 px a key, no higher than a third of the space, its rows taller
+  from `ROOMY` on for E mode's legends, and never under 28 px).
 - `stands.js`: pure, as room.js is. `STANDS` (each a `Stand`: its machine, its wall and `at` along
-  it, its parts as boxes, its screen, its panel on the wall, how far in front one plays, `about`),
-  laid out in the wall's terms (`a` along, `y` up, `d` out; `wallTerms`), `layoutStands` (in the
-  room's: the boxes, the footprint, the screen, `front`, where one plays), `castStands` (kind
-  `machine` on a box, `stand-panel` with u/v on its panel, nearer than room.js's hit),
-  `clampStands`, the panel's buttons (`STAND_PANEL_PX`, `STAND_BUTTONS`, Play stopped, Select,
-  Start, Reset and Stop running; `standButtonAt`), and `standProblems` (tested: a machine there is,
-  inside the room and off the doorway's wall, under the ceiling, clear of the window and of the
-  others, its screen on a part's face, its panel behind none, and somewhere to stand in front).
-  `stands-scene.js`: `buildStands` (the parts as one mesh in the room's baked light, each screen a
-  mesh of its own, `live(i, canvas)` while it runs in VR and `still(i, canvas)` once it stops, and
-  `panels`, a `StandPanel` each, redrawn only on a change).
-- `play.js`: `Play`, the machines played (README, "Playing the Nintendo"). `choose(i)` (prime the
-  sound, walk up, `start(i)`), `stop()`, `stepBack()`, `button(i, id)` (the card's and the panel's),
-  `first()` (the TV's Menu), `hand()` (VR: the left stick the pad, Y/X Start/Select, the right
-  hand's A/B), and `frame()`, each frame: steps the emulator, copies a new picture to `canvas` (in
-  VR, onto its screen), reads a gamepad, and presses what any way of playing holds (`keys`,
-  `padHeld`, `touchHeld`, `handHeld`; a gamepad's buttons held at the start not until let go). On a
-  screen (`onScreen`), `#play` over the view: the picture at the machine's aspect beside the card or
-  under it, clear of the buttons and the touch pad (`fitIn`, `#fit`), MAME's frame kept at its own
+  it, its parts as boxes, its screen, its panel on the wall, a computer's `keys` on its top, how far
+  in front one plays, `about`), laid out in the wall's terms (`a` along, `y` up, `d` out;
+  `wallTerms`), `layoutStands` (in the room's: the boxes, the footprint, the screen, `front`, where
+  one plays), `castStands` (kind `machine` on a box, `stand-panel` with u/v on its panel, nearer
+  than room.js's hit), `clampStands`, the panel's buttons (`panelLayout(m)`: a console's, Play
+  stopped, Select, Start, Reset and Stop running; a computer's, 1024 × 640, Play stopped, Reset,
+  Stop and its keys running, `key:<code>`, `PANEL_KEYS`; `standButtonAt`), and `standProblems`
+  (tested: a machine there is, inside the room and off the doorway's wall, under the ceiling, clear
+  of the window and of the others, its screen on a part's face, its panel behind none, and
+  somewhere to stand in front). `stands-scene.js`: `buildStands` (the parts as one mesh in the
+  room's baked light, a computer's keys drawn on its top, each screen a mesh of its own,
+  `live(i, canvas)` while it runs in VR and `still(i, canvas)` once it stops, and `panels`, a
+  `StandPanel` each, redrawn only on a change: a computer's its keyboard, the legends fitted to
+  each key (`legends`), the shifts down lit and the key pointed at).
+- `play.js`: `Play`, the machines played (README, "Playing the Nintendo", "Typing on the
+  Spectrum"). `choose(i)` (prime the sound, walk up, `start(i)`), `stop()` (the focus back to the
+  machine's button in the card if it was on the picture or its keys), `stepBack()`, `button(i, id)`
+  (the card's and the panel's, a computer's keys `key:<code>` among them), `first()` (the TV's
+  Menu), `hand()` (VR: a console's left stick the pad, Y/X Start/Select, the right hand's A/B; a
+  computer's left X/Y its shifts, the right's A/B ENTER and DELETE), and `frame()`, each frame:
+  steps the emulator, copies a new picture to `canvas` (in VR, onto its screen), reads a gamepad,
+  and presses what any way of playing holds (`keys`, `padHeld`, `screenHeld`, `handHeld`; a
+  gamepad's buttons held at the start not until let go). A computer's keys: a shift pressed on the
+  screen or a panel stays down for the next key (`latched`, `latchBits` for the panels; pressed
+  again it comes up, the other one with it is E mode), a key pressed is held `TAP` steps
+  (`#press`), and one let go `AFTER` more (`#letGoAfter`), so the machine sees the quickest press;
+  the keyboard on the screen (`ScreenKeys`, made for the first computer played), where a gamepad
+  (`#padKeys`: the D-pad or stick from key to key, again and again while held, A presses, X/Y the
+  shifts, B DELETE, Start ENTER) and the TV's arrows and OK go. On a screen (`onScreen`), `#play`
+  over the view: the picture at the machine's aspect beside the card or under it, clear of the
+  buttons, the touch pad and the keys (`fitIn`, `#fit`, `keysIn`), MAME's frame kept at its own
   size; its keys from a capture listener on window that comes before the Remote's and walking's
-  (on a TV, OK is A; not while the remote is in the card, nor a form control's or a button's Enter
-  or Space); Escape, LB/RB and Back stop it. On a touch screen its pad (`dpadDirections`, pointer
-  capture, `DPAD`), shown for a finger and hidden for the mouse.
+  (on a TV, OK is A, or presses the key ringed; not while the remote is in the card, nor a form
+  control's or a button's Enter or Space); Escape, LB/RB and Back stop it. On a touch screen a
+  console's pad (`dpadDirections`, pointer capture, `DPAD`), shown for a finger and hidden for the
+  mouse.
 
 ## Conventions
 
@@ -194,14 +229,15 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   `window.Module`, `window.test` and an iframe's `machineAudio`) is in `types/globals.d.ts`, never
   served. `strict` comes a file at a time: `tsconfig.strict.json` (it, with `strict` on) includes
   only the files that pass it, `config.js`, `presence.js`, `room.js`, `controls.js`, `stands.js`,
-  `machines.js`, `emulator.js` and `mame-frame.js` so far, and `test/types.test.js` runs it too. A
+  `machines.js`, `keyboards.js`, `screen-keys.js`, `emulator.js` and `mame-frame.js` so far, and
+  `test/types.test.js` runs it too. A
   file joins its `include` when a change makes it pass; what an included file imports is checked
   strictly with it, which keeps `play.js` and `stands-scene.js` out while `overlay.js` and
   `builder.js` don't pass. The rest has a few hundred errors with it, mostly untyped parameters and
   values that may be null (a canvas's 2D context). `tools/` and `test/` wait for `@types/node`.
 - Scripted testing: `window.__room` (THREE, renderer, scene, camera, rig, room, layout, stands (the
   laid-out stands), play (`Play`: `at`, `machine`, `emulator` with its `state` and `held`, `canvas`,
-  `frames`, `onScreen`), controls, overlay, fade, vignette, xrDevice, go, enterVR, together, remote,
+  `frames`, `onScreen`, `screenKeys`, `latched`), controls, overlay, fade, vignette, xrDevice, go, enterVR, together, remote,
   tv, way, visit, setAccess, access, `preview()`, `social()`, `tick(dt, n)`, `ready`, true once the
   pieces' pictures have loaded or failed). A hidden browser pane gets no animation frames: drive it
   with `tick()`. XR frames under `?xr=emulate` need frames too; headless Chrome (below) has them. A

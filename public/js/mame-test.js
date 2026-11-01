@@ -5,7 +5,7 @@
 // keys it takes, MAME's figures, the page's own, and what was loaded. ?m=<id> starts that machine at
 // once (with no gesture, its sound may wait for one). window.test is the page, for
 // tools/measure-machines.mjs.
-import { MACHINES, machineById } from './machines.js';
+import { MACHINES, codesOf, machineById } from './machines.js';
 import { Emulator } from './emulator.js';
 
 const params = new URLSearchParams(location.search);
@@ -81,16 +81,16 @@ screen.addEventListener('keydown', (e) => {
     emulator.stop();
     return;
   }
-  const to = emulator.machine?.keys[e.code];
-  if (!to || e.ctrlKey || e.metaKey || e.altKey) return;
+  const to = codesOf(emulator.machine?.keys[e.code]);
+  if (!to.length || e.ctrlKey || e.metaKey || e.altKey) return;
   e.preventDefault();
-  if (!e.repeat) emulator.key(to, true);
+  if (!e.repeat) for (const code of to) emulator.key(code, true);
 });
 screen.addEventListener('keyup', (e) => {
-  const to = emulator.machine?.keys[e.code];
-  if (!to) return;
+  const to = codesOf(emulator.machine?.keys[e.code]);
+  if (!to.length) return;
   e.preventDefault();
-  emulator.key(to, false);
+  for (const code of to) emulator.key(code, false);
 });
 screen.addEventListener('blur', () => emulator.release());
 

@@ -3,6 +3,7 @@
 // .wasm (tools/build-mame.sh), which runs a machine in a frame of its own (mame-frame.js);
 // emulator.js drives that frame from the page's. Pure, for the page, the machine's frame and the
 // tests.
+import { SPECTRUM } from './keyboards.js';
 
 /**
  * A machine in the room, as MAME runs it.
@@ -17,12 +18,16 @@
  * @property {{ width: number, height: number }} screen MAME's window in pixels: the machine's screen
  *   as it makes it, one pixel to one, which the room scales to `aspect`
  * @property {number} aspect the screen's width over its height as it is shown (a TV's 4:3)
- * @property {Record<string, string>} keys a visitor's key (KeyboardEvent.code) and the key of MAME's
- *   it presses: MAME's own for the control it stands for (its default keys), a computer's own keys
+ * @property {Record<string, string | string[]>} keys a visitor's key (KeyboardEvent.code) and the
+ *   key of MAME's it presses (or keys, pressed together): MAME's own for the control it stands for
+ *   (its default keys), a computer's own keys
  * @property {string} help those keys, in words
  * @property {Pad} [pad] a game console's pad: its controls by name and the key of MAME's each
  *   presses, for every way of playing it in the room (play.js: a gamepad, a phone's screen, VR's
  *   controllers, a TV's remote, the card)
+ * @property {import('./keyboards.js').Keyboard} [keyboard] a computer's keyboard, for every way of
+ *   typing on it in the room (play.js: its keys on a screen, the panel beside it in VR, a gamepad,
+ *   a TV's remote)
  */
 /**
  * A game console's pad: the key of MAME's each of its controls presses.
@@ -72,9 +77,15 @@ export const MACHINES = [
     // 256 × 192 inside its border (MAME's spectrum.h).
     screen: { width: 352, height: 296 },
     aspect: 4 / 3,
-    // Its keyboard: CAPS SHIFT is Left Shift, SYMBOL SHIFT Right Shift.
-    keys: KEYBOARD,
-    help: 'Its keyboard: letters, digits, Enter and Space; Left Shift is CAPS SHIFT, Right Shift SYMBOL SHIFT',
+    // Its keyboard: CAPS SHIFT is Left Shift, SYMBOL SHIFT Right Shift; and as on its successors'
+    // keyboards, DELETE and the cursor keys (CAPS SHIFT with 0, and with 5 to 8) have keys of their own.
+    keys: {
+      ...KEYBOARD,
+      Backspace: ['ShiftLeft', 'Digit0'],
+      ArrowLeft: ['ShiftLeft', 'Digit5'], ArrowDown: ['ShiftLeft', 'Digit6'], ArrowUp: ['ShiftLeft', 'Digit7'], ArrowRight: ['ShiftLeft', 'Digit8'],
+    },
+    help: 'Letters, digits, Enter, Space · Left Shift: CAPS SHIFT · Right Shift: SYMBOL SHIFT · Backspace: DELETE · arrows: the cursor',
+    keyboard: SPECTRUM,
   },
   {
     id: 'breakout',
@@ -101,6 +112,38 @@ export const RESET = 'F3';
 /** The machine with that id, or undefined. @param {string | null} id */
 export function machineById(id) {
   return MACHINES.find((m) => m.id === id);
+}
+
+/**
+ * The keys of MAME's a visitor's key presses (Machine's keys), as a list.
+ * @param {string | string[] | undefined} to
+ * @returns {string[]}
+ */
+export function codesOf(to) {
+  return to === undefined ? [] : typeof to === 'string' ? [to] : to;
+}
+
+/**
+ * Every key of MAME's that machine m takes, once: its visitor's keys', its pad's and its keyboard's.
+ * @param {Machine} m
+ */
+export function machineCodes(m) {
+  return [...new Set([
+    ...Object.values(m.keys).flatMap(codesOf),
+    ...(m.pad ? Object.values(m.pad) : []),
+    ...(m.keyboard ? m.keyboard.rows.flat().map((k) => k.code) : []),
+  ])];
+}
+
+/**
+ * The buttons machine m has in the card while it runs, by play.js's names: a console's Start and
+ * Select (on a TV, whose remote's OK is its A, its A and B too), then Reset and Stop. A computer's
+ * keys are on the screen instead.
+ * @param {Machine} m
+ * @param {boolean} [tv]
+ */
+export function machineButtons(m, tv = false) {
+  return [...(m.pad ? ['start', 'select', ...(tv ? ['a', 'b'] : [])] : []), 'reset', 'stop'];
 }
 
 /**

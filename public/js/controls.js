@@ -101,7 +101,7 @@ export class Controls extends Walking {
   usable(hit) {
     if (hit?.kind === 'panel') return panelButtonAt(hit.u, hit.v);
     if (hit?.kind === 'piece' || hit?.kind === 'machine') return hit.kind;
-    if (hit?.kind === 'stand-panel') return standButtonAt(hit.u, hit.v, this.running(hit.stand));
+    if (hit?.kind === 'stand-panel') return standButtonAt(this.stands[hit.stand].buttons, hit.u, hit.v, this.running(hit.stand));
     return super.usable(hit);
   }
 
@@ -116,7 +116,7 @@ export class Controls extends Walking {
     else if (hit?.kind === 'piece') this.onPiece(hit.piece, how);
     else if (hit?.kind === 'machine') this.onMachine(hit.stand, how);
     else if (hit?.kind === 'stand-panel') {
-      const id = standButtonAt(hit.u, hit.v, this.running(hit.stand));
+      const id = standButtonAt(this.stands[hit.stand].buttons, hit.u, hit.v, this.running(hit.stand));
       if (id) this.onStandButton(hit.stand, id);
     } else super.use(hit, how);
   }

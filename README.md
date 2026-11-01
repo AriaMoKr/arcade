@@ -6,23 +6,24 @@ A room behind the [Hallway](https://ariamokr.github.io/hallway/)'s door, becomin
 computers, game consoles and arcade machines. It is the room
 [AriaMoKr/RoomTemplateEmpty](https://github.com/AriaMoKr/RoomTemplateEmpty) makes (a floor, four
 walls, a ceiling with its lamps, a window onto the afternoon sky, and the doorway back to the
-Hallway), in an arcade's dusk of violet walls and a dark ceiling, and so far one machine to play: a
-Nintendo Entertainment System (below, "The machines"). Walk it and play in VR on a Meta Quest, on a
-desktop or on a phone. There is nothing to install.
+Hallway), in an arcade's dusk of violet walls and a dark ceiling, and so far two machines to play: a
+Nintendo Entertainment System and a ZX Spectrum (below, "The machines"). Walk it and play in VR on a
+Meta Quest, on a desktop or on a phone. There is nothing to install.
 
 ![The room as one comes in through the door](public/hallway-preview.jpg)
 
 Behind you as you come in is the doorway you came through, glowing magenta, with the Hallway seen
 through it. Walk back through it (or click or tap it, or point at it in VR and pull the trigger) and
 you are back in the Hallway, in front of this room's door. Beside it, on the wall, is the control
-panel. The window is in the right-hand wall, and past it, against the same wall, the Nintendo.
+panel. The window is in the right-hand wall, and past it, against the same wall, the Nintendo; across
+the room from it, against the left-hand wall, the Spectrum.
 
 ## The machines
 
-They come into the room a step at a time. The Nintendo is in it (below, "Playing the Nintendo").
-The Spectrum comes next, with its keyboard, then an arcade cabinet, which will hold a Nintendo
-running [Thwaite](https://github.com/pinobatch/thwaite-nes): Breakout can't run fast enough on the
-web (below, "How fast"). Until they come in they run on a bare page of their own,
+They come into the room a step at a time. The Nintendo and the Spectrum are in it (below, "Playing
+the Nintendo" and "Typing on the Spectrum"). An arcade cabinet comes next, which will hold a
+Nintendo running [Thwaite](https://github.com/pinobatch/thwaite-nes): Breakout can't run fast
+enough on the web (below, "How fast"). Until a machine comes in it runs on a bare page of its own,
 [`mame/test.html`](https://ariamokr.github.io/arcade/mame/test.html) (below, "The test page"), to
 see that each runs and how fast.
 
@@ -62,6 +63,33 @@ its last picture on its TV in the room. Its sound plays through the page's, and 
 card turns it off. A browser lets sound start only after a click, a tap or a key on the page (a
 gamepad's buttons don't count), so a machine started with a gamepad alone is silent until then.
 
+### Typing on the Spectrum
+
+It stands against the left-hand wall, across the room from the Nintendo: a portable TV on a desk with
+the computer in front of it, and on the wall beside them a panel with **Play**. It is chosen and
+started as the Nintendo is, and it starts as a Spectrum does, with Sinclair BASIC's © 1982 at the
+bottom of its screen, waiting for a line to be typed.
+
+On a screen its picture takes the view as the Nintendo's does, with its keyboard on the screen under
+it (or beside the card, whichever leaves the larger picture): all forty keys, each with its own
+legend and, as the screen has room, what it types in the Spectrum's other modes, coloured as on the
+machine. In VR the panel beside it is its keyboard, large enough to point at, and you type on that,
+looking at its TV. While it runs the card holds **Reset**, **Stop** and **Sound**, and the hint says
+how to type:
+
+| | Its keys | CAPS SHIFT, SYMBOL SHIFT | ENTER, DELETE | Stop |
+|---|---|---|---|---|
+| Desktop | your keyboard (letters, digits, Enter, Space; the arrows move its cursor), or a click on its keys on the screen | Left Shift, Right Shift | Enter, Backspace | Escape, or **Stop** in the card |
+| Phone | its keys on the screen | its keys on the screen | its keys on the screen | **Stop** in the card |
+| Gamepad | D-pad or left stick from key to key on the screen, A presses | X, Y | Start, B | LB or RB |
+| Headset | point at its keys on the panel and pull the trigger (or pinch) | the left controller's X and Y | the right controller's A and B | **Stop** on its panel, or walk away |
+| TV remote | arrows from key to key on the screen, OK presses | its keys on the screen | its keys on the screen | Back |
+
+A shift pressed on the screen or on the panel stays down, lit, for the next key, as typing with one
+finger needs; pressed again, it comes up. With one shift down, the other gives E mode (green above a
+key, and with SYMBOL SHIFT red under it), and the shifts come up. On a TV, **Menu** moves the focus
+into the card, to **Reset**, **Stop** and **Sound**, and **Back** there types again.
+
 ### The test page
 
 On the test page, choose a machine and it starts. Its keys go to it while its screen has the focus
@@ -70,7 +98,7 @@ On the test page, choose a machine and it starts. Its keys go to it while its sc
 | Machine | Keys |
 |---|---|
 | Nintendo | arrows: the pad · X: A · Z: B · Enter: Start · Shift: Select |
-| Spectrum | its keyboard: the letters, digits, Enter and Space; Left Shift is CAPS SHIFT, Right Shift SYMBOL SHIFT |
+| Spectrum | its keyboard: the letters, digits, Enter and Space; Left Shift is CAPS SHIFT, Right Shift SYMBOL SHIFT; Backspace is DELETE, and the arrows move its cursor |
 | Breakout | 5: a coin · 1: Start · ←/→: the paddle · Space: Serve |
 
 `?m=nes` (or `spectrum`, `breakout`) starts that one at once; `?view=3d` shows its screen in 3D, as
@@ -153,7 +181,7 @@ As in the Hallway:
 
 Whatever hangs on the walls (below, "On the walls") is chosen as the doorway is: you walk up to it,
 and on through it when it leads somewhere. So is a machine: you walk up to it, and it starts (above,
-"Playing the Nintendo").
+"Playing the Nintendo" and "Typing on the Spectrum").
 
 The walls stop you. **Fullscreen** and **Enter VR** are at the bottom right (not on a TV). The **control panel**
 by the doorway holds Enter or exit VR, how to move and turn in VR (Smooth or Teleport, Snap or
@@ -208,7 +236,7 @@ is the config's `hallwayDoor()`:
 {
   id: 'arcade',
   title: 'arcade',
-  subtitle: "A room behind the Hallway's door, becoming an arcade of old computers, game consoles and arcade machines: so far a Nintendo Entertainment System to play. Walk it and play in VR on a Meta Quest, on a desktop or on a phone.",
+  subtitle: "A room behind the Hallway's door, becoming an arcade of old computers, game consoles and arcade machines: so far a Nintendo Entertainment System and a ZX Spectrum to play. Walk it and play in VR on a Meta Quest, on a desktop or on a phone.",
   sign: 'Arcade',
   url: 'https://ariamokr.github.io/arcade/',
   preview: 'https://ariamokr.github.io/arcade/hallway-preview.jpg',
@@ -284,9 +312,12 @@ through its `tv.js`:
   downward, for the dot to fall on a machine from a few steps away. With the dot on a picture, the
   hint says what OK does there: `OK: The studio` for one that leads somewhere, `OK: walk up to …`
   for the rest. It comes back for that if it had faded, and fades again when the dot leaves.
-- While a machine runs, the arrows are its pad and OK is its A. **Menu** moves the focus into the
+- While a console runs, the arrows are its pad and OK is its A. **Menu** moves the focus into the
   card, onto the machine's buttons (Start, Select, A, B, Reset and Stop) and Sound, and **Back**
   there plays again. **Back** while it plays stops it.
+- While a computer runs, the arrows go from key to key of its keyboard on the screen, and OK presses
+  the one ringed. **Menu** moves the focus into the card, onto Reset, Stop and Sound, and **Back**
+  there types again. **Back** while it runs stops it.
 - **Menu** (or holding Back) moves the focus into the card, starting at **← Hallway**. There, up
   and down go from control to control, left and right go through a choice, and OK chooses. The card
   holds Start or Leave shared session; in a session, Wave, your name, and the invite link as text
@@ -345,7 +376,8 @@ IPv4 (`npm start -- --host 127.0.0.1`).
 Nothing is built: the page is served as it is, and the import map stays. What TypeScript's DOM
 library leaves out is in `types/globals.d.ts`. `strict` comes a file at a time:
 `tsconfig.strict.json` checks only the files that pass it (so far `config.js`, `presence.js`,
-`room.js`, `controls.js`, `stands.js`, `machines.js`, `emulator.js` and `mame-frame.js`), and
+`room.js`, `controls.js`, `stands.js`, `machines.js`, `keyboards.js`, `screen-keys.js`,
+`emulator.js` and `mame-frame.js`), and
 `npm test` runs it too. A file joins its `include` when a change makes it pass. `tools/` and `test/`
 come later.
 
@@ -363,9 +395,11 @@ committed:
 
 - `public/hallway-preview.jpg`, 2048 × 1024: the room from where one arrives, at eye height, facing
   in, hung as the Hallway hangs its doorways' pictures. The Hallway's doorway to here shows it.
-- `public/social.jpg`, 1280 × 640: the room from its far left-hand corner, looking back across the
-  Nintendo and the window to the doorway. The page's `og:image` and `twitter:image` show it, and it
-  is the repository's social preview (Settings → General → Social preview, uploaded by hand).
+- `public/social.jpg`, 1280 × 640: the room from just inside the doorway, a little raised, looking
+  down it at the Spectrum, the Nintendo and the window (the two machines face each other near the
+  far wall, so no view of the doorway takes them in). The page's `og:image` and `twitter:image` show
+  it, and it is the repository's social preview (Settings → General → Social preview, uploaded by
+  hand).
 
 Render them again whenever the room changes. Chrome starts through common's `tools/chrome.mjs`, on a
 new profile that is first told the Windows password is not blank, so it never tries a logon to find
@@ -381,8 +415,9 @@ port 8102, the magenta glow `#d36fd8`), with `package.json`, `index.html`, `.cla
 `main.js`'s opening comment, the pictures and these notes to match; `npm test` checks the page and
 the package say what the config says. The rest of `public/js/` is the template's, with the machines
 added: modules of their own (`machines.js`, `emulator.js` and `mame-frame.js` run them,
-`mame-test.js` is the test page, `stands.js` and `stands-scene.js` stand them in the room, and
-`play.js` plays them), and what joins them to the room in the template's `controls.js`,
+`mame-test.js` is the test page, `stands.js` and `stands-scene.js` stand them in the room,
+`play.js` plays them, and `keyboards.js` and `screen-keys.js` give a computer its keys), and what
+joins them to the room in the template's `controls.js`,
 `overlay.js`, `main.js`, `scene.js` and `style.css`.
 
 The template's fixes come here by merge (the remote `template` is AriaMoKr/RoomTemplateEmpty, and
