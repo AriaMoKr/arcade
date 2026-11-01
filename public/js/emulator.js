@@ -60,8 +60,12 @@ export class Emulator {
     this.onState = () => {};
     /** @type {Set<string>} MAME's keys held down */
     this.held = new Set();
+    /** @type {Map<string, number>} keys pressed by tap(), and how many more steps each is held */
+    this.taps = new Map();
     this.owed = 0;
     this.last = -1;
+    /** Waiting for a gesture to start the sound (none was allowed yet). */
+    this.waking = false;
   }
 
   /** The machine's frame's MAME, once its page has made it. @returns {MameFrame | undefined} */
@@ -75,8 +79,16 @@ export class Emulator {
   }
 
   /**
-   * Starts machine m, stopping the one running. Call it from the gesture that chose it: that lets its
-   * sound start.
+   * The page's sound, made, or started again, now: call it from the gesture (a click, a tap, a key)
+   * that chose a machine started later, after a walk up to it, so its sound may start then.
+   */
+  prime() {
+    this.#context();
+  }
+
+  /**
+   * Starts machine m, stopping the one running. Call it from the gesture that chose it (or prime()
+   * from that gesture): that lets its sound start.
    * @param {Machine} m
    */
   start(m) {
@@ -138,6 +150,13 @@ export class Emulator {
           break;
         }
         ran++;
+        for (const [code, left] of this.taps) {
+          if (left > 1) this.taps.set(code, left - 1);
+          else {
+            this.taps.delete(code);
+            this.key(code, false);
+          }
+        }
       }
     }
     this.last = now;
@@ -172,10 +191,22 @@ export class Emulator {
     }));
   }
 
+  /**
+   * Presses MAME's key `code` for `steps` of its steps of 1/60 s, then lets it go: a button pressed
+   * in the card or on a panel, held long enough for the machine to see it however the page's frames
+   * come.
+   * @param {string} code
+   */
+  tap(code, steps = 6) {
+    this.key(code, true);
+    if (this.held.has(code)) this.taps.set(code, steps);
+  }
+
   /** Lets go of every key held (the page lost the focus, the machine stopped). */
   release() {
     for (const code of [...this.held]) this.key(code, false);
     this.held.clear();
+    this.taps.clear();
   }
 
   /** How MAME is keeping up: its steps and pictures, and ms a step over the last 600. */
@@ -191,12 +222,24 @@ export class Emulator {
   }
 
   /**
-   * The page's sound for a machine: its context (made by the first machine, and started, or started
-   * again, by the gesture that starts each), and a node of the machine's own on it. None where the
-   * browser has no Web Audio.
+   * The page's sound for a machine: its context, and a node of the machine's own on it. None where
+   * the browser has no Web Audio.
    * @returns {MachineAudio | null}
    */
   #audio() {
+    const context = this.#context();
+    if (!context) return null;
+    const output = context.createGain();
+    output.connect(/** @type {GainNode} */ (this.volume));
+    return { context, output, nodes: [] };
+  }
+
+  /**
+   * The page's one AudioContext: made by the first machine (or prime()), and started, or started
+   * again, by the gesture that starts each. Without one (a gamepad's press is no gesture to a
+   * browser), it starts at the next click, tap or key.
+   */
+  #context() {
     if (!this.context) {
       if (typeof AudioContext === 'undefined') return null;
       this.context = new AudioContext();
@@ -204,9 +247,22 @@ export class Emulator {
       this.volume.gain.value = this.sound ? 1 : 0;
       this.volume.connect(this.context.destination);
     }
-    if (this.context.state !== 'running') this.context.resume().catch(() => {});
-    const output = this.context.createGain();
-    output.connect(/** @type {GainNode} */ (this.volume));
-    return { context: this.context, output, nodes: [] };
+    const context = this.context;
+    if (context.state !== 'running') {
+      context.resume().catch(() => {});
+      if (!this.waking) {
+        this.waking = true;
+        const wake = () => {
+          context.resume().catch(() => {});
+          this.waking = false;
+          for (const type of GESTURES) removeEventListener(type, wake, true);
+        };
+        for (const type of GESTURES) addEventListener(type, wake, true);
+      }
+    }
+    return context;
   }
 }
+
+/** What a browser lets start sound: these, but not a gamepad's buttons. */
+const GESTURES = ['pointerdown', 'keydown'];

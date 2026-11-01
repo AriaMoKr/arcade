@@ -2,28 +2,29 @@
 
 **https://ariamokr.github.io/arcade/**
 
-A room behind the [Hallway](https://ariamokr.github.io/hallway/)'s door, soon an arcade of old
-computers, game consoles and arcade machines. For now it is the room
-[AriaMoKr/RoomTemplateEmpty](https://github.com/AriaMoKr/RoomTemplateEmpty) makes, empty: a floor,
-four walls, a ceiling with its lamps, a window onto the afternoon sky, and the doorway back to the
-Hallway, in an arcade's dusk of violet walls and a dark ceiling. The machines come next: for now
-they run on a page of their own (below, "The machines"). Walk it in VR on a Meta Quest, on a desktop
-or on a phone. There is nothing to install.
+A room behind the [Hallway](https://ariamokr.github.io/hallway/)'s door, becoming an arcade of old
+computers, game consoles and arcade machines. It is the room
+[AriaMoKr/RoomTemplateEmpty](https://github.com/AriaMoKr/RoomTemplateEmpty) makes (a floor, four
+walls, a ceiling with its lamps, a window onto the afternoon sky, and the doorway back to the
+Hallway), in an arcade's dusk of violet walls and a dark ceiling, and so far one machine to play: a
+Nintendo Entertainment System (below, "The machines"). Walk it and play in VR on a Meta Quest, on a
+desktop or on a phone. There is nothing to install.
 
 ![The room as one comes in through the door](public/hallway-preview.jpg)
 
 Behind you as you come in is the doorway you came through, glowing magenta, with the Hallway seen
 through it. Walk back through it (or click or tap it, or point at it in VR and pull the trigger) and
 you are back in the Hallway, in front of this room's door. Beside it, on the wall, is the control
-panel. The window is in the right-hand wall.
+panel. The window is in the right-hand wall, and past it, against the same wall, the Nintendo.
 
 ## The machines
 
-Not in the room yet. For now they run on a bare page of their own,
-[`mame/test.html`](https://ariamokr.github.io/arcade/mame/test.html), one at a time, to see that
-each runs and how fast before it goes in. They come into the room a step at a time: the Nintendo
-first, then the Spectrum with its keyboard, then an arcade cabinet. Breakout can't run fast enough
-on the web (below, "How fast"), so what that cabinet holds is still to be chosen.
+They come into the room a step at a time. The Nintendo is in it (below, "Playing the Nintendo").
+The Spectrum comes next, with its keyboard, then an arcade cabinet, which will hold a Nintendo
+running [Thwaite](https://github.com/pinobatch/thwaite-nes): Breakout can't run fast enough on the
+web (below, "How fast"). Until they come in they run on a bare page of their own,
+[`mame/test.html`](https://ariamokr.github.io/arcade/mame/test.html) (below, "The test page"), to
+see that each runs and how fast.
 
 | Machine | What runs on it | Its licence |
 |---|---|---|
@@ -35,6 +36,34 @@ Only what its licence lets GitHub Pages serve is served for them, a machine's ow
 Each file is in `public/mame/` with a README beside it saying what it is, where it came from and its
 licence, and `npm test` checks that every machine's files have one.
 
+### Playing the Nintendo
+
+It stands against the right-hand wall, past the window: a TV on a wooden cabinet with the console
+beside it, and on the wall over the console a small panel with **Play** (and while it runs,
+**Select**, **Start**, **Reset** and **Stop**). Choose it as you would the doorway (click or tap it, point at
+it in VR and pull the trigger, or put the dot on it and press A or OK) and you walk up to it and it
+starts. The card has it too, under **Machines**, as a button that does the same.
+
+On a screen its picture then takes the view, as large as it goes beside the card or under it, pixel
+for pixel, and the room waits behind it. In VR you play it on its TV, standing in front of it. While
+it runs, the card holds its buttons (Start, Select, Reset and Stop; on a TV, A and B too) and
+**Sound**, and the hint says how to play it:
+
+| | Its pad | A, B | Start, Select | Stop |
+|---|---|---|---|---|
+| Desktop | arrows | X, Z | Enter, Shift | Escape, or **Stop** in the card |
+| Phone | the pad on the screen | the pad's A and B | the pad's Start and Select | **Stop** in the card |
+| Gamepad | D-pad or left stick | A, B | Start, Back | LB or RB |
+| Headset | left stick | the right controller's A and B | the left controller's Y and X | **Stop** on its panel, or walk away |
+| TV remote | arrows | OK is A; B in the card (Menu) | in the card (Menu) | Back |
+
+**Reset** is the console's own reset button: the game starts again from its title. Stopping leaves
+its last picture on its TV in the room. Its sound plays through the page's, and **Sound** in the
+card turns it off. A browser lets sound start only after a click, a tap or a key on the page (a
+gamepad's buttons don't count), so a machine started with a gamepad alone is silent until then.
+
+### The test page
+
 On the test page, choose a machine and it starts. Its keys go to it while its screen has the focus
 (choosing a machine gives it the focus; Tab leaves it, and Escape stops the machine):
 
@@ -45,7 +74,7 @@ On the test page, choose a machine and it starts. Its keys go to it while its sc
 | Breakout | 5: a coin · 1: Start · ←/→: the paddle · Space: Serve |
 
 `?m=nes` (or `spectrum`, `breakout`) starts that one at once; `?view=3d` shows its screen in 3D, as
-the room will; and `?xr=emulate` does so in an emulated Quest 3, with **Enter VR**.
+the room does; and `?xr=emulate` does so in an emulated Quest 3, with **Enter VR**.
 
 ### MAME
 
@@ -53,8 +82,10 @@ the room will; and `?xr=emulate` does so in an emulated Quest 3, with **Enter VR
 `tools/build-mame.sh` from only the three drivers they need (Breakout's holds Pong and Rebound
 too): `public/mame/arcade.js` and `arcade.wasm`. Each machine runs in a frame of its own
 (`mame/machine.html`), stepped 60 times a second from the page's frame loop (in VR, the
-headset's) whatever the display's rate, its sound going through the page's. Only the machine's own keys reach it, never MAME's (Escape would end it,
-Tab open its menu).
+headset's) whatever the display's rate, its sound going through the page's. The page makes up the
+steps it owes, at most three a frame, so a machine keeps time while the page draws at least 20
+frames a second and slows below that. Only the machine's own keys reach it, never MAME's (Escape
+would end it, Tab open its menu).
 
 MAME is free software, under the GNU GPL, version 2 or later. Its licence and its parts' notices
 are served beside it, [`public/mame/COPYING.txt`](public/mame/COPYING.txt), with the full texts
@@ -62,8 +93,10 @@ they name in [`public/mame/legal/`](public/mame/legal/), and its source is MAME'
 `mame0289`, https://github.com/mamedev/mame/tree/mame0289, built as it is: `tools/build-mame.sh`
 says how. The build holds what Emscripten adds as well, each under its own licence, which
 [`public/mame/legal/emscripten.txt`](public/mame/legal/emscripten.txt) gives: Emscripten's runtime
-(MIT), SDL 3 and SDL_ttf (zlib), FreeType (the FreeType License), HarfBuzz (MIT) and zlib. Portions
-of this software are copyright © 2026 The FreeType Project (www.freetype.org). All rights reserved.
+(MIT), SDL 3 and SDL_ttf (zlib), FreeType, HarfBuzz (MIT) and zlib. FreeType offers two licences,
+and it is used here under the GNU GPL, version 2, as MAME is: the other, the FreeType License, goes
+with version 3 of the GPL but not with version 2. Portions of this software are copyright © 2026 The
+FreeType Project (www.freetype.org). All rights reserved.
 
 It is committed, as built, so neither `npm install` nor the workflow builds it. To build it again
 (after a change to the machines' drivers, or a new MAME), in MSYS2's UCRT64 shell on Windows, or in
@@ -89,15 +122,17 @@ room's own drawing. On an Intel Core i9-14900HX laptop (and its integrated GPU),
 
 The figures vary by up to a third from run to run.
 
-- **The Nintendo and the Spectrum keep up**, at 60 steps a second in every case. At full speed a
-  step takes under 2 ms and the page's main thread is at most 14% busy, in VR too. Slowed 4×, a step
-  takes about half a 60 Hz frame; slowed 6×, most of one, and the slowest twentieth more than one,
-  so on a TV that slow the room would drop frames while one runs. The TV itself is still to be
-  measured.
+- **The Nintendo and the Spectrum keep up**: 60 steps a second in every case measured. (Headless
+  Chrome drew about 32 frames a second here, so the page made up two steps in most frames; it keeps
+  time down to 20.) At full speed a step takes under 2 ms and the page's main thread is at most 14%
+  busy, in VR too. Slowed 4×, a step takes about half a 60 Hz frame; slowed 6×, most of one, and the
+  slowest twentieth more than one, so on a TV that slow the room would drop frames while one runs.
+  The TV itself is still to be measured. Played on a screen, the room isn't drawn while a machine
+  runs (its picture covers the view), so a frame holds the machine's steps and its picture alone.
 - **Breakout doesn't keep up anywhere.** MAME runs its circuit chip by chip, and a step takes 20 ms
-  even on this laptop (48 steps a second, the main thread always busy) and 155 ms slowed 4×. Pong,
-  the same kind of machine, takes 8 ms, and 50 ms slowed 4×. So Breakout won't go into the room as
-  it is; it stays on the test page for now, to see for yourself.
+  even on this laptop (48 steps a second, the main thread always busy) and 155 ms slowed 4×. So
+  Breakout won't go into the room: the arcade cabinet will hold a Nintendo running Thwaite instead,
+  and Breakout stays on the test page until then, to see for yourself.
 
 MAME is 33.6 MB to download (7.0 MB gzipped, as GitHub Pages sends it), and 0.3 MB of JavaScript
 (0.1 MB), fetched when a machine first starts and then kept in the browser's cache. Concentration
@@ -117,7 +152,8 @@ As in the Hallway:
 | TV remote (below, "On a TV") | ←/→ turn | ↑/↓ | the dot on the doorway and OK, or walk into it; or Back | **Wave** in the card (Menu) |
 
 Whatever hangs on the walls (below, "On the walls") is chosen as the doorway is: you walk up to it,
-and on through it when it leads somewhere.
+and on through it when it leads somewhere. So is a machine: you walk up to it, and it starts (above,
+"Playing the Nintendo").
 
 The walls stop you. **Fullscreen** and **Enter VR** are at the bottom right (not on a TV). The **control panel**
 by the doorway holds Enter or exit VR, how to move and turn in VR (Smooth or Teleport, Snap or
@@ -172,7 +208,7 @@ is the config's `hallwayDoor()`:
 {
   id: 'arcade',
   title: 'arcade',
-  subtitle: "An empty room behind the Hallway's door, soon an arcade of old computers, game consoles and arcade machines. Walk it in VR on a Meta Quest, on a desktop or on a phone.",
+  subtitle: "A room behind the Hallway's door, becoming an arcade of old computers, game consoles and arcade machines: so far a Nintendo Entertainment System to play. Walk it and play in VR on a Meta Quest, on a desktop or on a phone.",
   sign: 'Arcade',
   url: 'https://ariamokr.github.io/arcade/',
   preview: 'https://ariamokr.github.io/arcade/hallway-preview.jpg',
@@ -243,10 +279,14 @@ site full screen in a WebView whose user agent ends ` HallwayTV/<version>`), or 
 through its `tv.js`:
 
 - The arrows walk and turn. OK uses what the dot in the middle of the view is on: the doorway, a
-  picture on the walls, a button on the panel, or the floor (it walks there). With the dot on a
-  picture, the hint says what OK does there: `OK: The studio` for one that leads somewhere,
-  `OK: walk up to …` for the rest. It comes back for that if it had faded, and fades again when the
-  dot leaves.
+  picture on the walls, a machine (you walk up to it and it starts), a button on a panel, or the
+  floor (it walks there). The remote can't look up or down, so on a TV the view rests a little
+  downward, for the dot to fall on a machine from a few steps away. With the dot on a picture, the
+  hint says what OK does there: `OK: The studio` for one that leads somewhere, `OK: walk up to …`
+  for the rest. It comes back for that if it had faded, and fades again when the dot leaves.
+- While a machine runs, the arrows are its pad and OK is its A. **Menu** moves the focus into the
+  card, onto the machine's buttons (Start, Select, A, B, Reset and Stop) and Sound, and **Back**
+  there plays again. **Back** while it plays stops it.
 - **Menu** (or holding Back) moves the focus into the card, starting at **← Hallway**. There, up
   and down go from control to control, left and right go through a choice, and OK chooses. The card
   holds Start or Leave shared session; in a session, Wave, your name, and the invite link as text
@@ -288,7 +328,7 @@ You need Node.js 22 or newer.
 ```bash
 npm install       # three.js, common, the shared-session layer, Trystero and IWER, copied into public/vendor/ by common's tools/vendor.mjs from vendor.json
 npm start         # http://localhost:8102/
-npm test          # node --test: the config, where you may walk, the way back's address, the vendor list, the page, and tsc's check of public/js/
+npm test          # node --test: the config, where you may walk, the way back's address, the vendor list, the page, the machines and their stands, and tsc's check of public/js/
 npm run types     # tsc's checks alone
 npm run preview   # public/hallway-preview.jpg and public/social.jpg, in headless Chrome
 npm run measure   # how fast each machine runs, in headless Chrome (above, "How fast")
@@ -305,8 +345,9 @@ IPv4 (`npm start -- --host 127.0.0.1`).
 Nothing is built: the page is served as it is, and the import map stays. What TypeScript's DOM
 library leaves out is in `types/globals.d.ts`. `strict` comes a file at a time:
 `tsconfig.strict.json` checks only the files that pass it (so far `config.js`, `presence.js`,
-`room.js` and `controls.js`), and `npm test` runs it too. A file joins its `include` when a change
-makes it pass. `tools/` and `test/` come later.
+`room.js`, `controls.js`, `stands.js`, `machines.js`, `emulator.js` and `mame-frame.js`), and
+`npm test` runs it too. A file joins its `include` when a change makes it pass. `tools/` and `test/`
+come later.
 
 To try the way in and out locally, serve the Hallway's checkout as well (on 8088) and open the room
 as its door would:
@@ -322,9 +363,9 @@ committed:
 
 - `public/hallway-preview.jpg`, 2048 × 1024: the room from where one arrives, at eye height, facing
   in, hung as the Hallway hangs its doorways' pictures. The Hallway's doorway to here shows it.
-- `public/social.jpg`, 1280 × 640: the room from across it, looking back at the doorway and the
-  window. The page's `og:image` and `twitter:image` show it, and it is the repository's social
-  preview (Settings → General → Social preview, uploaded by hand).
+- `public/social.jpg`, 1280 × 640: the room from its far left-hand corner, looking back across the
+  Nintendo and the window to the doorway. The page's `og:image` and `twitter:image` show it, and it
+  is the repository's social preview (Settings → General → Social preview, uploaded by hand).
 
 Render them again whenever the room changes. Chrome starts through common's `tools/chrome.mjs`, on a
 new profile that is first told the Windows password is not blank, so it never tries a logon to find
@@ -338,8 +379,11 @@ is [`public/js/config.js`](public/js/config.js) (the id `arcade`, its title, des
 address, its size, 7 × 9 m, its colours, the window in the right-hand wall and the sky's yaw, the
 port 8102, the magenta glow `#d36fd8`), with `package.json`, `index.html`, `.claude/launch.json`,
 `main.js`'s opening comment, the pictures and these notes to match; `npm test` checks the page and
-the package say what the config says. The rest of `public/js/` is still the template's, ready for
-the machines.
+the package say what the config says. The rest of `public/js/` is the template's, with the machines
+added: modules of their own (`machines.js`, `emulator.js` and `mame-frame.js` run them,
+`mame-test.js` is the test page, `stands.js` and `stands-scene.js` stand them in the room, and
+`play.js` plays them), and what joins them to the room in the template's `controls.js`,
+`overlay.js`, `main.js`, `scene.js` and `style.css`.
 
 The template's fixes come here by merge (the remote `template` is AriaMoKr/RoomTemplateEmpty, and
 the two histories join at its `df35b83`, which this repository's first commit copies):
@@ -351,8 +395,9 @@ git merge template/main
 ```
 
 In a merge, arcade keeps its own `config.js` values, `index.html`, `package.json`'s name and
-description, the two pictures, the port 8102 and `main.js`'s opening comment, and its README says
-what the template's says in arcade's words. If `package.json` or `package-lock.json` conflict,
+description, the two pictures, the port 8102, `main.js`'s opening comment and the machines' parts
+of the template's files (where one conflicts, the template's fix goes in beside them), and its README
+says what the template's says in arcade's words. If `package.json` or `package-lock.json` conflict,
 arcade keeps its name and description and takes the template's dependencies, and `npm install`
 makes the lockfile again.
 

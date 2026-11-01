@@ -299,6 +299,8 @@ export function buildRoom(L, { colors, skyYaw, glow, name, anisotropy = 1 }) {
 
   return {
     group, portal, panel, glass, pictures, loadView, loadPictures,
+    /** The room's light, for what stands in it (stands-scene.js): baked into a builder, and at a point facing n. */
+    lit, lightColor,
     /** Per frame: the veil drifts, and the doorway brightens when pointed at or stood near. */
     update(time, dt, head, hover) {
       const near = head.z > -1.6 && Math.abs(head.x) < 1.4;

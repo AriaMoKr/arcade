@@ -20,6 +20,13 @@
  * @property {Record<string, string>} keys a visitor's key (KeyboardEvent.code) and the key of MAME's
  *   it presses: MAME's own for the control it stands for (its default keys), a computer's own keys
  * @property {string} help those keys, in words
+ * @property {Pad} [pad] a game console's pad: its controls by name and the key of MAME's each
+ *   presses, for every way of playing it in the room (play.js: a gamepad, a phone's screen, VR's
+ *   controllers, a TV's remote, the card)
+ */
+/**
+ * A game console's pad: the key of MAME's each of its controls presses.
+ * @typedef {{ up: string, down: string, left: string, right: string, a: string, b: string, select: string, start: string }} Pad
  */
 /**
  * A file MAME reads: fetched from `url` (relative to public/mame/) and written to `path` in its file
@@ -52,6 +59,7 @@ export const MACHINES = [
     // The pad: MAME's A is Left Alt and its B Left Ctrl, Start 1 and Select 5.
     keys: { ...ARROWS, KeyX: 'AltLeft', KeyZ: 'ControlLeft', Enter: 'Digit1', ShiftLeft: 'Digit5', ShiftRight: 'Digit5' },
     help: 'Arrows: the pad · X: A · Z: B · Enter: Start · Shift: Select',
+    pad: { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', a: 'AltLeft', b: 'ControlLeft', select: 'Digit5', start: 'Digit1' },
   },
   {
     id: 'spectrum',
@@ -83,6 +91,12 @@ export const MACHINES = [
     help: '5: a coin · 1: Start · ←/→: the paddle · Space: Serve',
   },
 ];
+
+/**
+ * MAME's soft reset (its own control, as the console's Reset button): sent only by the room's Reset
+ * button (play.js), never by a key of the visitor's.
+ */
+export const RESET = 'F3';
 
 /** The machine with that id, or undefined. @param {string | null} id */
 export function machineById(id) {

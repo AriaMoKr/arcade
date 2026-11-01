@@ -122,14 +122,21 @@ function ownAudio() {
   return { context, output: context.destination, nodes: [] };
 }
 // What MAME's js_sound.js asks of `new AudioContext()`: its sample rate, nodes made on the given
-// context (and kept, to disconnect), and for its destination the machine's own node.
+// context (and kept, to disconnect), and for its destination the machine's own node. Its watchdog
+// makes its node again (disconnecting the old one) whenever it hasn't been asked for sound for half
+// a second, as it isn't while the context waits for a gesture to start: then it gets the same one
+// back, so nodes don't pile up. And it asks the context to start each time: the page's starts at
+// the visitor's next click, tap or key (emulator.js), so only a context of the frame's own is asked.
 if (audio) {
   const { context, output, nodes } = audio;
+  const own = !(/** @type {HTMLIFrameElement | null} */ (window.frameElement)?.machineAudio);
   /** @template {AudioNode} N @param {N} node */
   const kept = (node) => {
     nodes.push(node);
     return node;
   };
+  /** @type {ScriptProcessorNode | null} */
+  let processor = null;
   /** @type {any} */ (window).AudioContext = function MachineAudioContext() {
     return {
       get sampleRate() {
@@ -139,8 +146,13 @@ if (audio) {
         return output;
       },
       createGain: () => kept(context.createGain()),
-      createScriptProcessor: (/** @type {number} */ size, /** @type {number} */ inputs, /** @type {number} */ outputs) => kept(context.createScriptProcessor(size, inputs, outputs)),
-      resume: () => context.resume(),
+      createScriptProcessor: (/** @type {number} */ size, /** @type {number} */ inputs, /** @type {number} */ outputs) => {
+        if (processor && context.state !== 'running') return processor;
+        if (processor) nodes.splice(nodes.indexOf(processor), 1); // disconnected by js_sound.js
+        processor = kept(context.createScriptProcessor(size, inputs, outputs));
+        return processor;
+      },
+      resume: () => (own ? context.resume() : Promise.resolve()),
     };
   };
 }

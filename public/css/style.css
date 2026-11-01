@@ -67,6 +67,19 @@ a.piece::after { content: "→" / ""; color: var(--accent); }
 .piece-title { font-weight: 600; }
 .walls .about { color: var(--muted); }
 
+/* The machines (stands.js): each one's button, which walks up to it and plays it, what runs on it,
+   and while it runs its own buttons in its place; Sound; and MAME's licence and source. */
+.machines { margin-top: 10px; }
+.machines h2 { margin: 0; font-size: 13px; font-weight: 600; color: var(--muted); }
+.machines ul { display: grid; gap: 8px; margin: 4px 0 0; padding: 0; list-style: none; }
+.machines li { display: grid; justify-items: start; gap: 4px; font-size: 13px; }
+.machines .about, .mame-note { color: var(--muted); }
+.machines .sound { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; margin-top: 4px; font-size: 13px; cursor: pointer; }
+.machines .sound input { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); }
+.mame-note { margin: 2px 0 0; font-size: 13px; }
+/* While one runs, its buttons are what the section holds. */
+.machines.running h2, .machines.running .about, .machines.running .mame-note { display: none; }
+
 /* The shared session and the settings (motion, how to move and turn in VR, the vignette, seated):
    the control panel's choices, for a keyboard or a screen reader. */
 .in-room { margin-top: 10px; }
@@ -181,10 +194,56 @@ html.tv .buttons { left: 48px; right: 48px; bottom: 27px; }
 html.tv .toasts { top: 27px; justify-items: end; }
 html.tv .toast { font-size: 17px; }
 html.tv .aim { width: 26px; height: 26px; margin: -13px 0 0 -13px; border-width: 3px; }
+html.tv .machines h2, html.tv .machines li, html.tv .mame-note, html.tv .machines .sound { font-size: 16px; }
+html.tv .machines .sound input { width: 20px; height: 20px; }
+
+/* A machine played on a screen (play.js): over the room, which isn't drawn, its picture as large as
+   it goes beside the card or under it (play.js places it), scaled up pixel for pixel; the card
+   holding only the way back and the machine's buttons, narrower beside it; on a touch screen its
+   pad, at the foot above the buttons there. MAME's own frame is never seen. In VR the layer is
+   hidden, kept laid out. */
+#play { position: fixed; inset: 0; z-index: 5; background: #000; visibility: hidden; }
+html.playing #play { visibility: visible; }
+.play-area { position: absolute; }
+.machine-screen { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+.play-status { position: absolute; left: 0; right: 0; top: 50%; margin: 0; transform: translateY(-50%); padding: 0 16px; text-align: center; color: var(--muted); }
+.machine-host { position: absolute; left: 0; top: 0; width: 0; height: 0; overflow: hidden; }
+.machine-frame { display: block; border: 0; }
+html.playing .tagline, html.playing .in-room { display: none; }
+@media (min-width: 561px) { html.playing .card { width: 260px; } }
+html.tv.playing .card { width: 300px; }
+
+.touch-pad {
+  position: fixed; left: max(16px, env(safe-area-inset-left)); right: max(16px, env(safe-area-inset-right));
+  bottom: calc(max(16px, env(safe-area-inset-bottom)) + var(--buttons, 0px) + 8px);
+  display: grid; grid-template: "dpad . mid" auto "dpad . ab" auto / auto 1fr auto; align-items: end; gap: 10px 8px;
+  pointer-events: none;
+}
+.touch-pad > * { pointer-events: auto; }
+.pad-button {
+  border: 1px solid var(--accent); background: var(--panel); color: var(--text); font-weight: 600; padding: 0;
+  touch-action: none; user-select: none; -webkit-user-select: none; -webkit-touch-callout: none;
+}
+.pad-button.held { background: var(--accent); color: #1a1208; }
+.dpad { grid-area: dpad; display: grid; grid-template: ". up ." 42px "left . right" 42px ". down ." 42px / 42px 42px 42px; touch-action: none; }
+.dpad .pad-button { border-radius: 8px; font-size: 16px; }
+.pad-up { grid-area: up; } .pad-down { grid-area: down; } .pad-left { grid-area: left; } .pad-right { grid-area: right; }
+.pad-mid { grid-area: mid; display: flex; gap: 8px; justify-self: end; }
+.pad-mid .pad-button { min-height: 32px; padding: 4px 12px; border-radius: 999px; font-size: 13px; }
+.pad-ab { grid-area: ab; display: flex; gap: 12px; align-items: flex-start; justify-self: end; }
+.pad-ab .pad-button { width: 58px; height: 58px; margin-top: 18px; border-radius: 50%; font-size: 18px; }
+/* A a little higher than B, as on the pad. */
+.pad-ab .pad-a { margin-top: 0; }
+/* Wider (a phone on its side, a tablet): in one row, Select and Start in the middle, the picture
+   above them all. */
+@media (min-width: 561px) {
+  .touch-pad { grid-template: "dpad mid ab" auto / auto 1fr auto; }
+  .pad-mid { justify-self: center; }
+}
 
 @media (forced-colors: active) {
-  .card, .hint, .toast, .chip, .pill, .way-back, .piece, .my-name { border: 1px solid CanvasText; }
-  .pill.on, .chip[aria-expanded="true"] { forced-color-adjust: none; background: Highlight; color: HighlightText; border-color: Highlight; }
+  .card, .hint, .toast, .chip, .pill, .way-back, .piece, .my-name, .pad-button { border: 1px solid CanvasText; }
+  .pill.on, .chip[aria-expanded="true"], .pad-button.held { forced-color-adjust: none; background: Highlight; color: HighlightText; border-color: Highlight; }
   .aim { forced-color-adjust: none; border-color: CanvasText; box-shadow: none; }
   .aim.hover { background: Highlight; }
   :focus-visible { outline-color: Highlight; }

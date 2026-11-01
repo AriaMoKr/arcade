@@ -7,7 +7,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ID } from '../public/js/config.js';
-import { MACHINES, machineById, mameArgs } from '../public/js/machines.js';
+import { MACHINES, RESET, machineById, mameArgs } from '../public/js/machines.js';
 import { keyOf, pace } from '../public/js/emulator.js';
 
 const mame = join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'mame');
@@ -70,6 +70,24 @@ test("only the machine's own keys reach MAME, never one of MAME's own controls (
       assert.ok(!ui.has(from), `${m.id}: ${from} is the page's`);
     }
   }
+});
+
+test("a console's pad presses MAME's keys for its eight controls, its own keys among them; MAME's reset only the Reset button's", () => {
+  const ui = new Set(['Escape', 'Tab', 'ScrollLock', 'Pause', 'Backquote', ...Array.from({ length: 12 }, (_, i) => `F${i + 1}`)]);
+  const consoles = MACHINES.filter((m) => m.pad);
+  assert.ok(consoles.length > 0);
+  for (const m of consoles) {
+    const pad = /** @type {import('../public/js/machines.js').Pad} */ (m.pad);
+    assert.deepEqual(Object.keys(pad).sort(), ['a', 'b', 'down', 'left', 'right', 'select', 'start', 'up']);
+    assert.equal(new Set(Object.values(pad)).size, 8, `${m.id}: two controls press one key`);
+    const own = new Set(Object.values(m.keys));
+    for (const [control, code] of Object.entries(pad)) {
+      assert.ok(!ui.has(code), `${m.id}: ${control} would press ${code}`);
+      assert.ok(own.has(code), `${m.id}: ${control} presses ${code}, which none of its keys does`);
+    }
+  }
+  assert.equal(RESET, 'F3');
+  for (const m of MACHINES) assert.ok(!Object.values(m.keys).includes(RESET), `${m.id}: a key resets it`);
 });
 
 test("a key event's key for its code, as a US keyboard gives it", () => {

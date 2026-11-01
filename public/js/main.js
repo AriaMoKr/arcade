@@ -1,5 +1,6 @@
-// arcade: a room behind the Hallway's door, soon an arcade of old computers, game consoles and
-// arcade machines, for now empty as RoomTemplateEmpty makes it (what a room made from it changes is
+// arcade: a room behind the Hallway's door, an arcade of old computers, game consoles and arcade
+// machines, so far a Nintendo Entertainment System on its stand (stands.js), played as play.js
+// says; the rest is the room RoomTemplateEmpty makes (what a room made from it changes is
 // config.js). Coming in through the door, the visitor
 // carries on from how they went through it (the Hallway's link: where in the doorway, which way
 // they faced); behind them the doorway glows and shows the hall, and going back through it leads
@@ -19,6 +20,10 @@ import { Overlay } from './overlay.js';
 import { APP_ID, noticeText, statusText } from './presence.js';
 import { setAnisotropy } from './textures.js';
 import { renderPreview, renderSocial, previewView, socialView } from './preview.js';
+import { STANDS, layoutStands } from './stands.js';
+import { buildStands } from './stands-scene.js';
+import { machineById } from './machines.js';
+import { Play } from './play.js';
 import { hallLink, hallwayViews, keptWay, leaveUrl, readVisit, wayBack, withoutVisit } from 'common/door.js';
 import { Fade } from 'common/fade.js';
 import { NAV_KEY, loadNav, saveNav } from 'common/nav.js';
@@ -30,6 +35,9 @@ import { roomFromUrl } from 'layersharedsession/room.js';
 const params = new URLSearchParams(location.search);
 // The TV app's page (?tv=emulate: as if, in any browser).
 const tv = tvMode();
+// The remote can't look up or down: on a TV the view rests a little down, so the dot in its middle
+// comes onto a machine walking up to it (controls.js restPitch), as outside's does.
+const TV_PITCH = -0.25;
 document.documentElement.classList.toggle('tv', tv);
 
 // Dev: emulate a Quest 3 with IWER (before anything asks navigator.xr). Chromium has a native
@@ -90,6 +98,8 @@ function pieceUrl(i) {
 
 let together = null; // the shared session, made once the scene is (below)
 let leftBy = -1; // the piece the visitor went by, else -1 (the doorway)
+// The machines on their stands, by name, and what runs on each.
+const machines = STANDS.map((s) => ({ title: machineById(s.machine).title, about: s.about }));
 const overlay = new Overlay(ROOM, way, {
   href: () => leaveUrl(way, together?.room ?? null),
   pieceHref: pieceUrl,
@@ -98,6 +108,7 @@ const overlay = new Overlay(ROOM, way, {
     together?.pause();
   },
   tv,
+  machines,
 });
 
 let renderer;
@@ -114,7 +125,12 @@ renderer.xr.setReferenceSpaceType('local-floor');
 // The view, to a screen reader: a picture of the room (what can be done in it is in the card).
 renderer.domElement.setAttribute('role', 'img');
 const onWalls = ROOM.pieces.map((p) => p.title).join(', ');
-renderer.domElement.setAttribute('aria-label', `${ROOM.title}: a floor, four walls and a ceiling, a window onto the afternoon sky, ${onWalls ? '' : 'and '}the doorway back to the ${leadsTo}${onWalls ? `, and on the walls: ${onWalls}` : ''}`);
+const seen = [
+  'a floor, four walls and a ceiling', 'a window onto the afternoon sky', `the doorway back to the ${leadsTo}`,
+  ...(onWalls ? [`on the walls: ${onWalls}`] : []),
+  ...(machines.length ? [`${machines.length === 1 ? 'a machine' : 'machines'} to play: ${machines.map((m) => `the ${m.title}, with ${m.about}`).join('; ')}`] : []),
+];
+renderer.domElement.setAttribute('aria-label', `${ROOM.title}: ${seen.slice(0, -1).join(', ')}, and ${seen[seen.length - 1]}`);
 document.getElementById('app').append(renderer.domElement);
 const anisotropy = Math.min(8, renderer.capabilities.getMaxAnisotropy());
 setAnisotropy(anisotropy);
@@ -147,8 +163,13 @@ let pictured = false;
 room.loadPictures().then(() => {
   pictured = true;
 });
+// The machines' stands, in the room's light.
+const S = layoutStands(L);
+const stands = buildStands(S, { lit: room.lit, lightColor: room.lightColor, anisotropy });
+scene.add(stands.group);
 
-const controls = new Controls({ renderer, camera, rig, scene, dom: renderer.domElement, layout: L });
+const controls = new Controls({ renderer, camera, rig, scene, dom: renderer.domElement, layout: L, stands: S });
+if (tv) controls.restPitch = TV_PITCH;
 const nav = loadNav();
 controls.setNav(nav);
 // The accessibility settings every site on the origin shares (common/access.js, hallway.access):
@@ -166,7 +187,7 @@ const vignette = new Vignette(camera, access.vignette);
 // Back from where a piece leads: in front of it, facing into the room.
 {
   const s = backFrom >= 0 ? pieceSpawn(L, backFrom) : doorSpawn(L, visit.dx ?? 0, visit.yaw ?? 0);
-  controls.setPose(s.x, s.z, s.yaw, backFrom >= 0 ? 0 : visit.pitch ?? 0);
+  controls.setPose(s.x, s.z, s.yaw, tv ? TV_PITCH : backFrom >= 0 ? 0 : visit.pitch ?? 0);
 }
 
 // ── Going back out, or on ────────────────────────────────────────────────────
@@ -178,6 +199,7 @@ function go(piece = -1) {
   if (leaving) return;
   leaving = true;
   leftBy = piece;
+  play.stop(); // its sound too, at once
   const url = piece >= 0 ? pieceUrl(piece) : leaveUrl(way, together.room);
   // Leave the shared session now, so the others see the visitor go at once (the link carries its
   // room on): the fade, and then until it is left (half a second at most), give the leaving message
@@ -221,6 +243,19 @@ controls.onPiece = (i, how) => {
 };
 overlay.onPiece = (i) => controls.walkUpTo(i);
 
+// ── The machines (play.js) ───────────────────────────────────────────────────
+// Made before the TV's remote: while one plays, its keys come before the remote's (and walking's).
+// Choosing one walks up to it and starts it; walking away (in VR, a step away) stops it.
+const play = new Play({ stands: S, scene: stands, controls, overlay, renderer, host: document.getElementById('play'), tv });
+controls.onMachine = (i) => play.choose(i);
+controls.onStandButton = (i, id) => play.button(i, id);
+controls.running = (i) => play.at === i;
+controls.onStand = () => play.stop();
+controls.onHand = (hand, pad, ax, ay) => play.hand(hand, pad, ax, ay);
+overlay.onMachine = (i) => play.choose(i);
+overlay.onMachineButton = (i, id) => play.button(i, id);
+overlay.onSound = (on) => play.setSound(on);
+
 let active = false;
 controls.onActivity = () => {
   if (active) return;
@@ -236,20 +271,21 @@ overlay.setHint(tv ? 'tv' : matchMedia('(pointer: coarse)').matches ? 'touch' : 
 // room's own step back (stepBack), else the app goes back a page, to this room's door in the hallway.
 
 /**
- * Back on a TV while walking: the room's own step back, true when it took one. An empty room has
- * none. A room with something to step back from (sitting down, a picture looked at close up, a
- * text open) undoes it here and returns true; one the page's history has an entry for is the app's
- * back, not a step (common's README, "The TV app").
+ * Back on a TV while walking: the room's own step back, true when it took one: here the machine
+ * running stops. (An empty room has none; one the page's history has an entry for is the app's
+ * back, not a step: common's README, "The TV app".)
  */
 function stepBack() {
-  return false;
+  return play.stepBack();
 }
 
 let remote = null;
 if (tv) {
   controls.aimMiddle = true;
   renderer.domElement.setAttribute('aria-describedby', overlay.hint.id);
-  remote = new Remote({ root: overlay.root, view: renderer.domElement, use: () => controls.useMiddle(), step: stepBack });
+  // Menu while a machine runs goes to its buttons in the card.
+  remote = new Remote({ root: overlay.root, view: renderer.domElement, use: () => controls.useMiddle(), step: stepBack, first: () => play.first() });
+  play.remote = remote;
   remote.onMode = (inCard) => overlay.setHint(inCard ? 'tv-card' : 'tv');
   remote.answerApp(tv);
 }
@@ -470,14 +506,16 @@ let time = 0; // what moves on its own (the doorway's veil) goes by this
 
 function step(dt) {
   if (!reduce) time += dt;
-  controls.update(dt);
+  // A machine played on a screen has the keys and the gamepad: the visitor stands still.
+  if (!play.onScreen) controls.update(dt);
+  play.frame();
   vignette.update(dt, controls.moveSpeed, controls.turnRate, renderer.xr.isPresenting);
   camera.getWorldPosition(head);
   room.update(time, dt, head, controls.hoverDoor);
   together.update(performance.now());
   room.panel.setHover(controls.hoverPanel);
   // The dot: a gamepad's aim, or on a TV the remote's OK while walking.
-  overlay.setAim((controls.padActive || (remote !== null && !remote.inCard)) && !renderer.xr.isPresenting, !!controls.hover);
+  overlay.setAim((controls.padActive || (remote !== null && !remote.inCard)) && !renderer.xr.isPresenting && !play.onScreen, !!controls.hover);
   // On a TV, walking, the hint says what OK does with the dot on something on the walls.
   if (remote) overlay.setAimed(remote.inCard ? -1 : controls.hoverPiece);
   if (!leaving && doorCrossed(L, head.x, head.z)) go();
@@ -488,7 +526,8 @@ renderer.setAnimationLoop(() => {
   const now = performance.now();
   step(Math.min(0.1, (now - last) / 1000));
   last = now;
-  renderer.render(scene, camera);
+  // Not drawn while a machine fills the view.
+  if (!play.onScreen) renderer.render(scene, camera);
 });
 
 addEventListener('resize', () => {
@@ -501,7 +540,7 @@ fade.to(0, blink(0.8));
 
 // For scripted testing, and tools/preview.mjs. A hidden page gets no animation frames: drive it with tick().
 window.__room = {
-  THREE, renderer, scene, camera, rig, room, layout: L, controls, overlay, fade, vignette, xrDevice, go, enterVR, together, remote, tv, way, visit, setAccess,
+  THREE, renderer, scene, camera, rig, room, layout: L, stands: S, play, controls, overlay, fade, vignette, xrDevice, go, enterVR, together, remote, tv, way, visit, setAccess,
   /** The accessibility settings now, and whether motion is reduced. */
   get access() {
     return { ...access, reduce };
@@ -510,9 +549,10 @@ window.__room = {
   preview(quality = 0.9) {
     return { jpeg: renderPreview(renderer, scene, camera, { hide: [fade.mesh, vignette.mesh] }).toDataURL('image/jpeg', quality), params: previewView().params };
   },
-  /** The picture for link previews (preview.js), as a data: URL, with where it is taken from. */
+  /** The picture for link previews (preview.js), as a data: URL, with where it is taken from: the machine in it too. */
   social(quality = 0.88) {
-    return { jpeg: renderSocial(renderer, scene, camera, L, { hide: [fade.mesh, vignette.mesh] }).toDataURL('image/jpeg', quality), view: socialView(L) };
+    const also = S[0]?.screen ?? null;
+    return { jpeg: renderSocial(renderer, scene, camera, L, { hide: [fade.mesh, vignette.mesh], also }).toDataURL('image/jpeg', quality), view: socialView(L, also) };
   },
   tick(dt = 1 / 60, n = 1) {
     for (let i = 0; i < n; i++) step(dt);

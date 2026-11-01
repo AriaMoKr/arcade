@@ -1,13 +1,16 @@
 // The page around the 3D view (not shown in a headset), as outside's and the hallway's. The card is
 // the page's <nav>: the room's name, the way back to the hallway as a real link (for keyboards,
 // screen readers and browsers without WebGL), its description, what hangs on its walls (each one
-// that leads somewhere a link there, the rest buttons that walk up to them), Start / Leave shared session (and,
+// that leads somewhere a link there, the rest buttons that walk up to them), the machines (each a
+// button that walks up to it and plays it, and while it runs its own buttons, Reset and Stop; Sound;
+// MAME's licence and source), Start / Leave shared session (and,
 // in one, how it's going), and Settings, the control panel's choices: motion (common/access.js, for
 // a screen too), how to move and turn in VR, the comfort vignette and seated mode. The view is the
-// page's <main>, with a hint on how to move, the Wave, Copy invite link, Fullscreen and Enter VR
-// buttons, the dot a gamepad aims with, and short messages, said politely. So everything the room
-// offers in 3D is a control here too: the doorway is the link, the panel's buttons are Settings,
-// the session's button and Enter VR, and the pieces on the walls are On the walls. In a shared session the card also has the visitor's name.
+// page's <main>, with a hint on how to move (or to play the machine running), the Wave, Copy invite
+// link, Fullscreen and Enter VR buttons, the dot a gamepad aims with, and short messages, said
+// politely. So everything the room offers in 3D is a control here too: the doorway is the link, the
+// panel's buttons are Settings, the session's button and Enter VR, the pieces on the walls are On
+// the walls, and a machine and the panel beside it are its buttons in Machines. In a shared session the card also has the visitor's name.
 // On a TV (common's tv.js) the remote reaches only the card, so Wave is in it, and there is nothing
 // to copy a link to: the invite link is shown to type on another device. Fullscreen and Enter VR
 // are not offered there (main.js).
@@ -40,6 +43,30 @@ const PIECE_HINTS = {
   gamepad: 'Right stick to look · left stick to walk · A on a picture goes to it, on the doorway goes back',
   tv: 'Arrows: walk and turn · OK: the doorway, a picture or the panel in the middle · Menu or hold Back: settings and the shared session\nWith TalkBack: channel up and down walk, rewind and fast-forward turn',
 };
+// With machines on their stands (stands.js), each names them.
+const MACHINE_HINTS = {
+  ...HINTS,
+  touch: 'Drag to look · tap the floor to walk there, or a machine to play it · tap the doorway to go back',
+  mouse: 'Drag to look around · WASD or arrows to walk · click the floor to walk there, or a machine to play it',
+  gamepad: 'Right stick to look · left stick to walk · A on a machine plays it, on the doorway goes back',
+  tv: 'Arrows: walk and turn · OK: the doorway, a machine or the panel in the middle · Menu or hold Back: the machines, settings and the shared session\nWith TalkBack: channel up and down walk, rewind and fast-forward turn',
+};
+/**
+ * A machine running, on a screen (play.js): how to play it with what was used last. On a TV the
+ * card (Menu) has what the remote's keys don't.
+ * @param {import('./machines.js').Machine} m
+ */
+const playHints = (m) => ({
+  mouse: `${m.help} · Esc: stop`,
+  touch: 'Play with its pad and buttons on the screen · Stop is in the card',
+  gamepad: 'D-pad or left stick: its pad · A, B: its A and B · Start, Back: Start and Select · LB or RB: stop',
+  tv: 'Arrows: its pad · OK: its A · Menu: B, Start, Select, Reset and Stop · Back: stop',
+  'tv-card': 'Up, down: from button to button · OK: press it · Back: play again',
+});
+/** The buttons of a machine running, in the card, by play.js's names. */
+const MACHINE_BUTTONS = { start: 'Start', select: 'Select', a: 'A', b: 'B', reset: 'Reset', stop: 'Stop' };
+/** Where MAME's source is, at the tag it was built from (tools/build-mame.sh). */
+const MAME_SOURCE = 'https://github.com/mamedev/mame/tree/mame0289';
 
 export class Overlay {
   /**
@@ -50,8 +77,9 @@ export class Overlay {
    * @param {(i: number) => string} [o.pieceHref] the address piece i's link opens now (likewise)
    * @param {(i: number) => void} [o.onLeave] called when a link is followed: the way back's (-1), or piece i's
    * @param {boolean} [o.tv] the TV app's page (common's tv.js tvMode)
+   * @param {{ title: string, about: string }[]} [o.machines] the machines on their stands (stands.js), each one's name and what runs on it
    */
-  constructor(room, way, { href = () => way.url, pieceHref = () => '#', onLeave = () => {}, tv = false } = {}) {
+  constructor(room, way, { href = () => way.url, pieceHref = () => '#', onLeave = () => {}, tv = false, machines = [] } = {}) {
     this.root = document.getElementById('overlay');
     this.view = document.getElementById('view-overlay');
     this.tv = tv;
@@ -80,6 +108,40 @@ export class Overlay {
         }
         return el('li', {}, use, el('span', { class: 'about', id: about }, p.description));
       }))) : null;
+    // The machines: a button for each, which walks up to it and starts it, and while it runs, in its
+    // place, its buttons (as on the panel beside it on the wall; on a TV its A and B too).
+    /** (i) machine i chosen in the card. @type {(i: number) => void} */
+    this.onMachine = () => {};
+    /** (i, id) a button of machine i, running: MACHINE_BUTTONS's. @type {(i: number, id: string) => void} */
+    this.onMachineButton = () => {};
+    /** (on) Sound, for every machine. @type {(on: boolean) => void} */
+    this.onSound = () => {};
+    /** @type {HTMLButtonElement[]} */
+    this.machineButtons = [];
+    /** The buttons of each machine, while it runs. @type {HTMLElement[]} */
+    this.machineControls = [];
+    this.sound = el('input', { type: 'checkbox', name: 'sound' });
+    this.sound.checked = true;
+    this.sound.addEventListener('change', () => this.onSound(this.sound.checked));
+    this.machines = machines.length ? el('section', { class: 'machines', 'aria-labelledby': 'machines-heading' },
+      el('h2', { id: 'machines-heading' }, 'Machines'),
+      el('ul', {}, ...machines.map((m, i) => {
+        const about = `machine-${i}-about`;
+        const play = el('button', { class: 'piece machine', type: 'button', title: 'Walk up to it and play it', 'aria-describedby': about }, m.title);
+        play.addEventListener('click', () => this.onMachine(i));
+        const ids = ['start', 'select', ...(tv ? ['a', 'b'] : []), 'reset', 'stop'];
+        const controls = el('div', { class: 'actions machine-controls', role: 'group', 'aria-label': `The ${m.title}'s buttons`, hidden: '' }, ...ids.map((id) => {
+          const b = el('button', { class: 'chip', type: 'button' }, MACHINE_BUTTONS[id]);
+          b.addEventListener('click', () => this.onMachineButton(i, id));
+          return b;
+        }));
+        this.machineButtons.push(play);
+        this.machineControls.push(controls);
+        return el('li', {}, play, el('span', { class: 'about', id: about }, m.about), controls);
+      })),
+      this.soundLabel = el('label', { class: 'sound' }, this.sound, 'Sound'),
+      el('p', { class: 'mame-note' }, 'They run in MAME 0.289: ', el('a', { href: 'mame/COPYING.txt' }, 'its licence'), ', ', el('a', { href: MAME_SOURCE }, 'its source'), '.')) : null;
+    this.playing = -1; // the machine running (setPlaying)
     this.onSession = () => {};
     /** (key, value) a movement choice for VR: 'move' 'smooth' or 'teleport', 'turn' 'snap' or 'smooth'. @type {(key: string, value: string) => void} */
     this.onNav = () => {};
@@ -137,6 +199,7 @@ export class Overlay {
       el('header', {}, el('h1', { class: 'brand' }, room.title), this.back),
       el('p', { class: 'tagline' }, room.description),
       ...(this.walls ? [this.walls] : []),
+      ...(this.machines ? [this.machines] : []),
       this.inRoom = el('section', { class: 'in-room', 'aria-label': 'In the room' },
         el('div', { class: 'actions' }, this.session, ...(tv ? [this.wave] : []), this.settingsToggle),
         this.together,
@@ -157,11 +220,15 @@ export class Overlay {
       document.documentElement.style.setProperty('--buttons', `${this.buttons.offsetHeight}px`);
       this._placeHint();
     }).observe(this.buttons);
+    /** @type {'mouse'|'touch'|'gamepad'|'tv'|'tv-card'} */
     this._how = 'mouse';
     this.pieces = pieces;
-    this._hints = pieces.length ? PIECE_HINTS : HINTS;
+    this._roomHints = pieces.length ? PIECE_HINTS : machines.length ? MACHINE_HINTS : HINTS;
+    this._hints = this._roomHints;
     this._aimed = -1; // the piece a TV's dot is on (setAimed)
     this._aimShown = false; // the hint shown again for it, to fade when the dot leaves
+    /** What else the hint keeps clear of (play.js: a machine's pad on a touch screen). @type {Element[]} */
+    this.hintClear = [];
     addEventListener('resize', () => this._placeHint());
   }
 
@@ -211,6 +278,7 @@ export class Overlay {
   /**
    * Keeps the hint clear of the buttons at the foot: in the middle where it fits beside them, else
    * in the space beside them (wrapping within it), else above them (a narrow screen). Outside's.
+   * Then, in the middle again, above what else it would cover (hintClear).
    */
   _placeHint() {
     const s = this.hint.style;
@@ -222,14 +290,24 @@ export class Overlay {
       left = Math.min(left, r.left);
       top = Math.min(top, r.top);
     }
-    const h = this.hint.getBoundingClientRect();
+    let h = this.hint.getBoundingClientRect();
     const gap = 12, margin = 16;
-    if (left === Infinity || h.right <= left - gap || h.bottom <= top - 4) return;
-    const room = left - gap - margin;
-    if (room >= 260) {
-      s.left = `${margin + room / 2}px`;
-      s.maxWidth = `${room}px`;
-    } else s.bottom = `${innerHeight - top + 8}px`;
+    if (left !== Infinity && h.right > left - gap && h.bottom > top - 4) {
+      const room = left - gap - margin;
+      if (room >= 260) {
+        s.left = `${margin + room / 2}px`;
+        s.maxWidth = `${room}px`;
+      } else s.bottom = `${innerHeight - top + 8}px`;
+      h = this.hint.getBoundingClientRect();
+    }
+    let over = Infinity;
+    for (const e of this.hintClear) {
+      const r = e.getBoundingClientRect();
+      if (r.width && r.left < h.right && r.right > h.left && r.top < h.bottom && r.bottom > h.top) over = Math.min(over, r.top);
+    }
+    if (over === Infinity) return;
+    s.left = s.maxWidth = '';
+    s.bottom = `${innerHeight - over + 8}px`;
   }
 
   /**
@@ -240,6 +318,31 @@ export class Overlay {
   hideHint() {
     this.hint.classList.add('gone');
     if (this.tv) this.hint.setAttribute('aria-hidden', 'true');
+  }
+
+  /**
+   * Machine i runs (play.js), or none (-1): in Machines, its buttons in place of the one that
+   * started it (the focus with them, if it was on that one, and back again), and the hint says how to
+   * play it (machine: machines.js's), or again how to walk.
+   * @param {number} i
+   * @param {import('./machines.js').Machine | null} [machine]
+   */
+  setPlaying(i, machine = null) {
+    const was = this.playing;
+    if (i === was) return;
+    const focused = document.activeElement;
+    this.playing = i;
+    this.machines?.classList.toggle('running', i >= 0);
+    this.machineButtons.forEach((b, j) => {
+      b.hidden = j === i;
+    });
+    this.machineControls.forEach((g, j) => {
+      g.hidden = j !== i;
+    });
+    if (i >= 0 && focused === this.machineButtons[i]) /** @type {HTMLElement | undefined} */ (this.machineControls[i].children[0])?.focus?.();
+    else if (was >= 0 && focused && this.machineControls[was]?.contains?.(focused)) this.machineButtons[was]?.focus?.();
+    this._hints = i >= 0 && machine ? playHints(machine) : this._roomHints;
+    this.setHint(this._how);
   }
 
   /** In a shared session (or paused in one, going through the door), or not: its button leaves, or starts one. */
@@ -341,6 +444,10 @@ export class Overlay {
     this.card.classList.add('alone');
     this.inRoom.remove();
     for (const b of this.walls?.querySelectorAll('button.piece') ?? []) b.replaceWith(el('span', { class: 'piece-title' }, b.textContent));
+    // Nor are the machines, which need it: their names stay.
+    for (const b of this.machineButtons) b.replaceWith(el('span', { class: 'piece-title' }, b.textContent));
+    for (const g of this.machineControls) g.remove();
+    this.soundLabel?.remove();
     this.card.append(el('p', { class: 'no-webgl' }, message));
     this.hint.remove();
   }
