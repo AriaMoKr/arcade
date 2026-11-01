@@ -8,10 +8,11 @@ arcade: a WebXR room behind one of the Hallway's doors, becoming an arcade of ol
 consoles and arcade machines (three.js 0.186, plain ES modules, no bundler or build step). It is the
 room AriaMoKr/RoomTemplateEmpty makes (a checkout at `../RoomTemplateEmpty`): a floor, four walls, a
 ceiling with lamps, a window in the right-hand wall onto common's afternoon sky, the doorway back to
-the Hallway, and the control panel beside it; and so far three machines: the NES with Concentration
+the Hallway, and the control panel beside it; and so far four machines: the NES with Concentration
 Room, on its stand against the right-hand wall past the window; across from it, on a desk against
-the left-hand wall, the ZX Spectrum 48K with its BASIC; and between them, against the far wall facing
-the doorway, an arcade cabinet with an NES inside running Thwaite. Its own are `public/js/config.js`
+the left-hand wall, the ZX Spectrum 48K with its BASIC; between them, against the far wall facing
+the doorway, an arcade cabinet with an NES inside running Thwaite; and across from the window, on a
+plinth against the left-hand wall, the Vectrex with Mine Storm. Its own are `public/js/config.js`
 (7 × 9 m, violet walls, a dark ceiling, the magenta glow), the page's title and link-preview tags,
 package.json, `main.js`'s opening comment, the pictures, these docs and the machines (below); the
 rest is the template's code, which follows the Hallway (https://ariamokr.github.io/hallway/,
@@ -24,7 +25,8 @@ Spectrum's, on every screen), a gamepad, the VR controllers (and the Spectrum's 
 beside it) or the TV's remote. They came into the room a step at a time, each checked and pushed:
 the NES, the Spectrum with its keyboard, then the arcade cabinet holding an NES running Thwaite, the
 user's choice, as Breakout couldn't keep up on the web (README, "How fast"); Breakout's driver has
-left MAME's build. What comes next is the user's to say. `public/` is the whole site. The user asked for the hallway to be left alone, so change `../hallway` only when
+left MAME's build. Then the Vectrex, the user's choice of another machine, measured first. What
+comes next is the user's to say. `public/` is the whole site. The user asked for the hallway to be left alone, so change `../hallway` only when
 asked; its door to here comes in the Hallway's own round (README, "The Hallway's door", is the
 entry to give it).
 
@@ -105,10 +107,10 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   `_placeHint`), Wave, Copy invite link, Fullscreen, Enter VR, the aiming dot, and toasts
   (`role="status"`, polite). With `machines`, the card's Machines (a button per machine, `onMachine`;
   while it runs, its name, `machineNames`, and its buttons instead, machines.js's `machineButtons`
-  labelled by `MACHINE_BUTTONS`, `onMachineButton`; Sound, `onSound`; MAME's licence and source,
+  each by its `buttonName` (`data-button` its id), `onMachineButton`; Sound, `onSound`; MAME's licence and source,
   `MAME_SOURCE`), `setPlaying(i, machine, focus)` (the card, the focus, to `focus` (a computer's
-  picture, for its keys) or the first button, and the hints, `playHints`, a console's or a
-  computer's, while one runs; `.machines.running`, and its list item `current` among `machineItems`,
+  picture, for its keys) or the first button, and the hints, `playHints`, a console's (its buttons
+  by their names, its stick or pad) or a computer's, while one runs; `.machines.running`, and its list item `current` among `machineItems`,
   so that on a small screen the others leave the card), and the room's hints `MACHINE_HINTS`. Outside a
   TV, a hint the card would cover moves beside it when there is room (`_placeHint`, a phone held
   sideways). With
@@ -120,8 +122,8 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   (`aria-describedby`). `presence.js`: the session's status and notices in words.
 - `preview.js`: the two pictures (`renderPreview`, hung as the hallway hangs its doorways', and
   `renderSocial`, from `socialView`; with `also`, main.js's the stands' screens, from just inside
-  the doorway looking down the room at the three machines and the window, as two face each other
-  near the far wall and no view takes them in with the doorway).
+  the doorway looking down the room at the machines and the window, as two face each other near the
+  far wall and no view takes them in with the doorway).
 - `main.js`: the visit and the way back (common's `door.js`; `<id>.visit` in sessionStorage),
   arrival (at the doorway, or back from a piece's link, `?from=<piece id>` with no `back`, in front
   of it with the kept way back), `go(piece)` (fade, then `location.assign`: the way back, or the
@@ -139,7 +141,7 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
 - `style.css`: the page over the view, and the 10-foot view under `html.tv` (the hallway's: 960 × 540
   at a pixel ratio of 2, 18 px text, 4 px focus rings, the TV's safe margins, the hint and toasts
   beside the card). While a machine plays on a screen, `html.playing`: `#play` over the view (its
-  picture pixelated, `.machine-host` for MAME's frame, 0 × 0), the card narrower and holding only
+  picture pixelated, a vector screen's smoothed, `.vector`; `.machine-host` for MAME's frame, 0 × 0), the card narrower and holding only
   the way back and the machine's buttons, and on a touch screen `.touch-pad` (two rows, one from
   561 px wide). A computer's keys on the screen, `.machine-keys` (a grid of `--cols`, sized by
   `--pitch`; `.tight` shows a key's own legend alone, `.roomy` the E-mode ones too), a key held or a
@@ -147,12 +149,15 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
 - The machines. `machines.js`: pure, `MACHINES` (each a `Machine`: MAME's driver, the files it
   reads, fetched into its file system, its screen in pixels and the aspect it is shown at, the
   visitor's keys and MAME's they press (a key or keys together: the Spectrum's Backspace is CAPS
-  SHIFT and 0), never one of MAME's UI keys, tested; a console's `pad`, its controls by name; a
-  computer's `keyboard`; the cabinet's `thwaite` is a Nintendo, `NES_KEYS` and `NES_PAD` as the
-  NES's), `RESET` (MAME's soft reset, F3, the room's Reset button's alone),
-  `machineById`, `codesOf`, `machineCodes` (every key of MAME's a machine takes), `machineButtons`
+  SHIFT and 0), never one of MAME's UI keys, tested; a console's `pad`, its controls by name, and
+  where its buttons aren't a Nintendo's, `names` (the Vectrex's 1 to 4, in the card's order), with
+  `stick` and a vector screen's `vector`; a computer's `keyboard`; the cabinet's `thwaite` is a
+  Nintendo, `NES_KEYS` and `NES_PAD` as the NES's), `RESET` (MAME's soft reset, F3, the room's Reset
+  button's alone), `machineById`, `codesOf`, `machineCodes` (every key of MAME's a machine takes),
+  `buttonName(m, id)` (what a button is called on m, else `BUTTON_NAMES`, a Nintendo's), `machineButtons`
   (the card's while it runs), `mameArgs` (MAME's command line: `-video accel -renderdriver software`, as MAME's
-  web build has no `soft` video; `-nothrottle`, as the page paces it; `-sound js` at the page's
+  web build has no `soft` video; `-cfg_directory /cfg`, where a machine's settings go, among its files;
+  `-nothrottle`, as the page paces it; `-sound js` at the page's
   sample rate). `emulator.js`: `Emulator`, one machine at a time in an iframe of its own
   (`public/mame/machine.html`), `step(now)` from the page's frame loop (`pace`: 60 steps a second at
   any display rate, at most 3 owed, so it keeps time down to 20 page frames a second),
@@ -167,7 +172,9 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   `mame-test.js`: the test page (`?m=`, `?view=3d`, `?xr=emulate`; `window.test` for
   `tools/measure-machines.mjs`). `public/mame/`: MAME's build (`arcade.js`, `arcade.wasm`, its
   licence `COPYING.txt` and `legal/`, with `emscripten.txt` for what Emscripten adds),
-  `roms/<machine>/` and `software/<name>/`, each with a README giving its source and licence.
+  `roms/<machine>/` and `software/<name>/`, each with a README giving its source and licence, and
+  `cfg/`, the room's own settings for a machine in MAME (`vectrex.cfg`: the light pen's crosshair,
+  which the arrows would otherwise show, off).
 - `keyboards.js`: pure. `SPECTRUM`, a `Keyboard`: its forty keys in four rows, each a `Key` (MAME's
   `code`, its `label`, `short` where keys are small, and what it types in the other modes: `word`
   in K mode or with CAPS SHIFT, `symbol` with SYMBOL SHIFT, `ext` and `extSymbol` in E mode,
@@ -191,12 +198,13 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   of the window and of the others, its screen and marquee on a part's face, its panel behind none,
   and somewhere to stand in front). `stands-scene.js`: `buildStands` (the parts as one mesh in the
   room's baked light, a computer's keys drawn on its top, a cabinet's marquee lit (`marqueeArt`),
-  each screen a mesh of its own,
+  each screen a mesh of its own (a vector screen's texture smoothed),
   `live(i, canvas)` while it runs in VR and `still(i, canvas)` once it stops, and `panels`, a
-  `StandPanel` each, redrawn only on a change: a computer's its keyboard, the legends fitted to
+  `StandPanel` each, redrawn only on a change: a console's buttons by `buttonName` and how to play
+  it in VR (`vrPad`); a computer's its keyboard, the legends fitted to
   each key (`legends`), the shifts down lit and the key pointed at).
 - `play.js`: `Play`, the machines played (README, "Playing the Nintendo", "Typing on the
-  Spectrum", "Playing the arcade cabinet"). `choose(i)` (prime the sound, walk up, `start(i)`), `stop()` (the focus back to the
+  Spectrum", "Playing the arcade cabinet", "Playing the Vectrex"). `choose(i)` (prime the sound, walk up, `start(i)`), `stop()` (the focus back to the
   machine's button in the card if it was on the picture or its keys), `stepBack()`, `button(i, id)`
   (the card's and the panel's, a computer's keys `key:<code>` among them), `first()` (the TV's
   Menu), `hand()` (VR: a console's left stick the pad, Y/X Start/Select, the right hand's A/B; a
@@ -215,8 +223,8 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   size; its keys from a capture listener on window that comes before the Remote's and walking's
   (on a TV, OK is A, or presses the key ringed; not while the remote is in the card, nor a form
   control's or a button's Enter or Space); Escape, LB/RB and Back stop it. On a touch screen a
-  console's pad (`dpadDirections`, pointer capture, `DPAD`), shown for a finger and hidden for the
-  mouse.
+  console's pad (`dpadDirections`, pointer capture, `DPAD`; its buttons named for the machine,
+  `#namePad`), shown for a finger and hidden for the mouse.
 
 ## Conventions
 
@@ -274,7 +282,8 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   alias, as `origin` does.
 - What runs on the machines is only what its licence lets be served from Pages (public domain,
   freely licensed, homebrew whose authors allow it, or a ROM whose owner lets it be passed on, as
-  Amstrad does the Spectrum's with emulators), BIOS and system ROMs included, each listed in the
+  Amstrad does the Spectrum's with emulators and Smith Engineering the Vectrex's, never for
+  profit), BIOS and system ROMs included, each listed in the
   README with its licence. MAME is GPL-2.0-or-later: its licence and notices are served beside it
   (`COPYING.txt`, `legal/`), and the README, the card and the test page link its source at the tag.
   What its build links goes under GPL-2.0 with it (FreeType under its GPL option, not the FTL). A

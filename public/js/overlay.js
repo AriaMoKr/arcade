@@ -15,6 +15,7 @@
 // to copy a link to: the invite link is shown to type on another device. Fullscreen and Enter VR
 // are not offered there (main.js).
 import { keyByCode } from './keyboards.js';
+import { buttonName, machineButtons } from './machines.js';
 
 function el(tag, attrs = {}, ...children) {
   const e = document.createElement(tag);
@@ -52,20 +53,26 @@ const MACHINE_HINTS = {
   gamepad: 'Right stick to look · left stick to walk · A on a machine plays it, on the doorway goes back',
   tv: 'Arrows: walk and turn · OK: the doorway, a machine or the panel in the middle · Menu or hold Back: the machines, settings and the shared session\nWith TalkBack: channel up and down walk, rewind and fast-forward turn',
 };
+/** Names in a list: "A, B and C". @param {string[]} names */
+const list = (names) => (names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}` : names.join(''));
 /**
- * A machine running, on a screen (play.js): how to play it with what was used last; a computer's,
- * how to type on it, on its keys under its picture too (screen-keys.js). On a TV the card (Menu) has
- * what the remote's keys don't.
+ * A machine running, on a screen (play.js): how to play it with what was used last, its buttons by
+ * its own names for them (machines.js buttonName: the Vectrex's numbered); a computer's, how to type
+ * on it, on its keys under its picture too (screen-keys.js). On a TV the card (Menu) has what the
+ * remote's keys don't.
  * @param {import('./machines.js').Machine} m
  */
 const playHints = (m) => {
   const kb = m.keyboard;
   if (!kb) {
+    const name = (/** @type {string} */ id) => buttonName(m, id);
+    const way = m.stick ? 'stick' : 'pad';
+    const menu = machineButtons(m, true).filter((id) => id !== 'a').map(name);
     return {
       mouse: `${m.help} · Esc: stop`,
-      touch: 'Play with its pad and buttons on the screen · Stop is in the card',
-      gamepad: 'D-pad or left stick: its pad · A, B: its A and B · Start, Back: Start and Select · LB or RB: stop',
-      tv: 'Arrows: its pad · OK: its A · Menu: B, Start, Select, Reset and Stop · Back: stop',
+      touch: `Play with its ${way} and buttons on the screen · Stop is in the card`,
+      gamepad: `D-pad or left stick: its ${way} · A, B: its ${name('a')} and ${name('b')} · Start, Back: its ${name('start')} and ${name('select')} · LB or RB: stop`,
+      tv: `Arrows: its ${way} · OK: its ${name('a')} · Menu: ${list(menu)} · Back: stop`,
       'tv-card': 'Up, down: from button to button · OK: press it · Back: play again',
     };
   }
@@ -78,8 +85,6 @@ const playHints = (m) => {
     'tv-card': 'Up, down: from button to button · OK: press it · Back: type again',
   };
 };
-/** The buttons of a machine running, in the card, by play.js's names. */
-const MACHINE_BUTTONS = { start: 'Start', select: 'Select', a: 'A', b: 'B', reset: 'Reset', stop: 'Stop' };
 /** Where MAME's source is, at the tag it was built from (tools/build-mame.sh). */
 const MAME_SOURCE = 'https://github.com/mamedev/mame/tree/mame0289';
 
@@ -92,8 +97,9 @@ export class Overlay {
    * @param {(i: number) => string} [o.pieceHref] the address piece i's link opens now (likewise)
    * @param {(i: number) => void} [o.onLeave] called when a link is followed: the way back's (-1), or piece i's
    * @param {boolean} [o.tv] the TV app's page (common's tv.js tvMode)
-   * @param {{ title: string, about: string, buttons: string[] }[]} [o.machines] the machines on their stands (stands.js), each one's
-   *   name, what runs on it, and its buttons while it runs (machines.js machineButtons)
+   * @param {{ title: string, about: string, buttons: { id: string, name: string }[] }[]} [o.machines] the machines on their stands
+   *   (stands.js), each one's name, what runs on it, and its buttons while it runs (machines.js
+   *   machineButtons), each by play.js's name for it and its own (buttonName)
    */
   constructor(room, way, { href = () => way.url, pieceHref = () => '#', onLeave = () => {}, tv = false, machines = [] } = {}) {
     this.root = document.getElementById('overlay');
@@ -129,7 +135,7 @@ export class Overlay {
     // its picture; on a TV a console's A and B too).
     /** (i) machine i chosen in the card. @type {(i: number) => void} */
     this.onMachine = () => {};
-    /** (i, id) a button of machine i, running: MACHINE_BUTTONS's. @type {(i: number, id: string) => void} */
+    /** (i, id) a button of machine i, running, by play.js's name for it (machines.js machineButtons). @type {(i: number, id: string) => void} */
     this.onMachineButton = () => {};
     /** (on) Sound, for every machine. @type {(on: boolean) => void} */
     this.onSound = () => {};
@@ -150,8 +156,8 @@ export class Overlay {
         const about = `machine-${i}-about`;
         const play = el('button', { class: 'piece machine', type: 'button', title: 'Walk up to it and play it', 'aria-describedby': about }, m.title);
         play.addEventListener('click', () => this.onMachine(i));
-        const controls = el('div', { class: 'actions machine-controls', role: 'group', 'aria-label': `The ${m.title}'s buttons`, hidden: '' }, ...m.buttons.map((id) => {
-          const b = el('button', { class: 'chip', type: 'button' }, MACHINE_BUTTONS[id]);
+        const controls = el('div', { class: 'actions machine-controls', role: 'group', 'aria-label': `The ${m.title}'s buttons`, hidden: '' }, ...m.buttons.map(({ id, name }) => {
+          const b = el('button', { class: 'chip', type: 'button', 'data-button': id }, name);
           b.addEventListener('click', () => this.onMachineButton(i, id));
           return b;
         }));

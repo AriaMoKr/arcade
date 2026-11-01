@@ -111,6 +111,34 @@ export const STANDS = [
     front: { a: 0, d: 1.3 },
     about: 'Thwaite, fireworks against falling missiles, whose explosions flicker',
   },
+  {
+    // The Vectrex on a plinth against the left-hand wall, across the room from the window: upright,
+    // its screen in its face, and its controller in front of it, the stick on the left and the four
+    // buttons in a row. A plinth as high as a bar, so that its small screen is near the eye.
+    machine: 'vectrex',
+    wall: 'left',
+    at: 0,
+    parts: [
+      { part: 'plinth', a: [-0.3, 0.3], y: [0, 1.03], d: [0, 0.5], color: '#4c3426' },
+      { part: 'plinth-top', a: [-0.32, 0.32], y: [1.03, 1.07], d: [0, 0.52], color: '#5e412e' },
+      // 24 × 38 × 30 cm, as the Vectrex is: its foot, which holds the controller when it is put
+      // away, a little proud of its face; its knob on its right.
+      { part: 'foot', a: [-0.12, 0.12], y: [1.07, 1.17], d: [0.1, 0.42], color: '#1c1c20' },
+      { part: 'body', a: [-0.12, 0.12], y: [1.17, 1.45], d: [0.12, 0.4], color: '#141417' },
+      { part: 'knob', a: [0.12, 0.135], y: [1.38, 1.41], d: [0.3, 0.33], color: '#2c2c31' },
+      { part: 'controller', a: [-0.11, 0.11], y: [1.07, 1.1], d: [0.43, 0.5], color: '#1c1c20' },
+      { part: 'stick', a: [-0.085, -0.069], y: [1.1, 1.135], d: [0.458, 0.474], color: '#2c2c31' },
+      { part: 'button-1', a: [-0.01, 0.006], y: [1.1, 1.106], d: [0.458, 0.474], color: '#8e8c96' },
+      { part: 'button-2', a: [0.018, 0.034], y: [1.1, 1.106], d: [0.458, 0.474], color: '#8e8c96' },
+      { part: 'button-3', a: [0.046, 0.062], y: [1.1, 1.106], d: [0.458, 0.474], color: '#8e8c96' },
+      { part: 'button-4', a: [0.074, 0.09], y: [1.1, 1.106], d: [0.458, 0.474], color: '#8e8c96' },
+    ],
+    // A 9-inch tube, turned upright: 3:4.
+    screen: { a: 0, y: 1.31, d: 0.401, width: 0.15, height: 0.2 },
+    panel: { a: [0.42, 0.72], y: [1.12, 1.38], d: 0.012 },
+    front: { a: 0, d: 0.92 },
+    about: 'Mine Storm, built into it: a ship among drifting mines',
+  },
 ];
 
 /**

@@ -1,6 +1,6 @@
 // arcade: a room behind the Hallway's door, an arcade of old computers, game consoles and arcade
-// machines, so far a Nintendo Entertainment System, a ZX Spectrum and an arcade cabinet, each on its
-// stand (stands.js), played as play.js says; the rest is the room RoomTemplateEmpty makes (what a room made from it
+// machines, so far a Nintendo Entertainment System, a ZX Spectrum, an arcade cabinet and a Vectrex,
+// each on its stand (stands.js), played as play.js says; the rest is the room RoomTemplateEmpty makes (what a room made from it
 // changes is config.js). Coming in through the door, the visitor
 // carries on from how they went through it (the Hallway's link: where in the doorway, which way
 // they faced); behind them the doorway glows and shows the hall, and going back through it leads
@@ -22,7 +22,7 @@ import { setAnisotropy } from './textures.js';
 import { renderPreview, renderSocial, previewView, socialView } from './preview.js';
 import { STANDS, layoutStands } from './stands.js';
 import { buildStands } from './stands-scene.js';
-import { machineButtons, machineById } from './machines.js';
+import { buttonName, machineButtons, machineById } from './machines.js';
 import { Play } from './play.js';
 import { hallLink, hallwayViews, keptWay, leaveUrl, readVisit, wayBack, withoutVisit } from 'common/door.js';
 import { Fade } from 'common/fade.js';
@@ -98,10 +98,10 @@ function pieceUrl(i) {
 
 let together = null; // the shared session, made once the scene is (below)
 let leftBy = -1; // the piece the visitor went by, else -1 (the doorway)
-// The machines on their stands, by name, what runs on each, and its buttons in the card.
+// The machines on their stands, by name, what runs on each, and its buttons in the card, by its names for them.
 const machines = STANDS.map((s) => {
   const m = machineById(s.machine);
-  return { title: m.title, about: s.about, buttons: machineButtons(m, tv) };
+  return { title: m.title, about: s.about, buttons: machineButtons(m, tv).map((id) => ({ id, name: buttonName(m, id) })) };
 });
 const overlay = new Overlay(ROOM, way, {
   href: () => leaveUrl(way, together?.room ?? null),

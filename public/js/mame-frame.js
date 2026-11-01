@@ -84,8 +84,10 @@ const mame = {
     if (mame.state === 'starting') {
       mame.state = 'running';
       // Only now may the canvas be sized to the frame: SDL, making MAME's window, takes a canvas
-      // sized by CSS for a window that size, and MAME would draw its screen that large.
+      // sized by CSS for a window that size, and MAME would draw its screen that large. A vector
+      // screen's lines are smoothed, not shown pixel for pixel (the test page shows this frame).
       document.documentElement.classList.add('running');
+      document.documentElement.classList.toggle('vector', !!machine?.vector);
     }
     return true;
   },

@@ -1,5 +1,6 @@
 // The machines' stands in 3D (stands.js): every stand's parts as boxes in one mesh, with the room's
-// light baked into them (scene.js's lit); each machine's screen; a computer's keys on its top; an
+// light baked into them (scene.js's lit); each machine's screen (sharp pixels up close, a vector
+// screen's lines smoothed); a computer's keys on its top; an
 // arcade cabinet's marquee; and the panel of its buttons on the wall beside it (a computer's keys
 // among them), redrawn only when what it shows changes, the button pointed at lit by a pane over it.
 // A screen shows the machine's own picture while it runs (MAME's canvas, copied each time it
@@ -7,7 +8,7 @@
 // run, a screen switched off.
 import * as THREE from 'three';
 import { Builder } from './builder.js';
-import { machineById } from './machines.js';
+import { buttonName, machineById } from './machines.js';
 import { PANEL_KEYS } from './stands.js';
 import { GOLD, SANS, SERIF, enamel } from './textures.js';
 
@@ -48,14 +49,15 @@ export function buildStands(S, { lit, lightColor, anisotropy = 1 }) {
     still.width = m.screen.width;
     still.height = m.screen.height;
     switchedOff(/** @type {CanvasRenderingContext2D} */ (still.getContext('2d')), still.width, still.height);
-    const stillTexture = screenTexture(still);
+    const smooth = !!m.vector;
+    const stillTexture = screenTexture(still, smooth);
     const material = new THREE.MeshBasicMaterial({ map: stillTexture });
     const screen = new THREE.Mesh(new THREE.PlaneGeometry(s.screen.width, s.screen.height), material);
     screen.name = `screen ${s.machine}`;
     screen.position.set(s.screen.x, s.screen.y, s.screen.z);
     screen.rotation.y = Math.atan2(s.nx, s.nz);
     group.add(screen);
-    return { material, still, stillTexture, /** @type {THREE.CanvasTexture | null} */ live: null };
+    return { material, still, stillTexture, smooth, /** @type {THREE.CanvasTexture | null} */ live: null };
   });
 
   // A computer's keys, on its top: its rows along the wall, the first row furthest from the room.
@@ -121,7 +123,7 @@ export function buildStands(S, { lit, lightColor, anisotropy = 1 }) {
       const s = screens[i];
       if (s.live?.image !== canvas) {
         s.live?.dispose();
-        s.live = screenTexture(canvas);
+        s.live = screenTexture(canvas, s.smooth);
         s.material.map = s.live;
         s.material.needsUpdate = true;
       }
@@ -150,11 +152,14 @@ export function buildStands(S, { lit, lightColor, anisotropy = 1 }) {
   };
 }
 
-/** @param {HTMLCanvasElement} canvas */
-function screenTexture(canvas) {
+/**
+ * @param {HTMLCanvasElement} canvas
+ * @param {boolean} [smooth] a vector screen's lines, smoothed up close (a raster screen's pixels stay sharp)
+ */
+function screenTexture(canvas, smooth = false) {
   const t = new THREE.CanvasTexture(canvas);
   t.colorSpace = THREE.SRGBColorSpace;
-  t.magFilter = THREE.NearestFilter; // sharp pixels up close
+  t.magFilter = smooth ? THREE.LinearFilter : THREE.NearestFilter;
   t.minFilter = THREE.LinearFilter;
   t.generateMipmaps = false;
   return t;
@@ -279,9 +284,15 @@ function marqueeArt(text) {
   return c;
 }
 
-const LABELS = { play: 'Play', select: 'Select', start: 'Start', reset: 'Reset', stop: 'Stop' };
-/** How to play a console in VR, and to type on a computer. */
-const VR_PAD = ['Left stick: the pad · A and B: A and B', 'X: Select · Y: Start'];
+/**
+ * How to play console m in VR, its buttons by its own names for them (machines.js buttonName).
+ * @param {import('./machines.js').Machine} m
+ */
+const vrPad = (m) => {
+  const name = (/** @type {string} */ id) => buttonName(m, id);
+  return [`Left stick: its ${m.stick ? 'stick' : 'pad'} · A and B: its ${name('a')} and ${name('b')}`, `X: its ${name('select')} · Y: its ${name('start')}`];
+};
+/** How to type on a computer in VR. */
 const VR_KEYS = ['Trigger: the key pointed at · CAPS SHIFT and SYMBOL SHIFT stay down for the next', 'Left X, Y: CAPS SHIFT, SYMBOL SHIFT · Right A: ENTER · B: DELETE'];
 const VR_STOPPED = ['Or point at its screen and pull the trigger'];
 /** The red of the Spectrum's SYMBOL SHIFT legends, and the green of its E mode's. */
@@ -289,9 +300,9 @@ const RED = '#ff6b5e', GREEN = '#76d671';
 
 /**
  * The panel of a machine's buttons on the wall beside it, in the control panel's enamel (panel.js):
- * its name and what runs on it, Play, or while it runs a console's Select, Start, Reset and Stop, or
- * a computer's Reset and Stop and its keys (its shifts lit while they are down for the next key);
- * and how to play it in VR. Redrawn only when that changes; the button pointed at is lit by a pane
+ * its name and what runs on it, Play, or while it runs a console's Select and Start (by its own
+ * names for them: the Vectrex's 1 and 2), Reset and Stop, or a computer's Reset and Stop and its keys
+ * (its shifts lit while they are down for the next key); and how to play it in VR. Redrawn only when that changes; the button pointed at is lit by a pane
  * over it, which moves.
  */
 export class StandPanel {
@@ -380,7 +391,7 @@ export class StandPanel {
       g.fillText(this.about, W / 2, 96);
     }
     for (const [id, x0, y0, x1, y1] of this.layout[this.running ? 'running' : 'stopped']) {
-      if (!Object.hasOwn(LABELS, id)) continue; // a key, drawn above
+      if (id.startsWith('key:')) continue; // a key, drawn above
       g.beginPath();
       g.roundRect(x0, y0, x1 - x0, y1 - y0, 12);
       g.fillStyle = 'rgba(255,255,255,0.06)';
@@ -391,11 +402,11 @@ export class StandPanel {
       g.fillStyle = '#efe5cf';
       g.font = `600 ${id === 'play' ? 30 : 26}px ${SANS}`;
       g.textBaseline = 'middle';
-      g.fillText(LABELS[/** @type {keyof typeof LABELS} */ (id)], (x0 + x1) / 2, (y0 + y1) / 2 + 1);
+      g.fillText(buttonName(this.machine, id), (x0 + x1) / 2, (y0 + y1) / 2 + 1);
       g.textBaseline = 'alphabetic';
     }
     g.fillStyle = '#b9a98d';
-    const lines = !this.running ? VR_STOPPED : keyboard ? VR_KEYS : VR_PAD;
+    const lines = !this.running ? VR_STOPPED : keyboard ? VR_KEYS : vrPad(this.machine);
     const top = keyboard ? H - 68 : 318;
     lines.forEach((line, i) => {
       fitText(g, line, W - 72, 20, SANS);

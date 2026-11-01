@@ -9,14 +9,16 @@
 // stick, its A and B the right's, X and Y its Select and Start; a computer's keys on the panel beside
 // it, pointed at, its shifts on the left's X and Y, ENTER and DELETE the right's A and B; until a
 // move away (a teleport: controls.js's stand). The card's buttons and the panel on the wall press a
-// console's Start and Select (on a TV, A and B too), reset the machine and stop it. A computer's
-// shift pressed on the screen or the panel stays down for the next key.
+// console's Start and Select (on a TV, A and B too), reset the machine and stop it; each goes by the
+// console's own name for it (machines.js buttonName: the Vectrex's 1 to 4), on the screen's pad too.
+// A computer's shift pressed on the screen or the panel stays down for the next key.
 //
 // MAME's frame (mame-frame.js) is never seen: it stays the machine's own size, as a larger one
 // would have MAME draw a larger picture, and each picture it draws is copied to a canvas of the
-// page's, which the view shows scaled up, and in VR the screen in the room.
+// page's, which the view shows scaled up (pixel for pixel, a vector screen's lines smoothed), and
+// in VR the screen in the room.
 import { Emulator } from './emulator.js';
-import { RESET, codesOf, machineById, machineCodes } from './machines.js';
+import { RESET, buttonName, codesOf, machineById, machineCodes } from './machines.js';
 import { keyByCode } from './keyboards.js';
 import { ScreenKeys, keysIn } from './screen-keys.js';
 import { firstPad, held } from 'common/gamepad.js';
@@ -226,6 +228,8 @@ export class Play {
     this.ctx.fillStyle = '#000';
     this.ctx.fillRect(0, 0, m.screen.width, m.screen.height);
     this.canvas.setAttribute('aria-label', `The ${m.title}'s screen: ${this.stands[i].about}`);
+    this.canvas.classList.toggle('vector', !!m.vector);
+    if (m.pad) this.#namePad(m);
     this.padHint = false;
     this.stale.clear();
     const pad = firstPad(navigator.getGamepads?.());
@@ -818,6 +822,22 @@ export class Play {
     });
     return el('div', { class: 'touch-pad', role: 'group', 'aria-label': "The machine's pad", hidden: '' },
       dpad, el('div', { class: 'pad-mid' }, select, start), el('div', { class: 'pad-ab' }, b, a));
+  }
+
+  /**
+   * The screen's pad for machine m: its buttons named as m names them (a Nintendo's A, B, Select and
+   * Start; the Vectrex's 1 to 4), each showing its name.
+   * @param {Machine} m
+   */
+  #namePad(m) {
+    this.touchPad.setAttribute('aria-label', `The ${m.title}'s ${m.stick ? 'stick and buttons' : 'pad'}`);
+    for (const id of ['select', 'start', 'b', 'a']) {
+      const b = this.padButtons.get(id);
+      if (!b) continue;
+      const name = buttonName(m, id);
+      b.setAttribute('aria-label', name);
+      /** @type {HTMLElement} */ (b.firstElementChild).textContent = name;
+    }
   }
 
   /**

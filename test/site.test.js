@@ -10,7 +10,7 @@ import { fileURLToPath } from 'node:url';
 import { ROOM, hallwayDoor } from '../public/js/config.js';
 import { PANEL_BUTTONS } from '../public/js/room.js';
 import { STANDS, panelLayout } from '../public/js/stands.js';
-import { machineButtons, machineById } from '../public/js/machines.js';
+import { buttonName, machineButtons, machineById } from '../public/js/machines.js';
 import { installDom } from './helpers/dom.js';
 
 const root = join(dirname(fileURLToPath(import.meta.url)), '..', 'public');
@@ -126,7 +126,7 @@ test("every button of a machine's panel on the wall is a control on the page too
       const { ScreenKeys } = await import('../public/js/screen-keys.js');
       const machines = STANDS.map((s) => {
         const m = machineById(s.machine);
-        return { title: m.title, about: s.about, buttons: machineButtons(m, tv) };
+        return { title: m.title, about: s.about, buttons: machineButtons(m, tv).map((id) => ({ id, name: buttonName(m, id) })) };
       });
       const o = new Overlay(ROOM, { url: 'https://ariamokr.github.io/hallway/', label: '← Hallway', title: 'Back to the Hallway' }, { tv, machines });
       const did = [];
@@ -155,7 +155,9 @@ test("every button of a machine's panel on the wall is a control on the page too
         assert.ok(o.machineNames.every((n, j) => n.hidden === (j !== i)));
         // Marked as the one running, so that on a small screen the others leave the card (style.css).
         assert.ok(o.machineItems.every((item, j) => item.classList.contains('current') === (j === i)));
-        const chips = new Map(o.machineControls[i].children.map((b) => [b.textContent.toLowerCase(), b]));
+        const chips = new Map(o.machineControls[i].children.map((b) => [b.getAttribute('data-button'), b]));
+        // Each named as the machine names it, as on its panel: a Nintendo's Start, the Vectrex's 1.
+        for (const [id, b] of chips) assert.equal(b.textContent, buttonName(m, id), `${m.id}: ${id}`);
         const keys = m.keyboard ? new ScreenKeys(m.keyboard, `The ${m.title}'s keyboard`) : null;
         // Each key is named by what it shows (WCAG 2.5.3, Label in Name): no aria-label over it. A key
         // with a short legend holds both, of which style.css shows one, the other not read.
@@ -186,7 +188,10 @@ test("every button of a machine's panel on the wall is a control on the page too
         assert.equal(chips.has('a') && chips.has('b'), tv && !!m.pad);
         // And how to play it, then how to walk again.
         o.setHint(tv ? 'tv' : 'mouse');
-        assert.match(o.hint.textContent, !tv ? /Esc: stop$/ : m.keyboard ? /^Arrows: from key to key · OK: press it/ : /^Arrows: its pad · OK: its A/);
+        const ok = `Arrows: its ${m.stick ? 'stick' : 'pad'} · OK: its ${buttonName(m, 'a')} · `;
+        if (!tv) assert.match(o.hint.textContent, /Esc: stop$/);
+        else if (m.keyboard) assert.match(o.hint.textContent, /^Arrows: from key to key · OK: press it/);
+        else assert.ok(o.hint.textContent.startsWith(ok), o.hint.textContent);
         o.setPlaying(-1);
         assert.ok(!o.machineButtons[i].hidden && o.machineControls[i].hidden);
         assert.match(o.hint.textContent, /a machine/);

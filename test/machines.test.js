@@ -7,7 +7,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ID } from '../public/js/config.js';
-import { MACHINES, RESET, codesOf, machineButtons, machineById, machineCodes, mameArgs } from '../public/js/machines.js';
+import { MACHINES, RESET, buttonName, codesOf, machineButtons, machineById, machineCodes, mameArgs } from '../public/js/machines.js';
 import { keyOf, pace } from '../public/js/emulator.js';
 
 const mame = join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'mame');
@@ -29,7 +29,7 @@ test("what MAME reads for each machine is served, under MAME's own folder, with 
       assert.ok(!f.url.startsWith('/') && !f.url.includes('..'), f.url);
       assert.ok(existsSync(join(mame, f.url)), `${m.id}: ${f.url} is not in public/mame/`);
       assert.ok(existsSync(join(mame, dirname(f.url), 'README.md')), `${m.id}: no README.md beside ${f.url}`);
-      assert.match(f.path, /^\/(roms|software)\//, f.path);
+      assert.match(f.path, /^\/(roms|software|cfg)\//, f.path);
     }
   }
 });
@@ -57,6 +57,7 @@ test("MAME's command line: the machine, its screen one pixel to one, drawn by SD
     assert.equal(value('-sound'), 'js');
     assert.equal(value('-samplerate'), '44100');
     assert.equal(value('-rompath'), '/roms');
+    assert.equal(value('-cfg_directory'), '/cfg');
     for (const o of ['-window', '-nokeepaspect', '-skip_gameinfo', '-noreadconfig', '-nothrottle']) assert.ok(args.includes(o), o);
     assert.deepEqual(args.slice(args.length - m.args.length), m.args);
   }
@@ -86,8 +87,10 @@ test("a computer's keys are its keyboard's, and its card has Reset and Stop; a c
       assert.deepEqual(machineButtons(m, true), ['reset', 'stop']);
     }
     if (m.pad) {
-      assert.deepEqual(machineButtons(m), ['start', 'select', 'reset', 'stop']);
-      assert.deepEqual(machineButtons(m, true), ['start', 'select', 'a', 'b', 'reset', 'stop']);
+      assert.deepEqual(machineButtons(m).slice(-2), ['reset', 'stop']);
+      assert.deepEqual(machineButtons(m).slice(0, -2).sort(), ['select', 'start']);
+      assert.deepEqual(machineButtons(m, true).slice(-2), ['reset', 'stop']);
+      assert.deepEqual(machineButtons(m, true).slice(0, -2).sort(), ['a', 'b', 'select', 'start']);
     }
   }
   // Backspace and the arrows are the Spectrum's own: CAPS SHIFT with 0, and with 5 to 8.
@@ -112,6 +115,27 @@ test("a console's pad presses MAME's keys for its eight controls, its own keys a
   }
   assert.equal(RESET, 'F3');
   for (const m of MACHINES) assert.ok(!machineCodes(m).includes(RESET), `${m.id}: a key resets it`);
+});
+
+test("a console's buttons go by its own names: a Nintendo's A, B, Select and Start, the Vectrex's 1 to 4, in that order in the card", () => {
+  const nes = /** @type {import('../public/js/machines.js').Machine} */ (machineById('nes'));
+  assert.deepEqual(machineButtons(nes, true).map((id) => buttonName(nes, id)), ['Start', 'Select', 'A', 'B', 'Reset', 'Stop']);
+  assert.deepEqual(machineButtons(nes).map((id) => buttonName(nes, id)), ['Start', 'Select', 'Reset', 'Stop']);
+  assert.equal(buttonName(nes, 'play'), 'Play');
+  const vectrex = /** @type {import('../public/js/machines.js').Machine} */ (machineById('vectrex'));
+  assert.deepEqual(machineButtons(vectrex, true).map((id) => buttonName(vectrex, id)), ['1', '2', '3', '4', 'Reset', 'Stop']);
+  assert.deepEqual(machineButtons(vectrex).map((id) => buttonName(vectrex, id)), ['1', '2', 'Reset', 'Stop']);
+  // Each the button MAME numbers so, by its keys for them (MAME's defaults for buttons 1 to 4), and
+  // the visitor's 1 to 4 the same; its stick the arrows.
+  const BUTTONS = { 1: 'ControlLeft', 2: 'AltLeft', 3: 'Space', 4: 'ShiftLeft' };
+  const pad = /** @type {import('../public/js/machines.js').Pad} */ (vectrex.pad);
+  for (const [id, name] of Object.entries(vectrex.names ?? {})) assert.equal(pad[/** @type {keyof typeof pad} */ (id)], BUTTONS[/** @type {keyof typeof BUTTONS} */ (name)], `${id} (${name})`);
+  for (const [n, code] of Object.entries(BUTTONS)) assert.equal(vectrex.keys[`Digit${n}`], code);
+  assert.deepEqual([pad.up, pad.down, pad.left, pad.right], ['ArrowUp', 'ArrowDown', 'ArrowLeft', 'ArrowRight']);
+  // Its light pen's crosshair, which the arrows move too, never shown: its settings for MAME say so.
+  const cfg = vectrex.files.find((f) => f.path === '/cfg/vectrex.cfg');
+  assert.ok(cfg, "the Vectrex's settings for MAME");
+  assert.match(readFileSync(join(mame, cfg.url), 'utf8'), /<system name="vectrex">\s*<crosshairs>\s*<crosshair player="0" mode="0" \/>/);
 });
 
 test("a key event's key for its code, as a US keyboard gives it", () => {

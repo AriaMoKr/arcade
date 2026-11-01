@@ -6,9 +6,10 @@ A room behind the [Hallway](https://ariamokr.github.io/hallway/)'s door, becomin
 computers, game consoles and arcade machines. It is the room
 [AriaMoKr/RoomTemplateEmpty](https://github.com/AriaMoKr/RoomTemplateEmpty) makes (a floor, four
 walls, a ceiling with its lamps, a window onto the afternoon sky, and the doorway back to the
-Hallway), in an arcade's dusk of violet walls and a dark ceiling, and so far three machines to play:
-a Nintendo Entertainment System, a ZX Spectrum and an arcade cabinet (below, "The machines"). Walk it
-and play in VR on a Meta Quest, on a desktop or on a phone. There is nothing to install.
+Hallway), in an arcade's dusk of violet walls and a dark ceiling, and so far four machines to play:
+a Nintendo Entertainment System, a ZX Spectrum, an arcade cabinet and a Vectrex (below, "The
+machines"). Walk it and play in VR on a Meta Quest, on a desktop or on a phone. There is nothing to
+install.
 
 ![The room as one comes in through the door](public/hallway-preview.jpg)
 
@@ -16,14 +17,15 @@ Behind you as you come in is the doorway you came through, glowing magenta, with
 through it. Walk back through it (or click or tap it, or point at it in VR and pull the trigger) and
 you are back in the Hallway, in front of this room's door. Beside it, on the wall, is the control
 panel. The window is in the right-hand wall, and past it, against the same wall, the Nintendo; across
-the room from it, against the left-hand wall, the Spectrum; and between them, against the far wall
-and facing you, the arcade cabinet.
+the room from it, against the left-hand wall, the Spectrum; between them, against the far wall and
+facing you, the arcade cabinet; and across the room from the window, against the left-hand wall, the
+Vectrex.
 
 ## The machines
 
-They came into the room a step at a time, and three are in it: the Nintendo, the Spectrum and an
-arcade cabinet (below, "Playing the Nintendo", "Typing on the Spectrum" and "Playing the arcade
-cabinet"). The cabinet holds a Nintendo running [Thwaite](https://github.com/pinobatch/thwaite-nes),
+They came into the room a step at a time, and four are in it: the Nintendo, the Spectrum, an arcade
+cabinet and a Vectrex (below, "Playing the Nintendo", "Typing on the Spectrum", "Playing the arcade
+cabinet" and "Playing the Vectrex"). The cabinet holds a Nintendo running [Thwaite](https://github.com/pinobatch/thwaite-nes),
 as Breakout, which was to have been the cabinet's, can't run fast enough on the web (below, "How
 fast"). Each runs on a bare page of its own as well,
 [`mame/test.html`](https://ariamokr.github.io/arcade/mame/test.html) (below, "The test page"), to
@@ -34,10 +36,13 @@ see that it runs and how fast.
 | **Nintendo Entertainment System** (Nintendo, 1985) | [Concentration Room](https://github.com/pinobatch/croom-nes) 0.02 (Damian Yerrick, 2010), a game of pairs | GPL-3.0-or-later, and exact copies may be passed on without the source ([its notice](public/mame/software/croom/README.md)) |
 | **ZX Spectrum 48K** (Sinclair Research, 1982) | its ROM: Sinclair BASIC, typed at its keyboard | Amstrad's: passed on with emulators, never for money ([its notice](public/mame/roms/spectrum/README.md)) |
 | **Arcade cabinet**, with a Nintendo Entertainment System inside | [Thwaite](https://github.com/pinobatch/thwaite-nes) 0.04 (Damian Yerrick, 2018), fireworks against falling missiles | GPL-3.0-or-later, its source served beside it ([its notice](public/mame/software/thwaite/README.md)) |
+| **Vectrex** (General Consumer Electronics, 1982) | its ROM: Mine Storm, built into it, a ship among drifting mines | Smith Engineering's: copies may be made, never for profit ([its notice](public/mame/roms/vectrex/README.md)) |
 
 Only what its licence lets GitHub Pages serve is served for them, a machine's own ROMs included.
 Each file is in `public/mame/` with a README beside it saying what it is, where it came from and its
-licence, and `npm test` checks that every machine's files have one.
+licence, and `npm test` checks that every machine's files have one. The room's own settings for a
+machine in MAME are there too, in `public/mame/cfg/` (the Vectrex's, below), under the room's
+licence.
 
 ### Playing the Nintendo
 
@@ -117,6 +122,34 @@ them, and a very small number of people have seizures after looking at flickerin
 room says that its explosions flicker wherever it names the game: beside its button in the card, on
 its panel, and to a screen reader.
 
+### Playing the Vectrex
+
+It stands against the left-hand wall, across the room from the window: the Vectrex on a plinth as
+high as a bar, upright as it is, its screen in its face and its controller in front of it (a stick on
+the left, four buttons in a row), and on the wall beside it a panel with **Play**. Its screen is
+drawn in lines, not pixels: MAME draws them into a picture, which the room shows smoothed rather
+than pixel for pixel. Built into it is Mine Storm. Switched on, the Vectrex shows its own screen with
+its tune, then Mine Storm's title, and the game starts on its own: a minelayer seeds the field, and
+you fly a ship among the mines, shooting them as they drift. The stick turns the ship, **4** fires,
+**3** thrusts and **2** jumps into hyperspace.
+
+It is chosen, started and played as the Nintendo is (above), and its buttons go by their own names,
+1 to 4, in the card, on its panel and on the screen's pad:
+
+| | The stick | 4, 3 | 2, 1 | Stop |
+|---|---|---|---|---|
+| Desktop | arrows | 4, 3 (or V, C) | 2, 1 (or X, Z) | Escape, or **Stop** in the card |
+| Phone | the pad on the screen | the screen's 4 and 3 | the screen's 2 and 1 | **Stop** in the card |
+| Gamepad | D-pad or left stick | A, B | Start, Back | LB or RB |
+| Headset | left stick | the right controller's A and B | the left controller's Y and X | **Stop** on its panel, or walk away |
+| TV remote | arrows | OK is 4; 3 in the card (Menu) | in the card (Menu) | Back |
+
+The card holds 1 and 2 (on a TV, 3 and 4 too), **Reset** and **Stop**. **Reset** is its reset
+button: Mine Storm starts again from its title. MAME moves the Vectrex's light pen with the arrows,
+as it does the stick, and would draw the pen's crosshair over the picture whenever they move it,
+though no pen is plugged in and Mine Storm doesn't read one; the room's settings for the Vectrex in
+MAME ([`public/mame/cfg/vectrex.cfg`](public/mame/cfg/vectrex.cfg)) keep it hidden.
+
 ### The test page
 
 On the test page, choose a machine and it starts. Its keys go to it while its screen has the focus
@@ -127,15 +160,16 @@ On the test page, choose a machine and it starts. Its keys go to it while its sc
 | Nintendo | arrows: the pad · X: A · Z: B · Enter: Start · Shift: Select |
 | Spectrum | its keyboard: the letters, digits, Enter and Space; Left Shift is CAPS SHIFT, Right Shift SYMBOL SHIFT; Backspace is DELETE, and the arrows move its cursor |
 | Arcade cabinet | arrows: aim · Z: fire left (B) · X: fire right (A) · Enter: Start · Shift: Select |
+| Vectrex | arrows: the stick · 1 to 4, or Z, X, C, V: its buttons · Mine Storm: 4 fires, 3 thrusts, 2 escapes |
 
-`?m=nes` (or `spectrum`, `thwaite`) starts that one at once; `?view=3d` shows its screen in 3D, as
-the room does; and `?xr=emulate` does so in an emulated Quest 3, with **Enter VR**.
+`?m=nes` (or `spectrum`, `thwaite`, `vectrex`) starts that one at once; `?view=3d` shows its screen
+in 3D, as the room does; and `?xr=emulate` does so in an emulated Quest 3, with **Enter VR**.
 
 ### MAME
 
 [MAME](https://www.mamedev.org/) 0.289 runs them, built for the web with Emscripten by
-`tools/build-mame.sh` from only the two drivers they need, the Nintendo's (the cabinet's too) and
-the Spectrum's: `public/mame/arcade.js` and `arcade.wasm`. Each machine runs in a frame of its own
+`tools/build-mame.sh` from only the three drivers they need, the Nintendo's (the cabinet's too), the
+Spectrum's and the Vectrex's: `public/mame/arcade.js` and `arcade.wasm`. Each machine runs in a frame of its own
 (`mame/machine.html`), stepped 60 times a second from the page's frame loop (in VR, the
 headset's) whatever the display's rate, its sound going through the page's. The page makes up the
 steps it owes, at most three a frame, so a machine keeps time while the page draws at least 20
@@ -168,24 +202,35 @@ Chrome for 8 seconds: with the CPU as it is, slowed 4× and 6× (Chrome's CPU th
 for a TV's), and in 3D in an emulated Quest 3's VR session. The figure to go by is what a step
 costs, the time MAME takes to emulate 1/60 s, which has to fit into a 60 Hz frame (16.7 ms) with the
 room's own drawing. On an Intel Core i9-14900HX laptop (drawing with its NVIDIA GeForce RTX 4090
-Laptop GPU), on 1 November 2026:
+Laptop GPU), on 1 November 2026, the four in one run, while other work kept a few of its cores
+busy:
 
 | A step: median (95th percentile) | CPU as it is | Slowed 4× | Slowed 6× | VR (emulated) |
 |---|---|---|---|---|
-| Nintendo | 1.4 ms (1.9) | 8.5 ms (18.2) | 11.5 ms (18.3) | 1.5 ms (2.1) |
-| Spectrum | 1.1 ms (1.3) | 6.0 ms (9.1) | 9.7 ms (14.8) | 1.2 ms (1.8) |
-| Arcade cabinet (Thwaite) | 1.2 ms (1.6) | 7.1 ms (12.9) | 10.8 ms (16.4) | 1.3 ms (1.8) |
+| Nintendo | 2.0 ms (3.2) | 10.4 ms (14.5) | 15.0 ms (19.5) | 1.9 ms (2.9) |
+| Spectrum | 1.6 ms (2.8) | 7.9 ms (10.9) | 11.8 ms (14.4) | 1.6 ms (2.0) |
+| Arcade cabinet (Thwaite) | 1.8 ms (2.4) | 8.6 ms (11.5) | 15.1 ms (19.8) | 1.8 ms (2.2) |
+| Vectrex | 1.2 ms (2.3) | 6.5 ms (9.1) | 9.5 ms (14.4) | 1.1 ms (1.4) |
 
-The figures vary by up to a third from run to run.
+The figures vary from run to run, by up to a third on a quiet laptop, and a busy one slows them
+further. Earlier the same day, on the quiet laptop, the first three took 1.1 to 1.4 ms a step as
+it is, 6.0 to 8.5 ms slowed 4× and 9.7 to 11.5 ms slowed 6×, and kept up in every case; in a run
+busier than the one above, slowed 6× none of the four kept up (32 to 43 steps a second).
 
-- **All three keep up**: 60 steps a second in every case measured. (Headless Chrome drew about 56
-  frames a second here, so the page made up a step now and then; it keeps time down to 20.) At full
-  speed a step takes under 2 ms and the page's main thread is at most 15% busy, in VR too. Slowed
-  4×, a step takes about half a 60 Hz frame; slowed 6×, about two thirds of one; and the slowest
-  twentieth up to a whole one or a little more, so on a TV that slow the room would drop frames while
-  one runs. The TV itself is still to be measured. Played on a screen, the room isn't drawn while a
-  machine runs (its picture covers the view), so a frame holds the machine's steps and its picture
-  alone.
+- **All four keep up** at full speed and in VR: 60 steps a second, a step taking 2 ms or less and
+  the page's main thread at most a fifth busy. Slowed 4×, a step takes two fifths to three fifths of
+  a 60 Hz frame, and they keep up. Slowed 6×, the Vectrex and the Spectrum still keep up, a step
+  taking a little over half a frame and nearly three quarters of one; the Nintendo and the cabinet
+  take most of a frame, their slowest twentieth more than one, and fell a little behind (58 steps a
+  second) as the page's frames dropped to 35 to 37 a second. So on a TV that slow the room would
+  drop frames while one runs. The TV itself is still to be measured. Played on a screen, the room
+  isn't drawn while a machine runs (its picture covers the view), so a frame holds the machine's
+  steps and its picture alone.
+- **The Vectrex is the cheapest of the four**, in every case in both of the day's runs with it.
+  Mine Storm draws a few lines a frame, and MAME draws them into a small picture, 240 × 320, which
+  the room smooths: a larger one costs a slow computer more each frame than it adds. Measured
+  alternately at 240 × 320 and 300 × 400, slowed 4×, a step took 5.5 and 11.3 ms at the smaller
+  size and 12.7 and 16.3 ms at the larger.
 - **Breakout didn't keep up anywhere**, measured the same way on 31 October 2026. MAME runs its
   circuit chip by chip, and a step took 20.3 ms (25.5) even on this laptop, 48 steps a second with
   the main thread always busy; 155 ms (206) slowed 4×, 213 ms (294) slowed 6×, and 21.4 ms (27.4) in
@@ -194,7 +239,7 @@ The figures vary by up to a third from run to run.
 
 MAME is 30.5 MB to download (6.5 MB gzipped, as GitHub Pages sends it), and 0.3 MB of JavaScript
 (0.1 MB), fetched when a machine first starts and then kept in the browser's cache. Concentration
-Room and Thwaite are 25 KB each, and the Spectrum's ROM 16 KB. A machine starts within a second once
+Room and Thwaite are 25 KB each, the Spectrum's ROM 16 KB and the Vectrex's 8 KB. A machine starts within a second once
 MAME is here (slowed 6×, within 4), and from the live site, the first time, in under 3 s on a fast
 connection.
 
@@ -212,7 +257,7 @@ As in the Hallway:
 
 Whatever hangs on the walls (below, "On the walls") is chosen as the doorway is: you walk up to it,
 and on through it when it leads somewhere. So is a machine: you walk up to it, and it starts (above,
-"Playing the Nintendo" and "Typing on the Spectrum").
+"The machines").
 
 The walls stop you. **Fullscreen** and **Enter VR** are at the bottom right (not on a TV). The **control panel**
 by the doorway holds Enter or exit VR, how to move and turn in VR (Smooth or Teleport, Snap or
@@ -267,7 +312,7 @@ is the config's `hallwayDoor()`:
 {
   id: 'arcade',
   title: 'arcade',
-  subtitle: "A room behind the Hallway's door, becoming an arcade of old computers, game consoles and arcade machines: so far a Nintendo Entertainment System, a ZX Spectrum and an arcade cabinet to play. Walk it and play in VR on a Meta Quest, on a desktop or on a phone.",
+  subtitle: "A room behind the Hallway's door, becoming an arcade of old computers, game consoles and arcade machines: so far a Nintendo Entertainment System, a ZX Spectrum, an arcade cabinet and a Vectrex to play. Walk it and play in VR on a Meta Quest, on a desktop or on a phone.",
   sign: 'Arcade',
   url: 'https://ariamokr.github.io/arcade/',
   preview: 'https://ariamokr.github.io/arcade/hallway-preview.jpg',
@@ -343,9 +388,10 @@ through its `tv.js`:
   downward, for the dot to fall on a machine from a few steps away. With the dot on a picture, the
   hint says what OK does there: `OK: The studio` for one that leads somewhere, `OK: walk up to …`
   for the rest. It comes back for that if it had faded, and fades again when the dot leaves.
-- While a console runs, the arrows are its pad and OK is its A. **Menu** moves the focus into the
-  card, onto the machine's buttons (Start, Select, A, B, Reset and Stop) and Sound, and **Back**
-  there plays again. **Back** while it plays stops it.
+- While a console runs, the arrows are its pad and OK is its A (the Vectrex's 4). **Menu** moves the
+  focus into the card, onto the machine's buttons (Start, Select, A, B, Reset and Stop; the
+  Vectrex's 1 to 4, Reset and Stop) and Sound, and **Back** there plays again. **Back** while it
+  plays stops it.
 - While a computer runs, the arrows go from key to key of its keyboard on the screen, and OK presses
   the one ringed. **Menu** moves the focus into the card, onto Reset, Stop and Sound, and **Back**
   there types again. **Back** while it runs stops it.
@@ -427,9 +473,9 @@ committed:
 - `public/hallway-preview.jpg`, 2048 × 1024: the room from where one arrives, at eye height, facing
   in, hung as the Hallway hangs its doorways' pictures. The Hallway's doorway to here shows it.
 - `public/social.jpg`, 1280 × 640: the room from just inside the doorway, a little raised, looking
-  down it at the three machines and the window: the Spectrum and the Nintendo face each other near
+  down it at the four machines and the window: the Spectrum and the Nintendo face each other near
   the far wall (so no view of the doorway takes them in), with the arcade cabinet against it between
-  them. The page's `og:image` and `twitter:image` show it, and it is the repository's social preview
+  them, and the Vectrex nearer, across from the window. The page's `og:image` and `twitter:image` show it, and it is the repository's social preview
   (Settings → General → Social preview, uploaded by hand).
 
 Render them again whenever the room changes. Chrome starts through common's `tools/chrome.mjs`, on a

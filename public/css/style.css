@@ -202,7 +202,8 @@ html.tv .machines h2, html.tv .machines li, html.tv .mame-note, html.tv .machine
 html.tv .machines .sound input { width: 20px; height: 20px; }
 
 /* A machine played on a screen (play.js): over the room, which isn't drawn, its picture as large as
-   it goes beside the card or under it (play.js places it), scaled up pixel for pixel; the card
+   it goes beside the card or under it (play.js places it), scaled up pixel for pixel (a vector
+   screen's lines smoothed); the card
    holding only the way back and the machine's buttons, narrower beside it; on a touch screen a
    console's pad, at the foot above the buttons there, and on any a computer's keys under its picture
    (below). MAME's own frame is never seen. In VR the layer is hidden, kept laid out. */
@@ -210,6 +211,8 @@ html.tv .machines .sound input { width: 20px; height: 20px; }
 html.playing #play { visibility: visible; }
 .play-area { position: absolute; }
 .machine-screen { display: block; width: 100%; height: 100%; image-rendering: pixelated; }
+/* A vector screen's lines (the Vectrex's), smoothed rather than pixel for pixel. */
+.machine-screen.vector { image-rendering: auto; }
 .play-status { position: absolute; left: 0; right: 0; top: 50%; margin: 0; transform: translateY(-50%); padding: 0 16px; text-align: center; color: var(--muted); }
 .machine-host { position: absolute; left: 0; top: 0; width: 0; height: 0; overflow: hidden; }
 .machine-frame { display: block; border: 0; }
