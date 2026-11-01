@@ -30,8 +30,8 @@ export function previewView(p = PREVIEW, from = { x: 0, y: 0, z: -0.6 }) {
  * side (not so far that the doorway's picture is seen edge on), looking back across the room to the
  * doorway's wall. With the window in a side wall, the side across from it, so the window is in view
  * along with the doorway; with the window in the far wall, from beside the doorway, looking at it.
- * With `also` (points to show too: arcade's machines, against both side walls near the far one,
- * which no view of the doorway takes in), from just inside the doorway, a little raised and to the
+ * With `also` (points to show too: arcade's machines, two against the side walls near the far one,
+ * which no view of the doorway takes in, and one against the far wall), from just inside the doorway, a little raised and to the
  * side across from the window, looking down the room past them, the window's side a little nearer
  * the middle. Pure.
  * @param {object} L the room's layout (room.js layoutRoom)

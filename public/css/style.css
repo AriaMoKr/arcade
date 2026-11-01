@@ -79,8 +79,10 @@ a.piece::after { content: "→" / ""; color: var(--accent); }
 .machines .sound { display: inline-flex; align-items: center; gap: 6px; min-height: 28px; margin-top: 4px; font-size: 13px; cursor: pointer; }
 .machines .sound input { width: 16px; height: 16px; margin: 0; accent-color: var(--accent); }
 .mame-note { margin: 2px 0 0; font-size: 13px; }
-/* While one runs, its buttons are what the section holds. */
+/* While one runs, its buttons are what the section holds; on a small screen, without the others',
+   so its picture has the room. */
 .machines.running h2, .machines.running .about, .machines.running .mame-note { display: none; }
+@media (max-width: 560px), (max-height: 500px) { .machines.running li:not(.current) { display: none; } }
 
 /* The shared session and the settings (motion, how to move and turn in VR, the vignette, seated):
    the control panel's choices, for a keyboard or a screen reader. */

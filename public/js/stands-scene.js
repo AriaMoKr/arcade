@@ -1,9 +1,10 @@
 // The machines' stands in 3D (stands.js): every stand's parts as boxes in one mesh, with the room's
-// light baked into them (scene.js's lit); each machine's screen; a computer's keys on its top; and
-// the panel of its buttons on the wall beside it (a computer's keys among them), redrawn only when
-// what it shows changes, the button pointed at lit by a pane over it. A screen shows the machine's
-// own picture while it runs (MAME's canvas, copied each time it changes while the room is drawn:
-// play.js), what it last showed once it stops, and before it has run, a screen switched off.
+// light baked into them (scene.js's lit); each machine's screen; a computer's keys on its top; an
+// arcade cabinet's marquee; and the panel of its buttons on the wall beside it (a computer's keys
+// among them), redrawn only when what it shows changes, the button pointed at lit by a pane over it.
+// A screen shows the machine's own picture while it runs (MAME's canvas, copied each time it
+// changes while the room is drawn: play.js), what it last showed once it stops, and before it has
+// run, a screen switched off.
 import * as THREE from 'three';
 import { Builder } from './builder.js';
 import { machineById } from './machines.js';
@@ -72,6 +73,21 @@ export function buildStands(S, { lit, lightColor, anisotropy = 1 }) {
     top.rotation.order = 'YXZ';
     top.rotation.set(-Math.PI / 2, Math.atan2(s.nx, s.nz), 0);
     group.add(top);
+  }
+
+  // An arcade cabinet's marquee: lit from within, so in its own light, not the room's.
+  for (const s of S) {
+    const q = s.marquee;
+    if (!q) continue;
+    const texture = new THREE.CanvasTexture(marqueeArt(q.text));
+    texture.colorSpace = THREE.SRGBColorSpace;
+    texture.anisotropy = anisotropy;
+    const mid = s.at((q.a[0] + q.a[1]) / 2, (q.y[0] + q.y[1]) / 2, q.d);
+    const sign = new THREE.Mesh(new THREE.PlaneGeometry(q.a[1] - q.a[0], q.y[1] - q.y[0]), new THREE.MeshBasicMaterial({ map: texture }));
+    sign.name = `marquee ${s.machine}`;
+    sign.position.set(mid[0], mid[1], mid[2]);
+    sign.rotation.y = Math.atan2(s.nx, s.nz);
+    group.add(sign);
   }
 
   const panels = S.map((s) => {
@@ -204,6 +220,62 @@ function computerTop(keyboard) {
   g.fillStyle = '#e9e6df';
   g.font = `italic 600 20px ${SANS}`;
   g.fillText('ZX Spectrum', 24, H - 22);
+  return c;
+}
+
+/**
+ * An arcade cabinet's marquee, 1024 × 370: its name in lights over a night sky, with fireworks
+ * bursting in it (Thwaite's, against the missiles).
+ * @param {string} text
+ */
+function marqueeArt(text) {
+  const W = 1024, H = 370;
+  const c = document.createElement('canvas');
+  c.width = W;
+  c.height = H;
+  const g = /** @type {CanvasRenderingContext2D} */ (c.getContext('2d'));
+  const sky = g.createLinearGradient(0, 0, 0, H);
+  sky.addColorStop(0, '#0a0f2e');
+  sky.addColorStop(1, '#2a1250');
+  g.fillStyle = sky;
+  g.fillRect(0, 0, W, H);
+  // Stars, the same each time.
+  let seed = 7;
+  const rand = () => ((seed = (seed * 16807) % 2147483647) / 2147483647);
+  g.fillStyle = '#d9dcff';
+  for (let i = 0; i < 70; i++) g.fillRect(rand() * W, rand() * H, 2, 2);
+  // Fireworks: rays out from a middle, brightest at their tips.
+  for (const [x, y, r, color] of /** @type {[number, number, number, string][]} */ ([[140, 112, 74, '#ff6fae'], [895, 96, 64, '#6fe3ff'], [800, 286, 52, '#ffd34d'], [222, 290, 40, '#9dff8a']])) {
+    g.strokeStyle = color;
+    g.fillStyle = color;
+    g.lineWidth = 3;
+    for (let i = 0; i < 16; i++) {
+      const a = (i / 16) * Math.PI * 2, ca = Math.cos(a), sa = Math.sin(a);
+      g.globalAlpha = 0.55;
+      g.beginPath();
+      g.moveTo(x + ca * r * 0.35, y + sa * r * 0.35);
+      g.lineTo(x + ca * r * 0.85, y + sa * r * 0.85);
+      g.stroke();
+      g.globalAlpha = 1;
+      g.fillRect(x + ca * r - 3, y + sa * r - 3, 6, 6);
+    }
+  }
+  // Its name, glowing.
+  g.textAlign = 'center';
+  g.textBaseline = 'middle';
+  fitText(g, text, W - 160, 170, SANS, '900 ');
+  g.shadowColor = '#ff8a2e';
+  g.shadowBlur = 28;
+  g.lineWidth = 10;
+  g.strokeStyle = '#ff6a1f';
+  g.strokeText(text, W / 2, H / 2 + 6);
+  g.shadowBlur = 0;
+  g.fillStyle = '#ffe27a';
+  g.fillText(text, W / 2, H / 2 + 6);
+  // Its frame of light.
+  g.strokeStyle = 'rgba(255,138,46,0.7)';
+  g.lineWidth = 6;
+  g.strokeRect(10, 10, W - 20, H - 20);
   return c;
 }
 

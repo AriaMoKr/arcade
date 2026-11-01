@@ -10,7 +10,7 @@
 set -eu
 
 TAG=mame0289
-DRIVERS=src/mame/atari/pong.cpp,src/mame/nintendo/nes.cpp,src/mame/sinclair/spectrum.cpp
+DRIVERS=src/mame/nintendo/nes.cpp,src/mame/sinclair/spectrum.cpp
 JOBS=${1:-$(nproc 2>/dev/null || echo 4)}
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT=$ROOT/public/mame
@@ -56,8 +56,10 @@ CLANG_VERSION=$(emcc -v 2>&1 >/dev/null | sed -n 's/^clang version \([0-9][0-9.]
 # more, it writes its output and then never exits, and can't be stopped (MSYS2's emscripten
 # 6.0.12, wasm-opt 133).
 case $(uname -s) in MINGW* | MSYS* | CYGWIN*) export BINARYEN_CORES="${BINARYEN_CORES:-1}" ;; esac
+# REGENIE=1 makes the project files again each time: MAME's makefile doesn't see a change of
+# SOURCES, and would build the drivers it was first given.
 CC=emcc CXX=em++ LD=emcc NM=emnm RANLIB=emranlib \
-  make SUBTARGET=arcade SOURCES="$DRIVERS" SYMBOLS=0 PYTHON_EXECUTABLE=python3 \
+  make SUBTARGET=arcade SOURCES="$DRIVERS" REGENIE=1 SYMBOLS=0 PYTHON_EXECUTABLE=python3 \
   CLANG_VERSION="$CLANG_VERSION" AR="sh $EMAR" LIBS='$(LDDEPS) -lm -lpthread' -j"$JOBS"
 
 mkdir -p "$OUT"

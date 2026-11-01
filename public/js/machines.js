@@ -42,6 +42,10 @@ import { SPECTRUM } from './keyboards.js';
  */
 
 const ARROWS = { ArrowUp: 'ArrowUp', ArrowDown: 'ArrowDown', ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight' };
+/** A Nintendo's pad: MAME's A is Left Alt and its B Left Ctrl, Start 1 and Select 5. @type {Pad} */
+const NES_PAD = { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', a: 'AltLeft', b: 'ControlLeft', select: 'Digit5', start: 'Digit1' };
+/** And the keys for it: the arrows, X and Z its A and B, Enter Start and either Shift Select. */
+const NES_KEYS = { ...ARROWS, KeyX: 'AltLeft', KeyZ: 'ControlLeft', Enter: 'Digit1', ShiftLeft: 'Digit5', ShiftRight: 'Digit5' };
 /** A computer's keyboard: its letters, digits, Enter, Space and both Shifts, each itself. */
 const KEYBOARD = Object.fromEntries(
   [...'ABCDEFGHIJKLMNOPQRSTUVWXYZ'].map((c) => `Key${c}`)
@@ -61,10 +65,9 @@ export const MACHINES = [
     args: ['-cart', '/software/croom.nes'],
     screen: { width: 256, height: 240 },
     aspect: 4 / 3,
-    // The pad: MAME's A is Left Alt and its B Left Ctrl, Start 1 and Select 5.
-    keys: { ...ARROWS, KeyX: 'AltLeft', KeyZ: 'ControlLeft', Enter: 'Digit1', ShiftLeft: 'Digit5', ShiftRight: 'Digit5' },
+    keys: NES_KEYS,
     help: 'Arrows: the pad · X: A · Z: B · Enter: Start · Shift: Select',
-    pad: { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', a: 'AltLeft', b: 'ControlLeft', select: 'Digit5', start: 'Digit1' },
+    pad: NES_PAD,
   },
   {
     id: 'spectrum',
@@ -88,18 +91,21 @@ export const MACHINES = [
     keyboard: SPECTRUM,
   },
   {
-    id: 'breakout',
-    title: 'Breakout',
-    maker: 'Atari',
-    year: 1976,
-    driver: 'breakout',
-    files: [],
-    args: [],
-    screen: { width: 240, height: 320 },
-    aspect: 3 / 4,
-    // The paddle on ←/→, Serve MAME's Button 1 (Left Ctrl), Coin 5 and Start 1.
-    keys: { ArrowLeft: 'ArrowLeft', ArrowRight: 'ArrowRight', Space: 'ControlLeft', Digit5: 'Digit5', Digit1: 'Digit1' },
-    help: '5: a coin · 1: Start · ←/→: the paddle · Space: Serve',
+    // A Nintendo in an arcade cabinet, as Nintendo's own Vs. System and PlayChoice-10 were, running
+    // Thwaite: the cabinet's stick and buttons are its pad. B fires from the left silo, A from the
+    // right; Start pauses.
+    id: 'thwaite',
+    title: 'Arcade cabinet',
+    maker: 'Nintendo',
+    year: 1985,
+    driver: 'nes',
+    files: [{ url: 'software/thwaite/thwaite.nes', path: '/software/thwaite.nes' }],
+    args: ['-cart', '/software/thwaite.nes'],
+    screen: { width: 256, height: 240 },
+    aspect: 4 / 3,
+    keys: NES_KEYS,
+    help: 'Arrows: aim · Z: fire left · X: fire right · Enter: Start · Shift: Select',
+    pad: NES_PAD,
   },
 ];
 

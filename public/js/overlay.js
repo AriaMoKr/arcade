@@ -139,6 +139,8 @@ export class Overlay {
     this.machineControls = [];
     /** Each one's name over them, while it runs. @type {HTMLElement[]} */
     this.machineNames = [];
+    /** Each one's place in the list: `current` while it runs (on a small screen the others leave, style.css). @type {HTMLElement[]} */
+    this.machineItems = [];
     this.sound = el('input', { type: 'checkbox', name: 'sound' });
     this.sound.checked = true;
     this.sound.addEventListener('change', () => this.onSound(this.sound.checked));
@@ -157,7 +159,9 @@ export class Overlay {
         this.machineButtons.push(play);
         this.machineControls.push(controls);
         this.machineNames.push(name);
-        return el('li', {}, play, name, el('span', { class: 'about', id: about }, m.about), controls);
+        const item = el('li', {}, play, name, el('span', { class: 'about', id: about }, m.about), controls);
+        this.machineItems.push(item);
+        return item;
       })),
       this.soundLabel = el('label', { class: 'sound' }, this.sound, 'Sound'),
       el('p', { class: 'mame-note' }, 'They run in MAME 0.289: ', el('a', { href: 'mame/COPYING.txt' }, 'its licence'), ', ', el('a', { href: MAME_SOURCE }, 'its source'), '.')) : null;
@@ -373,6 +377,7 @@ export class Overlay {
     this.machineNames.forEach((n, j) => {
       n.hidden = j !== i;
     });
+    this.machineItems.forEach((item, j) => item.classList.toggle('current', j === i));
     if (i >= 0 && focused === this.machineButtons[i]) (focus ?? /** @type {HTMLElement | undefined} */ (this.machineControls[i].children[0]))?.focus?.();
     else if (was >= 0 && focused && this.machineControls[was]?.contains?.(focused)) this.machineButtons[was]?.focus?.();
     this._hints = i >= 0 && machine ? playHints(machine) : this._roomHints;

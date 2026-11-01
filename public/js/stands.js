@@ -28,6 +28,8 @@ const clamp = (v, lo, hi) => (v < lo ? lo : v > hi ? hi : v);
  *   of its screen, or between the screen and a computer's keys on the panel
  * @property {{ a: [number, number], y: number, d: [number, number] }} [keys] a computer's keyboard,
  *   drawn on the top of the part it is
+ * @property {{ a: [number, number], y: [number, number], d: number, text: string }} [marquee] an
+ *   arcade cabinet's marquee, lit from within: its name, on the face of a part
  * @property {string} about what runs on it, on the panel and in the card
  */
 /**
@@ -75,6 +77,39 @@ export const STANDS = [
     panel: { a: [-0.14, 0.82], y: [0.9, 1.5], d: 0.012 },
     front: { a: -0.09, d: 1.4 },
     about: 'Sinclair BASIC, to write programs in',
+  },
+  {
+    // An arcade cabinet against the far wall, facing the doorway, with a Nintendo inside running
+    // Thwaite: its sides stepped back over the control panel (the stick and two buttons, the pad's B
+    // and A) to the screen, set in black, and out again under the marquee.
+    machine: 'thwaite',
+    wall: 'far',
+    at: 0,
+    parts: [
+      { part: 'side-left', a: [-0.34, -0.31], y: [0, 0.95], d: [0, 0.66], color: '#1c2440' },
+      { part: 'side-left-upper', a: [-0.34, -0.31], y: [0.95, 1.52], d: [0, 0.45], color: '#1c2440' },
+      { part: 'side-left-top', a: [-0.34, -0.31], y: [1.52, 1.78], d: [0, 0.62], color: '#1c2440' },
+      { part: 'side-right', a: [0.31, 0.34], y: [0, 0.95], d: [0, 0.66], color: '#1c2440' },
+      { part: 'side-right-upper', a: [0.31, 0.34], y: [0.95, 1.52], d: [0, 0.45], color: '#1c2440' },
+      { part: 'side-right-top', a: [0.31, 0.34], y: [1.52, 1.78], d: [0, 0.62], color: '#1c2440' },
+      { part: 'base', a: [-0.31, 0.31], y: [0, 0.84], d: [0, 0.6], color: '#151a2e' },
+      { part: 'coin-door', a: [-0.12, 0.12], y: [0.34, 0.66], d: [0.6, 0.615], color: '#34303b' },
+      { part: 'coin-slot-left', a: [-0.08, -0.03], y: [0.53, 0.6], d: [0.615, 0.622], color: '#e8892c' },
+      { part: 'coin-slot-right', a: [0.03, 0.08], y: [0.53, 0.6], d: [0.615, 0.622], color: '#e8892c' },
+      { part: 'control-panel', a: [-0.335, 0.335], y: [0.84, 0.955], d: [0.3, 0.82], color: '#121216' },
+      { part: 'stick', a: [-0.165, -0.15], y: [0.955, 1.05], d: [0.6, 0.615], color: '#2a2a2e' },
+      { part: 'ball', a: [-0.185, -0.13], y: [1.05, 1.1], d: [0.58, 0.635], color: '#d8322a' },
+      { part: 'button-b', a: [0.02, 0.075], y: [0.955, 0.972], d: [0.585, 0.64], color: '#d8322a' },
+      { part: 'button-a', a: [0.11, 0.165], y: [0.955, 0.972], d: [0.585, 0.64], color: '#d8322a' },
+      { part: 'button-start', a: [0.22, 0.25], y: [0.955, 0.963], d: [0.7, 0.73], color: '#e8e4da' },
+      { part: 'monitor', a: [-0.31, 0.31], y: [0.84, 1.52], d: [0, 0.4], color: '#0e0e12' },
+      { part: 'marquee', a: [-0.31, 0.31], y: [1.52, 1.78], d: [0, 0.62], color: '#151a2e' },
+    ],
+    screen: { a: 0, y: 1.24, d: 0.401, width: 0.48, height: 0.36 },
+    marquee: { a: [-0.29, 0.29], y: [1.545, 1.755], d: 0.621, text: 'THWAITE' },
+    panel: { a: [0.55, 0.85], y: [1.12, 1.38], d: 0.012 },
+    front: { a: 0, d: 1.3 },
+    about: 'Thwaite, fireworks against falling missiles, whose explosions flicker',
   },
 ];
 
@@ -181,6 +216,7 @@ export function layoutStands(L, stands = STANDS) {
       panel: s.panel,
       buttons: panelLayout(machineById(s.machine)),
       keys: s.keys ?? null,
+      marquee: s.marquee ?? null,
       front: { x: clamp(fp[0], L.x0 + m, L.x1 - m), z: clamp(fp[2], L.z1 + m, -m), yaw: Math.atan2(w.nx, w.nz) },
     };
   });
@@ -351,6 +387,8 @@ export function standProblems(L, machines, stands = STANDS) {
     if (Math.abs((st.panel.a[1] - st.panel.a[0]) / (st.panel.y[1] - st.panel.y[0]) - s.buttons.width / s.buttons.height) > 0.01) say("its panel is not the shape of its buttons' canvas");
     const keys = st.keys;
     if (keys && !st.parts.some((p) => Math.abs(p.y[1] - keys.y) < 0.01 && keys.a[0] >= p.a[0] && keys.a[1] <= p.a[1] && keys.d[0] >= p.d[0] && keys.d[1] <= p.d[1])) say('its keys are not on the top of one of its parts');
+    const mq = st.marquee;
+    if (mq && !st.parts.some((p) => Math.abs(p.d[1] - mq.d) < 0.01 && mq.a[0] >= p.a[0] && mq.a[1] <= p.a[1] && mq.y[0] >= p.y[0] && mq.y[1] <= p.y[1])) say('its marquee is not on the face of one of its parts');
     const c = clampStands(S, s.front.x, s.front.z);
     if (Math.hypot(c.x - s.front.x, c.z - s.front.z) > 1e-9 || s.front.x < L.x0 + MARGIN || s.front.x > L.x1 - MARGIN || s.front.z < L.z1 + MARGIN || s.front.z > -MARGIN) say('where one plays it is not somewhere to stand');
   });

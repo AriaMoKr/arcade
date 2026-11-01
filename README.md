@@ -6,9 +6,9 @@ A room behind the [Hallway](https://ariamokr.github.io/hallway/)'s door, becomin
 computers, game consoles and arcade machines. It is the room
 [AriaMoKr/RoomTemplateEmpty](https://github.com/AriaMoKr/RoomTemplateEmpty) makes (a floor, four
 walls, a ceiling with its lamps, a window onto the afternoon sky, and the doorway back to the
-Hallway), in an arcade's dusk of violet walls and a dark ceiling, and so far two machines to play: a
-Nintendo Entertainment System and a ZX Spectrum (below, "The machines"). Walk it and play in VR on a
-Meta Quest, on a desktop or on a phone. There is nothing to install.
+Hallway), in an arcade's dusk of violet walls and a dark ceiling, and so far three machines to play:
+a Nintendo Entertainment System, a ZX Spectrum and an arcade cabinet (below, "The machines"). Walk it
+and play in VR on a Meta Quest, on a desktop or on a phone. There is nothing to install.
 
 ![The room as one comes in through the door](public/hallway-preview.jpg)
 
@@ -16,22 +16,24 @@ Behind you as you come in is the doorway you came through, glowing magenta, with
 through it. Walk back through it (or click or tap it, or point at it in VR and pull the trigger) and
 you are back in the Hallway, in front of this room's door. Beside it, on the wall, is the control
 panel. The window is in the right-hand wall, and past it, against the same wall, the Nintendo; across
-the room from it, against the left-hand wall, the Spectrum.
+the room from it, against the left-hand wall, the Spectrum; and between them, against the far wall
+and facing you, the arcade cabinet.
 
 ## The machines
 
-They come into the room a step at a time. The Nintendo and the Spectrum are in it (below, "Playing
-the Nintendo" and "Typing on the Spectrum"). An arcade cabinet comes next, which will hold a
-Nintendo running [Thwaite](https://github.com/pinobatch/thwaite-nes): Breakout can't run fast
-enough on the web (below, "How fast"). Until a machine comes in it runs on a bare page of its own,
+They came into the room a step at a time, and three are in it: the Nintendo, the Spectrum and an
+arcade cabinet (below, "Playing the Nintendo", "Typing on the Spectrum" and "Playing the arcade
+cabinet"). The cabinet holds a Nintendo running [Thwaite](https://github.com/pinobatch/thwaite-nes),
+as Breakout, which was to have been the cabinet's, can't run fast enough on the web (below, "How
+fast"). Each runs on a bare page of its own as well,
 [`mame/test.html`](https://ariamokr.github.io/arcade/mame/test.html) (below, "The test page"), to
-see that each runs and how fast.
+see that it runs and how fast.
 
 | Machine | What runs on it | Its licence |
 |---|---|---|
 | **Nintendo Entertainment System** (Nintendo, 1985) | [Concentration Room](https://github.com/pinobatch/croom-nes) 0.02 (Damian Yerrick, 2010), a game of pairs | GPL-3.0-or-later, and exact copies may be passed on without the source ([its notice](public/mame/software/croom/README.md)) |
 | **ZX Spectrum 48K** (Sinclair Research, 1982) | its ROM: Sinclair BASIC, typed at its keyboard | Amstrad's: passed on with emulators, never for money ([its notice](public/mame/roms/spectrum/README.md)) |
-| **Breakout** (Atari, 1976) | nothing: it is a board of logic chips with no program, which MAME runs chip by chip from its circuit | MAME's (below) |
+| **Arcade cabinet**, with a Nintendo Entertainment System inside | [Thwaite](https://github.com/pinobatch/thwaite-nes) 0.04 (Damian Yerrick, 2018), fireworks against falling missiles | GPL-3.0-or-later, its source served beside it ([its notice](public/mame/software/thwaite/README.md)) |
 
 Only what its licence lets GitHub Pages serve is served for them, a machine's own ROMs included.
 Each file is in `public/mame/` with a README beside it saying what it is, where it came from and its
@@ -90,6 +92,31 @@ finger needs; pressed again, it comes up. With one shift down, the other gives E
 key, and with SYMBOL SHIFT red under it), and the shifts come up. On a TV, **Menu** moves the focus
 into the card, to **Reset**, **Stop** and **Sound**, and **Back** there types again.
 
+### Playing the arcade cabinet
+
+It stands against the far wall, between the other two and facing the doorway: a cabinet in dark
+blue with THWAITE lit on its marquee, its screen set in black, a stick and two red buttons on its
+control panel, and on the wall beside it a panel with **Play**. Inside is a Nintendo running
+Thwaite, by Damian Yerrick: missiles fall on a small town, and you aim and burst fireworks in their
+way, from the silo on the left (B) or the one on the right (A), each holding 15 a round. The cabinet
+is chosen, started and played as the Nintendo is (above), with the same buttons in the card and on
+its panel:
+
+| | Aim | Fire left, right | Pause (Start), Select | Stop |
+|---|---|---|---|---|
+| Desktop | arrows | Z, X | Enter, Shift | Escape, or **Stop** in the card |
+| Phone | the pad on the screen | the pad's B and A | the pad's Start and Select | **Stop** in the card |
+| Gamepad | D-pad or left stick | B, A | Start, Back | LB or RB |
+| Headset | left stick | the right controller's B and A | the left controller's Y and X | **Stop** on its panel, or walk away |
+| TV remote | arrows | B in the card (Menu); OK is A | in the card (Menu) | Back |
+
+The cursor speeds up the longer a direction is held, so tap it to move a little. Select ends a game
+only in practice (chosen on its title screen). On a TV the remote has one button to fire with, OK,
+from the right-hand silo. Thwaite makes its explosions and smoke look see-through by flickering
+them, and a very small number of people have seizures after looking at flickering patterns, so the
+room says that its explosions flicker wherever it names the game: beside its button in the card, on
+its panel, and to a screen reader.
+
 ### The test page
 
 On the test page, choose a machine and it starts. Its keys go to it while its screen has the focus
@@ -99,16 +126,16 @@ On the test page, choose a machine and it starts. Its keys go to it while its sc
 |---|---|
 | Nintendo | arrows: the pad · X: A · Z: B · Enter: Start · Shift: Select |
 | Spectrum | its keyboard: the letters, digits, Enter and Space; Left Shift is CAPS SHIFT, Right Shift SYMBOL SHIFT; Backspace is DELETE, and the arrows move its cursor |
-| Breakout | 5: a coin · 1: Start · ←/→: the paddle · Space: Serve |
+| Arcade cabinet | arrows: aim · Z: fire left (B) · X: fire right (A) · Enter: Start · Shift: Select |
 
-`?m=nes` (or `spectrum`, `breakout`) starts that one at once; `?view=3d` shows its screen in 3D, as
+`?m=nes` (or `spectrum`, `thwaite`) starts that one at once; `?view=3d` shows its screen in 3D, as
 the room does; and `?xr=emulate` does so in an emulated Quest 3, with **Enter VR**.
 
 ### MAME
 
 [MAME](https://www.mamedev.org/) 0.289 runs them, built for the web with Emscripten by
-`tools/build-mame.sh` from only the three drivers they need (Breakout's holds Pong and Rebound
-too): `public/mame/arcade.js` and `arcade.wasm`. Each machine runs in a frame of its own
+`tools/build-mame.sh` from only the two drivers they need, the Nintendo's (the cabinet's too) and
+the Spectrum's: `public/mame/arcade.js` and `arcade.wasm`. Each machine runs in a frame of its own
 (`mame/machine.html`), stepped 60 times a second from the page's frame loop (in VR, the
 headset's) whatever the display's rate, its sound going through the page's. The page makes up the
 steps it owes, at most three a frame, so a machine keeps time while the page draws at least 20
@@ -140,32 +167,36 @@ sh tools/build-mame.sh        # clones MAME once into ~/.cache/arcade/, builds i
 Chrome for 8 seconds: with the CPU as it is, slowed 4× and 6× (Chrome's CPU throttling, standing in
 for a TV's), and in 3D in an emulated Quest 3's VR session. The figure to go by is what a step
 costs, the time MAME takes to emulate 1/60 s, which has to fit into a 60 Hz frame (16.7 ms) with the
-room's own drawing. On an Intel Core i9-14900HX laptop (and its integrated GPU), on 31 October 2026:
+room's own drawing. On an Intel Core i9-14900HX laptop (drawing with its NVIDIA GeForce RTX 4090
+Laptop GPU), on 1 November 2026:
 
 | A step: median (95th percentile) | CPU as it is | Slowed 4× | Slowed 6× | VR (emulated) |
 |---|---|---|---|---|
-| Nintendo | 1.4 ms (1.7) | 8.9 ms (12.9) | 13.0 ms (18.5) | 1.5 ms (1.9) |
-| Spectrum | 1.2 ms (1.5) | 7.8 ms (11.9) | 11.7 ms (17.5) | 1.3 ms (1.5) |
-| Breakout | 20.3 ms (25.5) | 155 ms (206) | 213 ms (294) | 21.4 ms (27.4) |
+| Nintendo | 1.4 ms (1.9) | 8.5 ms (18.2) | 11.5 ms (18.3) | 1.5 ms (2.1) |
+| Spectrum | 1.1 ms (1.3) | 6.0 ms (9.1) | 9.7 ms (14.8) | 1.2 ms (1.8) |
+| Arcade cabinet (Thwaite) | 1.2 ms (1.6) | 7.1 ms (12.9) | 10.8 ms (16.4) | 1.3 ms (1.8) |
 
 The figures vary by up to a third from run to run.
 
-- **The Nintendo and the Spectrum keep up**: 60 steps a second in every case measured. (Headless
-  Chrome drew about 32 frames a second here, so the page made up two steps in most frames; it keeps
-  time down to 20.) At full speed a step takes under 2 ms and the page's main thread is at most 14%
-  busy, in VR too. Slowed 4×, a step takes about half a 60 Hz frame; slowed 6×, most of one, and the
-  slowest twentieth more than one, so on a TV that slow the room would drop frames while one runs.
-  The TV itself is still to be measured. Played on a screen, the room isn't drawn while a machine
-  runs (its picture covers the view), so a frame holds the machine's steps and its picture alone.
-- **Breakout doesn't keep up anywhere.** MAME runs its circuit chip by chip, and a step takes 20 ms
-  even on this laptop (48 steps a second, the main thread always busy) and 155 ms slowed 4×. So
-  Breakout won't go into the room: the arcade cabinet will hold a Nintendo running Thwaite instead,
-  and Breakout stays on the test page until then, to see for yourself.
+- **All three keep up**: 60 steps a second in every case measured. (Headless Chrome drew about 56
+  frames a second here, so the page made up a step now and then; it keeps time down to 20.) At full
+  speed a step takes under 2 ms and the page's main thread is at most 15% busy, in VR too. Slowed
+  4×, a step takes about half a 60 Hz frame; slowed 6×, about two thirds of one; and the slowest
+  twentieth up to a whole one or a little more, so on a TV that slow the room would drop frames while
+  one runs. The TV itself is still to be measured. Played on a screen, the room isn't drawn while a
+  machine runs (its picture covers the view), so a frame holds the machine's steps and its picture
+  alone.
+- **Breakout didn't keep up anywhere**, measured the same way on 31 October 2026. MAME runs its
+  circuit chip by chip, and a step took 20.3 ms (25.5) even on this laptop, 48 steps a second with
+  the main thread always busy; 155 ms (206) slowed 4×, 213 ms (294) slowed 6×, and 21.4 ms (27.4) in
+  VR. So it never came into the room, and its driver has left MAME's build: the arcade cabinet holds a
+  Nintendo running Thwaite instead.
 
-MAME is 33.6 MB to download (7.0 MB gzipped, as GitHub Pages sends it), and 0.3 MB of JavaScript
+MAME is 30.5 MB to download (6.4 MB gzipped, as GitHub Pages sends it), and 0.3 MB of JavaScript
 (0.1 MB), fetched when a machine first starts and then kept in the browser's cache. Concentration
-Room is 25 KB and the Spectrum's ROM 16 KB. A machine starts within a second once MAME is here
-(slowed 6×, within 6), and from the live site, the first time, in 2.6 s on a fast connection.
+Room and Thwaite are 25 KB each, and the Spectrum's ROM 16 KB. A machine starts within a second once
+MAME is here (slowed 6×, within 4), and from the live site, the first time, in under 3 s on a fast
+connection.
 
 ## Moving about
 
@@ -236,7 +267,7 @@ is the config's `hallwayDoor()`:
 {
   id: 'arcade',
   title: 'arcade',
-  subtitle: "A room behind the Hallway's door, becoming an arcade of old computers, game consoles and arcade machines: so far a Nintendo Entertainment System and a ZX Spectrum to play. Walk it and play in VR on a Meta Quest, on a desktop or on a phone.",
+  subtitle: "A room behind the Hallway's door, becoming an arcade of old computers, game consoles and arcade machines: so far a Nintendo Entertainment System, a ZX Spectrum and an arcade cabinet to play. Walk it and play in VR on a Meta Quest, on a desktop or on a phone.",
   sign: 'Arcade',
   url: 'https://ariamokr.github.io/arcade/',
   preview: 'https://ariamokr.github.io/arcade/hallway-preview.jpg',
@@ -396,10 +427,10 @@ committed:
 - `public/hallway-preview.jpg`, 2048 × 1024: the room from where one arrives, at eye height, facing
   in, hung as the Hallway hangs its doorways' pictures. The Hallway's doorway to here shows it.
 - `public/social.jpg`, 1280 × 640: the room from just inside the doorway, a little raised, looking
-  down it at the Spectrum, the Nintendo and the window (the two machines face each other near the
-  far wall, so no view of the doorway takes them in). The page's `og:image` and `twitter:image` show
-  it, and it is the repository's social preview (Settings → General → Social preview, uploaded by
-  hand).
+  down it at the three machines and the window: the Spectrum and the Nintendo face each other near
+  the far wall (so no view of the doorway takes them in), with the arcade cabinet against it between
+  them. The page's `og:image` and `twitter:image` show it, and it is the repository's social preview
+  (Settings → General → Social preview, uploaded by hand).
 
 Render them again whenever the room changes. Chrome starts through common's `tools/chrome.mjs`, on a
 new profile that is first told the Windows password is not blank, so it never tries a logon to find

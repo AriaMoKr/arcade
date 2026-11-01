@@ -7,7 +7,7 @@
 // writes the figures, and --shots each machine's screen as it was after the run at full speed
 // (<dir>/<id>.png). The page gets its frames at the display's rate, which a remote desktop session
 // may hold to 30 a second: then MAME runs two steps a frame, and a step's cost is the figure to go by.
-//   node tools/measure-machines.mjs [--visible] [--seconds 8] [--only nes,breakout] [--rates 1,4,6]
+//   node tools/measure-machines.mjs [--visible] [--seconds 8] [--only nes,thwaite] [--rates 1,4,6]
 //     [--json file] [--shots dir]
 // Headless by default. --visible opens a Chrome window of its own instead, which draws with the GPU
 // (headless Chrome may draw WebGL on the CPU). Either way common's launchChrome starts it on a new

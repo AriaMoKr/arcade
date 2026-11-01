@@ -153,6 +153,8 @@ test("every button of a machine's panel on the wall is a control on the page too
         // Named over them, so that they are told from another machine's button.
         assert.ok(!o.machineNames[i].hidden && o.machineNames[i].textContent === m.title);
         assert.ok(o.machineNames.every((n, j) => n.hidden === (j !== i)));
+        // Marked as the one running, so that on a small screen the others leave the card (style.css).
+        assert.ok(o.machineItems.every((item, j) => item.classList.contains('current') === (j === i)));
         const chips = new Map(o.machineControls[i].children.map((b) => [b.textContent.toLowerCase(), b]));
         const keys = m.keyboard ? new ScreenKeys(m.keyboard, `The ${m.title}'s keyboard`) : null;
         /** @type {string[]} */
