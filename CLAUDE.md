@@ -4,39 +4,45 @@ Guidance for Claude Code in this repository.
 
 ## What this is
 
-An empty WebXR room behind one of the Hallway's doors, made to be copied (three.js 0.186, plain ES
-modules, no bundler or build step): a floor, four walls, a ceiling with lamps, a window onto
-common's afternoon sky, the doorway back to the Hallway, and the control panel beside it. Rooms
-(`art`, `video`, …) are made from it, so it holds everything a room needs and nothing a particular
-room has; README's "Making a room from this template" is the checklist. It follows the Hallway
-(https://ariamokr.github.io/hallway/, AriaMoKr/hallway, a checkout at `../hallway`) and outside
-(AriaMoKr/outside, `../outside`, the closest model: much of the code here is outside's or the
-hallway's, said so at the top of each such file). `public/` is the whole site. The user asked for
-the hallway to be left alone, so change `../hallway` only when asked.
+arcade: a WebXR room behind one of the Hallway's doors, soon an arcade of old computers, game
+consoles and arcade machines (three.js 0.186, plain ES modules, no bundler or build step). For now
+it is the room AriaMoKr/RoomTemplateEmpty makes (a checkout at `../RoomTemplateEmpty`), empty: a
+floor, four walls, a ceiling with lamps, a window in the right-hand wall onto common's afternoon
+sky, the doorway back to the Hallway, and the control panel beside it. Its own are
+`public/js/config.js` (7 × 9 m, violet walls, a dark ceiling, the magenta glow), the page's title
+and link-preview tags, package.json, `main.js`'s opening comment, the pictures and these docs; the
+rest is the template's code, which follows the Hallway (https://ariamokr.github.io/hallway/,
+AriaMoKr/hallway, a checkout at `../hallway`) and outside (AriaMoKr/outside, `../outside`), said
+so at the top of each such file. The machines come next, proposed to the user first, then built a
+step at a time. `public/` is the whole site. The user asked for the hallway to be left alone, so
+change `../hallway` only when asked; its door to here comes in the Hallway's own round (README,
+"The Hallway's door", is the entry to give it).
 
-Published at https://ariamokr.github.io/RoomTemplateEmpty/ from `main` of AriaMoKr/RoomTemplateEmpty
-(a template repository) by `.github/workflows/pages.yml`.
+Published at https://ariamokr.github.io/arcade/ from `main` of AriaMoKr/arcade by
+`.github/workflows/pages.yml`.
 
 ## Commands
 
 ```bash
 npm install          # postinstall: common's tools/vendor.mjs copies what vendor.json lists into public/vendor/ (gitignored)
-npm start            # tools/serve.mjs (common's) on config.js's port, 8094
+npm start            # tools/serve.mjs (common's) on config.js's port, 8102
 npm test             # node --test "test/*.test.js", tsc's check among them (test/types.test.js)
 npm run types        # tsc -p tsconfig.json, then -p tsconfig.strict.json, alone
 npm run preview      # tools/preview.mjs: public/hallway-preview.jpg and public/social.jpg (headless Chrome)
 ```
 
 Node 22 or newer; CI runs Node 24 (common's Pages workflow). It runs under MSYS2 UCRT64 here
-(`MSYSTEM=UCRT64 /c/msys64/usr/bin/bash -lc 'cd /c/git/my/claude/RoomTemplateEmpty && …'`).
+(`MSYSTEM=UCRT64 /c/msys64/usr/bin/bash -lc 'cd /c/git/my/claude/arcade && …'`). `npm start` listens
+on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host 127.0.0.1`).
 
 ## Layout
 
-- `config.js`: the one module a copy changes (`ROOM`: id, title, description, sign, url, size,
-  colors, window, skyYaw, port, glow, pieces, none here, each a `Piece`) and `hallwayDoor()`, the
-  Hallway's door entry it implies.
+- `config.js`: the one module a copy of the template changes (`ROOM`: id `arcade`, title,
+  description, sign `Arcade`, url, size 7 × 9 × 3.2 m, colors, window `right`, skyYaw -π/2, port
+  8102, glow `#d36fd8`, pieces, none here, each a `Piece`) and `hallwayDoor()`, the Hallway's door
+  entry it implies.
   `index.html` and `package.json` repeat some of it; `test/config.test.js` keeps them the same.
-  The `@satisfies` line above `ROOM` (outside it, so a copy's merges leave it be) checks the
+  The `@satisfies` line above `ROOM` (the template's, outside it, so merges leave it be) checks the
   window's wall for tsc.
 - `room.js`: pure (no three, tested in Node). The layout from the config (`layoutRoom`: the doorway,
   shrunk to fit the link's size, the window, the panel, the lamps, the spawn), `doorSpawn`,
@@ -142,4 +148,13 @@ Node 22 or newer; CI runs Node 24 (common's Pages workflow). It runs under MSYS2
   nav, access with the vignette, fade, gamepad, portal, sky, tv, controls, and the tools
   `serve.mjs`, `vendor.mjs`, `chrome.mjs`, and the Pages workflow) and AriaMoKr/layersharedsession
   (`v0.3.0`). Change them there, then move the tag here and `npm install`.
-- `.claude/launch.json`: `room` (8094) and `hallway` (`../hallway/public` on 8088).
+- `.claude/launch.json`: `room` (8102) and `hallway` (`../hallway/public` on 8088).
+- The template's fixes come by merge: the remote `template` (AriaMoKr/RoomTemplateEmpty, push
+  disabled), whose history joins this one at `df35b83`, which the first commit copies (README,
+  "Made from RoomTemplateEmpty", says what a merge keeps).
+- GitHub: the user runs any `gh` command (repository settings, Pages, the social preview by hand).
+  Don't run gh; write the command out and ask. Git itself goes over the `github-custom-remote` SSH
+  alias, as `origin` does.
+- What runs on the machines is only what its licence lets be served from Pages (public domain,
+  freely licensed, or homebrew whose authors allow it), BIOS and system ROMs included, each listed
+  in the README with its licence.

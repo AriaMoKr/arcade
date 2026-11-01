@@ -1,5 +1,6 @@
-// An empty room behind one of the Hallway's doors, made to be copied (README, "Making a room from
-// this template"; what a copy changes is config.js). Coming in through the door, the visitor
+// arcade: a room behind the Hallway's door, soon an arcade of old computers, game consoles and
+// arcade machines, for now empty as RoomTemplateEmpty makes it (what a room made from it changes is
+// config.js). Coming in through the door, the visitor
 // carries on from how they went through it (the Hallway's link: where in the doorway, which way
 // they faced); behind them the doorway glows and shows the hall, and going back through it leads
 // back to the Hallway, in front of this room's door (common's door.js). In the room: a floor, four
