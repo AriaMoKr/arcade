@@ -251,8 +251,10 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
 - Accessibility, as the other sites pass it: every 3D control also on the page, 2 px focus rings,
   targets at least 24 px, text over the view at 4.5:1 (the card and pills nearly opaque), the card
   scrolling at 320×568 and 667×375, state shown under forced colours, and less motion stilling the
-  page's transitions. Check with axe (wcag2a/aa, wcag21aa, wcag22aa, best-practice) at a desktop
+  page's transitions. Check with axe (wcag2a/aa, wcag21a/aa, wcag22aa, best-practice) at a desktop
   size and at 320×568, and with `?tv=emulate` at 960×540, with a machine running and stopped.
+  `wcag21a` holds Label in Name (`label-content-name-mismatch`): a control is named by what it
+  shows, so no `aria-label` over a key's legend, which where keys are small is its short one.
 - The TV (README, "On a TV"; common's README, "The TV app"): test with `?tv=emulate` and real key
   presses (OK is Enter with no `code`; `hallwayTV.menu()` / `.back()` for Menu and Back; Escape is
   Back in the card). On the TV, HallwayApp's `tools/tv-check.mjs --url <url>` needs its debug build

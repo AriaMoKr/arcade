@@ -164,7 +164,9 @@ export class ScreenKeys {
 
   /**
    * A key's button: its legend (shortened where keys are small), its word and its symbol, and E
-   * mode's where they are large; the order a screen reader reads them in, the CSS placing them.
+   * mode's where they are large; the order a screen reader reads them in, the CSS placing them. Its
+   * name is what it shows (WCAG 2.5.3, Label in Name), with no aria-label over it: where keys are
+   * small a shift is named by its short legend, SYM, the whole one hidden and so not read.
    * @param {Key} key
    */
   #button(key) {
@@ -172,7 +174,6 @@ export class ScreenKeys {
     /** @type {Record<string, string>} */
     const attrs = { class: `machine-key${key.label.length > 1 ? ' long' : ''}${key.code === 'ShiftRight' ? ' symbol' : ''}`, type: 'button', tabindex: '-1' };
     if (shift) attrs['aria-pressed'] = 'false';
-    if (key.short) attrs['aria-label'] = key.label;
     const part = (/** @type {string} */ cls, /** @type {string | undefined} */ text) => (text ? [el('span', { class: cls }, text)] : []);
     const b = el('button', attrs,
       ...(key.short ? [el('span', { class: 'k-label k-long' }, key.label), el('span', { class: 'k-label k-short' }, key.short)] : part('k-label', key.label)),

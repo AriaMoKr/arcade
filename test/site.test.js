@@ -157,6 +157,13 @@ test("every button of a machine's panel on the wall is a control on the page too
         assert.ok(o.machineItems.every((item, j) => item.classList.contains('current') === (j === i)));
         const chips = new Map(o.machineControls[i].children.map((b) => [b.textContent.toLowerCase(), b]));
         const keys = m.keyboard ? new ScreenKeys(m.keyboard, `The ${m.title}'s keyboard`) : null;
+        // Each key is named by what it shows (WCAG 2.5.3, Label in Name): no aria-label over it. A key
+        // with a short legend holds both, of which style.css shows one, the other not read.
+        for (const [j, k] of (keys?.keys ?? []).entries()) {
+          const b = keys.buttons[j];
+          assert.equal(b.getAttribute('aria-label'), null, `${k.label} is named over what it shows`);
+          if (k.short) assert.deepEqual(b.children.filter((c) => c.className.startsWith('k-label')).map((c) => c.textContent), [k.label, k.short]);
+        }
         /** @type {string[]} */
         const pressed = [];
         if (keys) keys.onKey = (key, down) => pressed.push(`key:${key.code}:${down}`);
