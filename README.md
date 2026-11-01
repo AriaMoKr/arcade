@@ -51,9 +51,9 @@ the room will; and `?xr=emulate` does so in an emulated Quest 3, with **Enter VR
 
 [MAME](https://www.mamedev.org/) 0.289 runs them, built for the web with Emscripten by
 `tools/build-mame.sh` from only the three drivers they need (Breakout's holds Pong and Rebound
-too): `public/mame/arcade.js` and `arcade.wasm`. Each machine runs in a frame of its own (`mame/machine.html`), stepped 60 times a
-second from the page's frame loop (in VR, the headset's) whatever the display's rate, its sound
-going through the page's. Only the machine's own keys reach it, never MAME's (Escape would end it,
+too): `public/mame/arcade.js` and `arcade.wasm`. Each machine runs in a frame of its own
+(`mame/machine.html`), stepped 60 times a second from the page's frame loop (in VR, the
+headset's) whatever the display's rate, its sound going through the page's. Only the machine's own keys reach it, never MAME's (Escape would end it,
 Tab open its menu).
 
 MAME is free software, under the GNU GPL, version 2 or later. Its licence and its parts' notices
@@ -83,26 +83,26 @@ room's own drawing. On an Intel Core i9-14900HX laptop (and its integrated GPU),
 
 | A step: median (95th percentile) | CPU as it is | Slowed 4× | Slowed 6× | VR (emulated) |
 |---|---|---|---|---|
-| Nintendo | 2.0 ms (2.4) | 9.9 ms (18.5) | 13.3 ms (19.4) | 1.4 ms (1.7) |
-| Spectrum | 1.3 ms (1.6) | 7.9 ms (12.6) | 11.7 ms (17.3) | 1.3 ms (1.6) |
-| Breakout | 20.4 ms (25.9) | 143 ms (204) | 292 ms (369) | 20.6 ms (25.4) |
+| Nintendo | 1.4 ms (1.7) | 8.9 ms (12.9) | 13.0 ms (18.5) | 1.5 ms (1.9) |
+| Spectrum | 1.2 ms (1.5) | 7.8 ms (11.9) | 11.7 ms (17.5) | 1.3 ms (1.5) |
+| Breakout | 20.3 ms (25.5) | 155 ms (206) | 213 ms (294) | 21.4 ms (27.4) |
 
-The figures vary by about a fifth from run to run.
+The figures vary by up to a third from run to run.
 
-- **The Nintendo and the Spectrum keep up.** At full speed a step takes 1–2 ms and the page's main
-  thread is at most 13% busy, in VR too, and each starts within a second (served from the same
-  computer, so with nothing to download). Slowed 4×, both still run at full speed, a step taking
-  about half a frame (the Nintendo's slowest a whole one). Slowed 6×, a step takes most of a frame,
-  so on a TV that slow the room would drop frames while one runs, and the Nintendo falls a little
-  behind (51 steps a second). The TV itself is still to be measured.
+- **The Nintendo and the Spectrum keep up**, at 60 steps a second in every case. At full speed a
+  step takes under 2 ms and the page's main thread is at most 14% busy, in VR too. Slowed 4×, a step
+  takes about half a 60 Hz frame; slowed 6×, most of one, and the slowest twentieth more than one,
+  so on a TV that slow the room would drop frames while one runs. The TV itself is still to be
+  measured.
 - **Breakout doesn't keep up anywhere.** MAME runs its circuit chip by chip, and a step takes 20 ms
-  even on this laptop (49 steps a second, the main thread always busy) and 143 ms slowed 4×. Pong,
+  even on this laptop (48 steps a second, the main thread always busy) and 155 ms slowed 4×. Pong,
   the same kind of machine, takes 8 ms, and 50 ms slowed 4×. So Breakout won't go into the room as
   it is; it stays on the test page for now, to see for yourself.
 
-MAME is 33.6 MB to download (7.0 MB gzipped), and 0.3 MB of JavaScript (0.1 MB), fetched when a
-machine first starts and then kept in the browser's cache. Concentration Room is 25 KB and the
-Spectrum's ROM 16 KB.
+MAME is 33.6 MB to download (7.0 MB gzipped, as GitHub Pages sends it), and 0.3 MB of JavaScript
+(0.1 MB), fetched when a machine first starts and then kept in the browser's cache. Concentration
+Room is 25 KB and the Spectrum's ROM 16 KB. A machine starts within a second once MAME is here
+(slowed 6×, within 6), and from the live site, the first time, in 2.6 s on a fast connection.
 
 ## Moving about
 

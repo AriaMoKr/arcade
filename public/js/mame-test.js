@@ -211,31 +211,37 @@ async function make3d() {
 
 // ── The figures ──────────────────────────────────────────────────────────────
 
+/** MAME's steps and pictures so far, the page's frames so far, and when: for stats(since). */
+function counts() {
+  const s = emulator.stats();
+  return { at: performance.now(), steps: s.steps, frames: s.frames, pageFrames };
+}
+
 /**
- * The page and the machine now: MAME's steps and pictures a second over the last second, ms a step
- * (MAME's) and ms a frame (the page's, MAME's step included), and what the machine's frame loaded.
+ * The page and the machine now: MAME's steps and pictures a second and the page's frames a second
+ * since `since` (counts() then), ms a step (MAME's) and ms a frame (the page's, MAME's step
+ * included) over the last 600, and what the machine's frame loaded.
+ * @param {ReturnType<typeof counts>} since
  */
-function stats() {
-  const now = performance.now(), s = emulator.stats();
-  const rate = (/** @type {number} */ n, /** @type {number} */ before, /** @type {number} */ ms) => (ms > 0 ? ((n - before) * 1000) / ms : 0);
+function stats(since) {
+  const now = counts(), s = emulator.stats();
+  const ms = now.at - since.at;
+  // Never below 0: a machine started since has counted from 0 again.
+  const rate = (/** @type {number} */ n, /** @type {number} */ before) => (ms > 0 ? Math.max(0, ((n - before) * 1000) / ms) : 0);
   const n = Math.min(pageFrames, frameTimes.length);
   const sorted = Array.from(frameTimes.subarray(0, n)).sort((a, b) => a - b);
   const at = (/** @type {number} */ q) => (n ? sorted[Math.min(n - 1, Math.floor(q * n))] : 0);
-  const ms = now - last.at;
-  const figures = {
+  return {
     machine: emulator.machine?.id ?? null,
     state: emulator.state,
-    stepsPerSecond: rate(s.steps, last.steps, ms),
-    picturesPerSecond: rate(s.frames, last.frames, ms),
-    pageFramesPerSecond: rate(pageFrames, last.pageFrames, ms),
+    stepsPerSecond: rate(now.steps, since.steps),
+    picturesPerSecond: rate(now.frames, since.frames),
+    pageFramesPerSecond: rate(now.pageFrames, since.pageFrames),
     step: { median: s.median, p95: s.p95, max: s.max },
     frame: { median: at(0.5), p95: at(0.95), max: n ? sorted[n - 1] : 0 },
     loaded: loaded(),
   };
-  last = { at: now, steps: s.steps, frames: s.frames, pageFrames };
-  return figures;
 }
-let last = { at: performance.now(), steps: 0, frames: 0, pageFrames: 0 };
 
 /** What the machine's frame loaded: name, bytes over the wire, bytes. */
 function loaded() {
@@ -245,8 +251,10 @@ function loaded() {
 
 const mb = (/** @type {number} */ bytes) => `${(bytes / 1e6).toFixed(bytes < 1e5 ? 3 : 1)} MB`;
 const ms1 = (/** @type {number} */ x) => `${x.toFixed(1)} ms`;
+let shown = counts();
 setInterval(() => {
-  const f = stats();
+  const f = stats(shown);
+  shown = counts();
   const rows = [];
   if (f.state === 'running') {
     rows.push(['MAME', `${f.stepsPerSecond.toFixed(1)} steps of 1/60 s a second, ${f.picturesPerSecond.toFixed(1)} pictures`]);
@@ -266,4 +274,4 @@ setInterval(() => {
 const first = params.get('m');
 if (first) start(first);
 
-window.test = { emulator, start, stats, enterVR: () => view?.enterVR() ?? Promise.resolve(), presenting: () => view?.presenting() ?? false };
+window.test = { emulator, start, counts, stats, enterVR: () => view?.enterVR() ?? Promise.resolve(), presenting: () => view?.presenting() ?? false };

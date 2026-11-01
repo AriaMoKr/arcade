@@ -103,7 +103,7 @@ try {
         row.presenting = await until('window.test.presenting()', 10000);
       }
       await sleep(3000); // started: settle
-      Object.assign(row, await measure('window.test.stats()', 'window.test.stats()'));
+      Object.assign(row, await measure('window.since = window.test.counts()', 'window.test.stats(window.since)'));
       if (opts.shots && s.rate === 1 && !s.vr) {
         const png = await page.evaluate(`window.test.emulator.canvas.toDataURL('image/png')`);
         mkdirSync(opts.shots, { recursive: true });
