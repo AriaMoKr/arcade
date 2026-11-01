@@ -139,6 +139,39 @@ export const STANDS = [
     front: { a: 0, d: 0.92 },
     about: 'Mine Storm, built into it: a ship among drifting mines',
   },
+  {
+    // The Atari 2600 on a console TV of its time against the right-hand wall, between the doorway
+    // and the window: the TV in walnut on its legs, its screen on the left and its speaker and knobs
+    // on the right, and on it the 2600 (its wood-grain front, 2048's cartridge in its slot) and its
+    // joystick.
+    machine: 'a2600',
+    wall: 'right',
+    at: 2.5,
+    parts: [
+      { part: 'leg-front-left', a: [-0.44, -0.4], y: [0, 0.3], d: [0.44, 0.48], color: '#3e2a1d' },
+      { part: 'leg-front-right', a: [0.4, 0.44], y: [0, 0.3], d: [0.44, 0.48], color: '#3e2a1d' },
+      { part: 'leg-back-left', a: [-0.44, -0.4], y: [0, 0.3], d: [0.06, 0.1], color: '#3e2a1d' },
+      { part: 'leg-back-right', a: [0.4, 0.44], y: [0, 0.3], d: [0.06, 0.1], color: '#3e2a1d' },
+      { part: 'tv', a: [-0.48, 0.48], y: [0.3, 1.1], d: [0.02, 0.52], color: '#6a4630' },
+      { part: 'bezel', a: [-0.42, 0.16], y: [0.43, 0.97], d: [0.52, 0.53], color: '#1e1c1f' },
+      { part: 'grille', a: [0.21, 0.43], y: [0.45, 0.8], d: [0.52, 0.524], color: '#3b322b' },
+      { part: 'knob-1', a: [0.25, 0.29], y: [0.86, 0.9], d: [0.52, 0.545], color: '#c8b48a' },
+      { part: 'knob-2', a: [0.35, 0.39], y: [0.86, 0.9], d: [0.52, 0.545], color: '#c8b48a' },
+      // 34 × 23 × 9 cm, its black top over its wood-grain front, as the first 2600s were.
+      { part: 'console', a: [-0.3, 0.04], y: [1.1, 1.19], d: [0.17, 0.4], color: '#19181b' },
+      { part: 'console-front', a: [-0.3, 0.04], y: [1.1, 1.155], d: [0.4, 0.408], color: '#7a5434' },
+      { part: 'cartridge', a: [-0.18, -0.08], y: [1.19, 1.25], d: [0.23, 0.26], color: '#1d1c20' },
+      // Its joystick: the base, the stick and the red button at its far left.
+      { part: 'joystick', a: [0.15, 0.23], y: [1.1, 1.135], d: [0.3, 0.38], color: '#19181b' },
+      { part: 'joystick-stick', a: [0.183, 0.197], y: [1.135, 1.21], d: [0.333, 0.347], color: '#19181b' },
+      { part: 'joystick-button', a: [0.155, 0.175], y: [1.135, 1.145], d: [0.305, 0.325], color: '#c8302a' },
+    ],
+    // A 24-inch tube: 4:3.
+    screen: { a: -0.13, y: 0.7, d: 0.531, width: 0.48, height: 0.36 },
+    panel: { a: [0.6, 0.9], y: [1.12, 1.38], d: 0.012 },
+    front: { a: -0.13, d: 1.38 },
+    about: '2048: its tiles slid together, two of a number making the next',
+  },
 ];
 
 /**

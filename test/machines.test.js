@@ -7,7 +7,7 @@ import { existsSync, readFileSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ID } from '../public/js/config.js';
-import { MACHINES, RESET, buttonName, codesOf, machineButtons, machineById, machineCodes, mameArgs } from '../public/js/machines.js';
+import { MACHINES, RESET, buttonName, codesOf, machineButtons, machineById, machineCodes, mameArgs, oneButton } from '../public/js/machines.js';
 import { keyOf, pace } from '../public/js/emulator.js';
 
 const mame = join(dirname(fileURLToPath(import.meta.url)), '..', 'public', 'mame');
@@ -75,7 +75,7 @@ test("only the machine's own keys reach MAME, never one of MAME's own controls (
   }
 });
 
-test("a computer's keys are its keyboard's, and its card has Reset and Stop; a console's, its Start and Select too (on a TV, its A and B)", () => {
+test("a computer's keys are its keyboard's, and its card has Reset and Stop; a console's, its Start and Select too (on a TV, its A and B where they are two)", () => {
   for (const m of MACHINES) {
     const codes = machineCodes(m);
     assert.equal(new Set(codes).size, codes.length);
@@ -90,7 +90,7 @@ test("a computer's keys are its keyboard's, and its card has Reset and Stop; a c
       assert.deepEqual(machineButtons(m).slice(-2), ['reset', 'stop']);
       assert.deepEqual(machineButtons(m).slice(0, -2).sort(), ['select', 'start']);
       assert.deepEqual(machineButtons(m, true).slice(-2), ['reset', 'stop']);
-      assert.deepEqual(machineButtons(m, true).slice(0, -2).sort(), ['a', 'b', 'select', 'start']);
+      assert.deepEqual(machineButtons(m, true).slice(0, -2).sort(), oneButton(m) ? ['select', 'start'] : ['a', 'b', 'select', 'start']);
     }
   }
   // Backspace and the arrows are the Spectrum's own: CAPS SHIFT with 0, and with 5 to 8.
@@ -99,14 +99,15 @@ test("a computer's keys are its keyboard's, and its card has Reset and Stop; a c
   assert.deepEqual(['ArrowLeft', 'ArrowDown', 'ArrowUp', 'ArrowRight'].map((k) => codesOf(spectrum.keys[k])[1]), ['Digit5', 'Digit6', 'Digit7', 'Digit8']);
 });
 
-test("a console's pad presses MAME's keys for its eight controls, its own keys among them; MAME's reset only the Reset button's", () => {
+test("a console's pad presses MAME's keys for its eight controls (A and B one, where it has one button), its own keys among them; MAME's reset only the Reset button's", () => {
   const ui = new Set(['Escape', 'Tab', 'ScrollLock', 'Pause', 'Backquote', ...Array.from({ length: 12 }, (_, i) => `F${i + 1}`)]);
   const consoles = MACHINES.filter((m) => m.pad);
   assert.ok(consoles.length > 0);
   for (const m of consoles) {
     const pad = /** @type {import('../public/js/machines.js').Pad} */ (m.pad);
     assert.deepEqual(Object.keys(pad).sort(), ['a', 'b', 'down', 'left', 'right', 'select', 'start', 'up']);
-    assert.equal(new Set(Object.values(pad)).size, 8, `${m.id}: two controls press one key`);
+    const controls = Object.entries(pad).filter(([control]) => !(control === 'b' && oneButton(m)));
+    assert.equal(new Set(controls.map(([, code]) => code)).size, controls.length, `${m.id}: two controls press one key`);
     const own = new Set(Object.values(m.keys).flatMap(codesOf));
     for (const [control, code] of Object.entries(pad)) {
       assert.ok(!ui.has(code), `${m.id}: ${control} would press ${code}`);
@@ -136,6 +137,30 @@ test("a console's buttons go by its own names: a Nintendo's A, B, Select and Sta
   const cfg = vectrex.files.find((f) => f.path === '/cfg/vectrex.cfg');
   assert.ok(cfg, "the Vectrex's settings for MAME");
   assert.match(readFileSync(join(mame, cfg.url), 'utf8'), /<system name="vectrex">\s*<crosshairs>\s*<crosshair player="0" mode="0" \/>/);
+});
+
+test("the Atari 2600's one fire button is a pad's A and B alike, its own switches its Select and Start, and the arrows move both its joysticks", () => {
+  const atari = /** @type {import('../public/js/machines.js').Machine} */ (machineById('a2600'));
+  assert.ok(oneButton(atari));
+  for (const id of ['nes', 'thwaite', 'vectrex']) assert.ok(!oneButton(/** @type {import('../public/js/machines.js').Machine} */ (machineById(id))), id);
+  // Its switches in the card as on the console, left to right; no A or B on a TV, where OK fires.
+  assert.deepEqual(machineButtons(atari).map((id) => buttonName(atari, id)), ['Game Select', 'Game Reset', 'Reset', 'Stop']);
+  assert.deepEqual(machineButtons(atari, true), machineButtons(atari));
+  assert.equal(buttonName(atari, 'a'), 'Fire');
+  // MAME's keys for them (a2600.cpp: GAME SELECT 1, GAME RESET 2; the joystick's button, player 1's
+  // first, Left Ctrl), and the visitor's Enter and Shift as a Nintendo's Start and Select.
+  const pad = /** @type {import('../public/js/machines.js').Pad} */ (atari.pad);
+  assert.deepEqual([pad.a, pad.b, pad.select, pad.start], ['ControlLeft', 'ControlLeft', 'Digit1', 'Digit2']);
+  assert.deepEqual([atari.keys.Enter, atari.keys.ShiftLeft, atari.keys.Space], ['Digit2', 'Digit1', 'ControlLeft']);
+  // Its settings for MAME: the right-hand joystick, player 2's, on the arrows too.
+  const cfg = atari.files.find((f) => f.path === '/cfg/a2600.cfg');
+  assert.ok(cfg, "the Atari 2600's settings for MAME");
+  const xml = readFileSync(join(mame, cfg.url), 'utf8');
+  assert.match(xml, /<system name="a2600">/);
+  for (const [i, dir] of ['UP', 'DOWN', 'LEFT', 'RIGHT'].entries()) {
+    const mask = 1 << i;
+    assert.match(xml, new RegExp(`<port tag=":joyport2:joy:JOY" type="P2_JOYSTICK_${dir}" mask="${mask}" defvalue="${mask}">\\s*<newseq type="standard">KEYCODE_${dir}</newseq>`), dir);
+  }
 });
 
 test("a key event's key for its code, as a US keyboard gives it", () => {

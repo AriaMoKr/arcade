@@ -8,4 +8,8 @@ ROMs.
 arrows, as it does the stick, and would draw its crosshair over the picture whenever it moved, though
 the light pen isn't plugged in (MAME's default for it) and Mine Storm doesn't read it.
 
+`a2600.cfg`: the Atari 2600's right-hand joystick moved with the arrows, as the left-hand one is
+(MAME's default for it is R, F, D and G). In 2048's two-player game the players take turns on one
+board, each with their own joystick, so with one joystick in the room the arrows play both turns.
+
 They are the room's own, under its licence (MIT, the repository's `LICENSE`).

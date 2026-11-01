@@ -1,6 +1,6 @@
 // arcade: a room behind the Hallway's door, an arcade of old computers, game consoles and arcade
-// machines, so far a Nintendo Entertainment System, a ZX Spectrum, an arcade cabinet and a Vectrex,
-// each on its stand (stands.js), played as play.js says; the rest is the room RoomTemplateEmpty makes (what a room made from it
+// machines, so far a Nintendo Entertainment System, a ZX Spectrum, an arcade cabinet, a Vectrex and
+// an Atari 2600, each on its stand (stands.js), played as play.js says; the rest is the room RoomTemplateEmpty makes (what a room made from it
 // changes is config.js). Coming in through the door, the visitor
 // carries on from how they went through it (the Hallway's link: where in the doorway, which way
 // they faced); behind them the doorway glows and shows the hall, and going back through it leads

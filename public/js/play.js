@@ -10,7 +10,8 @@
 // it, pointed at, its shifts on the left's X and Y, ENTER and DELETE the right's A and B; until a
 // move away (a teleport: controls.js's stand). The card's buttons and the panel on the wall press a
 // console's Start and Select (on a TV, A and B too), reset the machine and stop it; each goes by the
-// console's own name for it (machines.js buttonName: the Vectrex's 1 to 4), on the screen's pad too.
+// console's own name for it (machines.js buttonName: the Vectrex's 1 to 4, the Atari 2600's Game
+// Select and Game Reset), on the screen's pad too, where the 2600's one fire button is its A alone.
 // A computer's shift pressed on the screen or the panel stays down for the next key.
 //
 // MAME's frame (mame-frame.js) is never seen: it stays the machine's own size, as a larger one
@@ -18,7 +19,7 @@
 // page's, which the view shows scaled up (pixel for pixel, a vector screen's lines smoothed), and
 // in VR the screen in the room.
 import { Emulator } from './emulator.js';
-import { RESET, buttonName, codesOf, machineById, machineCodes } from './machines.js';
+import { RESET, buttonName, codesOf, machineById, machineCodes, oneButton } from './machines.js';
 import { keyByCode } from './keyboards.js';
 import { ScreenKeys, keysIn } from './screen-keys.js';
 import { firstPad, held } from 'common/gamepad.js';
@@ -240,9 +241,10 @@ export class Play {
     frame.style.width = `${m.screen.width}px`;
     frame.style.height = `${m.screen.height}px`;
     this.#show(!this.renderer.xr.isPresenting);
-    // Started from its button in the card, the focus goes to its buttons there; a computer's, to its
-    // screen, so that Enter and Space are its own.
-    this.overlay.setPlaying(i, m, m.keyboard && !this.tv ? this.canvas : null);
+    // Started from its button in the card, the focus goes to its buttons there; a computer's, and a
+    // console's that takes Space (the Atari 2600's fire), to its screen, so that Enter and Space are
+    // its own and press none of its buttons in the card.
+    this.overlay.setPlaying(i, m, (m.keyboard || Object.hasOwn(m.keys, 'Space')) && !this.tv ? this.canvas : null);
     // On a TV, started from the card: the remote plays it now (Menu goes back to its buttons).
     if (this.remote?.inCard) this.remote.walk();
   }
@@ -826,7 +828,8 @@ export class Play {
 
   /**
    * The screen's pad for machine m: its buttons named as m names them (a Nintendo's A, B, Select and
-   * Start; the Vectrex's 1 to 4), each showing its name.
+   * Start; the Vectrex's 1 to 4), each showing its name, and B only where it is another button than
+   * A (not the Atari 2600's one fire button).
    * @param {Machine} m
    */
   #namePad(m) {
@@ -837,6 +840,7 @@ export class Play {
       const name = buttonName(m, id);
       b.setAttribute('aria-label', name);
       /** @type {HTMLElement} */ (b.firstElementChild).textContent = name;
+      b.hidden = id === 'b' && oneButton(m);
     }
   }
 

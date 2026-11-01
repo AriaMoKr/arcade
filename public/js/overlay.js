@@ -15,7 +15,7 @@
 // to copy a link to: the invite link is shown to type on another device. Fullscreen and Enter VR
 // are not offered there (main.js).
 import { keyByCode } from './keyboards.js';
-import { buttonName, machineButtons } from './machines.js';
+import { buttonName, machineButtons, oneButton } from './machines.js';
 
 function el(tag, attrs = {}, ...children) {
   const e = document.createElement(tag);
@@ -57,7 +57,8 @@ const MACHINE_HINTS = {
 const list = (names) => (names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}` : names.join(''));
 /**
  * A machine running, on a screen (play.js): how to play it with what was used last, its buttons by
- * its own names for them (machines.js buttonName: the Vectrex's numbered); a computer's, how to type
+ * its own names for them (machines.js buttonName: the Vectrex's numbered, the Atari 2600's its
+ * switches' and its Fire, a gamepad's A or B where they are one button); a computer's, how to type
  * on it, on its keys under its picture too (screen-keys.js). On a TV the card (Menu) has what the
  * remote's keys don't.
  * @param {import('./machines.js').Machine} m
@@ -68,10 +69,11 @@ const playHints = (m) => {
     const name = (/** @type {string} */ id) => buttonName(m, id);
     const way = m.stick ? 'stick' : 'pad';
     const menu = machineButtons(m, true).filter((id) => id !== 'a').map(name);
+    const ab = oneButton(m) ? `A or B: its ${name('a')}` : `A, B: its ${name('a')} and ${name('b')}`;
     return {
       mouse: `${m.help} · Esc: stop`,
       touch: `Play with its ${way} and buttons on the screen · Stop is in the card`,
-      gamepad: `D-pad or left stick: its ${way} · A, B: its ${name('a')} and ${name('b')} · Start, Back: its ${name('start')} and ${name('select')} · LB or RB: stop`,
+      gamepad: `D-pad or left stick: its ${way} · ${ab} · Start, Back: its ${name('start')} and ${name('select')} · LB or RB: stop`,
       tv: `Arrows: its ${way} · OK: its ${name('a')} · Menu: ${list(menu)} · Back: stop`,
       'tv-card': 'Up, down: from button to button · OK: press it · Back: play again',
     };
@@ -366,7 +368,8 @@ export class Overlay {
    * @param {number} i
    * @param {import('./machines.js').Machine | null} [machine]
    * @param {HTMLElement | null} [focus] where the focus goes from the button that started it, if not
-   *   to its buttons: a computer's screen, so that Enter and Space are the computer's
+   *   to its buttons: a computer's screen, or the Atari 2600's, so that Enter and Space are the
+   *   machine's
    */
   setPlaying(i, machine = null, focus = null) {
     const was = this.playing;

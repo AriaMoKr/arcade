@@ -139,6 +139,31 @@ export const MACHINES = [
     stick: true,
     vector: true,
   },
+  {
+    // The Atari 2600 (NTSC), with 2048 in its cartridge slot: its joystick slides the tiles, and
+    // its fire button (MAME's Left Ctrl, a gamepad's A and B alike) starts a game. Its own switches
+    // GAME SELECT and GAME RESET, MAME's 1 and 2, are a gamepad's Back and Start. Its settings
+    // (cfg/) move the right-hand joystick with the arrows too, so that in a two-player game, one
+    // turn each on the same board, the one joystick plays both.
+    id: 'a2600',
+    title: 'Atari 2600',
+    maker: 'Atari',
+    year: 1977,
+    driver: 'a2600',
+    files: [
+      { url: 'software/2048/2048.bin', path: '/software/2048.bin' },
+      { url: 'cfg/a2600.cfg', path: '/cfg/a2600.cfg' },
+    ],
+    args: ['-cart', '/software/2048.bin'],
+    // 160 of its pixels across and 192 lines, inside its border (MAME's a2600.cpp).
+    screen: { width: 176, height: 223 },
+    aspect: 4 / 3,
+    keys: { ...ARROWS, Space: 'ControlLeft', KeyZ: 'ControlLeft', KeyX: 'ControlLeft', Enter: 'Digit2', ShiftLeft: 'Digit1', ShiftRight: 'Digit1' },
+    help: 'Arrows: the joystick · Space, Z or X: fire · Enter: Game Reset · Shift: Game Select',
+    pad: { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', a: 'ControlLeft', b: 'ControlLeft', select: 'Digit1', start: 'Digit2' },
+    names: { select: 'Game Select', start: 'Game Reset', a: 'Fire' },
+    stick: true,
+  },
 ];
 
 /**
@@ -190,16 +215,26 @@ export function buttonName(m, id) {
 }
 
 /**
+ * Whether console m's A and B are one button: the Atari 2600's joystick has one, its fire button.
+ * @param {Machine} m
+ */
+export function oneButton(m) {
+  return !!m.pad && m.pad.a === m.pad.b;
+}
+
+/**
  * The buttons machine m has in the card while it runs, by play.js's names: a console's Start and
  * Select, or its own buttons in their order (Machine's names), with A and B only on a TV, whose
- * remote's OK is its A; then Reset and Stop. A computer's keys are on the screen instead.
+ * remote's OK is its A, and only where its B is another button; then Reset and Stop. A computer's
+ * keys are on the screen instead.
  * @param {Machine} m
  * @param {boolean} [tv]
  */
 export function machineButtons(m, tv = false) {
   if (!m.pad) return ['reset', 'stop'];
   const own = m.names ? Object.keys(m.names) : ['start', 'select', 'a', 'b'];
-  return [...own.filter((id) => tv || (id !== 'a' && id !== 'b')), 'reset', 'stop'];
+  const ab = tv && !oneButton(m);
+  return [...own.filter((id) => ab || (id !== 'a' && id !== 'b')), 'reset', 'stop'];
 }
 
 /**

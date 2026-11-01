@@ -8,7 +8,7 @@
 // run, a screen switched off.
 import * as THREE from 'three';
 import { Builder } from './builder.js';
-import { buttonName, machineById } from './machines.js';
+import { buttonName, machineById, oneButton } from './machines.js';
 import { PANEL_KEYS } from './stands.js';
 import { GOLD, SANS, SERIF, enamel } from './textures.js';
 
@@ -290,7 +290,8 @@ function marqueeArt(text) {
  */
 const vrPad = (m) => {
   const name = (/** @type {string} */ id) => buttonName(m, id);
-  return [`Left stick: its ${m.stick ? 'stick' : 'pad'} · A and B: its ${name('a')} and ${name('b')}`, `X: its ${name('select')} · Y: its ${name('start')}`];
+  const ab = oneButton(m) ? `A or B: its ${name('a')}` : `A and B: its ${name('a')} and ${name('b')}`;
+  return [`Left stick: its ${m.stick ? 'stick' : 'pad'} · ${ab}`, `X: its ${name('select')} · Y: its ${name('start')}`];
 };
 /** How to type on a computer in VR. */
 const VR_KEYS = ['Trigger: the key pointed at · CAPS SHIFT and SYMBOL SHIFT stay down for the next', 'Left X, Y: CAPS SHIFT, SYMBOL SHIFT · Right A: ENTER · B: DELETE'];
@@ -301,7 +302,8 @@ const RED = '#ff6b5e', GREEN = '#76d671';
 /**
  * The panel of a machine's buttons on the wall beside it, in the control panel's enamel (panel.js):
  * its name and what runs on it, Play, or while it runs a console's Select and Start (by its own
- * names for them: the Vectrex's 1 and 2), Reset and Stop, or a computer's Reset and Stop and its keys
+ * names for them: the Vectrex's 1 and 2, the Atari 2600's Game Select and Game Reset), Reset and
+ * Stop, or a computer's Reset and Stop and its keys
  * (its shifts lit while they are down for the next key); and how to play it in VR. Redrawn only when that changes; the button pointed at is lit by a pane
  * over it, which moves.
  */

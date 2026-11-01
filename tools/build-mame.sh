@@ -10,7 +10,7 @@
 set -eu
 
 TAG=mame0289
-DRIVERS=src/mame/nintendo/nes.cpp,src/mame/sinclair/spectrum.cpp,src/mame/miltonbradley/vectrex.cpp
+DRIVERS=src/mame/nintendo/nes.cpp,src/mame/sinclair/spectrum.cpp,src/mame/miltonbradley/vectrex.cpp,src/mame/atari/a2600.cpp
 JOBS=${1:-$(nproc 2>/dev/null || echo 4)}
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT=$ROOT/public/mame
