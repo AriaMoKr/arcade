@@ -13,8 +13,13 @@ sky, the doorway back to the Hallway, and the control panel beside it. Its own a
 and link-preview tags, package.json, `main.js`'s opening comment, the pictures and these docs; the
 rest is the template's code, which follows the Hallway (https://ariamokr.github.io/hallway/,
 AriaMoKr/hallway, a checkout at `../hallway`) and outside (AriaMoKr/outside, `../outside`), said
-so at the top of each such file. The machines come next, proposed to the user first, then built a
-step at a time. `public/` is the whole site. The user asked for the hallway to be left alone, so
+so at the top of each such file. The machines (README, "The machines"), agreed with the user: MAME
+0.289 built for the web (`public/mame/`, by `tools/build-mame.sh`) runs the NES with Concentration
+Room, the ZX Spectrum 48K and Breakout, so far only on the bare test page `public/mame/test.html`.
+They come into the room a step at a time, each checked and pushed: the NES with every way of
+playing it, then the Spectrum with its keyboard, then an arcade cabinet, whose machine is the
+user's to choose: Breakout can't keep up on the web (README, "How fast"). `public/` is the whole
+site. The user asked for the hallway to be left alone, so
 change `../hallway` only when asked; its door to here comes in the Hallway's own round (README,
 "The Hallway's door", is the entry to give it).
 
@@ -29,6 +34,8 @@ npm start            # tools/serve.mjs (common's) on config.js's port, 8102
 npm test             # node --test "test/*.test.js", tsc's check among them (test/types.test.js)
 npm run types        # tsc -p tsconfig.json, then -p tsconfig.strict.json, alone
 npm run preview      # tools/preview.mjs: public/hallway-preview.jpg and public/social.jpg (headless Chrome)
+npm run measure      # tools/measure-machines.mjs: each machine's speed on the test page, CPU ÷1/4/6 and emulated VR (headless Chrome)
+sh tools/build-mame.sh   # MAME into public/mame/ (Emscripten; MSYS2 UCRT64 here), from a clone in ~/.cache/arcade/mame0289
 ```
 
 Node 22 or newer; CI runs Node 24 (common's Pages workflow). It runs under MSYS2 UCRT64 here
@@ -107,6 +114,23 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
 - `style.css`: the page over the view, and the 10-foot view under `html.tv` (the hallway's: 960 × 540
   at a pixel ratio of 2, 18 px text, 4 px focus rings, the TV's safe margins, the hint and toasts
   beside the card).
+- The machines. `machines.js`: pure, `MACHINES` (each a `Machine`: MAME's driver, the files it
+  reads, fetched into its file system, its screen in pixels and the aspect it is shown at, the
+  visitor's keys and MAME's they press, never one of MAME's UI keys, tested), `machineById`,
+  `mameArgs` (MAME's command line: `-video accel -renderdriver software`, as MAME's web build has
+  no `soft` video; `-nothrottle`, as the page paces it; `-sound js` at the page's sample rate).
+  `emulator.js`: `Emulator`, one machine at a time in an iframe of its own
+  (`public/mame/machine.html`), `step(now)` from the page's frame loop (`pace`: 60 steps a second at
+  any display rate, at most 3 owed), `key(code, down)` (a KeyboardEvent made in the frame, on MAME's
+  canvas), the page's one AudioContext (a master gain for Sound, a gain per machine), `stop()`
+  (disconnects the sound, removes the frame). `mame-frame.js`, in the frame: holds MAME's
+  `requestAnimationFrame` calls until the page steps it (`window.mame`), counts the pictures SDL puts
+  on the canvas (`putImageData`), drops keys pressed in the frame itself, and gives MAME's
+  js_sound.js the page's context. `mame-test.js`: the test page (`?m=`, `?view=3d`, `?xr=emulate`;
+  `window.test` for `tools/measure-machines.mjs`). `public/mame/`: MAME's build (`arcade.js`,
+  `arcade.wasm`, its licence `COPYING.txt` and `legal/`, with `emscripten.txt` for what Emscripten
+  adds), `roms/<machine>/` and `software/<name>/`, each with a README giving its source and
+  licence.
 
 ## Conventions
 
@@ -117,7 +141,8 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   layersharedsession's from their `.d.ts`), and the page is served as it is, the import map
   unchanged. `test/types.test.js` runs tsc, so `npm test` and the Pages workflow do, and fails
   rather than skips without TypeScript. What TypeScript's DOM library leaves out (WebKit's
-  fullscreen names, `window.__room`, `window.roomXrGranted`) is in `types/globals.d.ts`, never
+  fullscreen names, `window.__room`, `window.roomXrGranted`, and the machines' `window.mame`,
+  `window.Module`, `window.test` and an iframe's `machineAudio`) is in `types/globals.d.ts`, never
   served. `strict` comes a file at a time: `tsconfig.strict.json` (it, with `strict` on) includes
   only the files that pass it, `config.js`, `presence.js`, `room.js` and `controls.js` so far, and
   `test/types.test.js` runs it too. A file joins its `include` when a change makes it pass; what an
@@ -157,4 +182,9 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   alias, as `origin` does.
 - What runs on the machines is only what its licence lets be served from Pages (public domain,
   freely licensed, or homebrew whose authors allow it), BIOS and system ROMs included, each listed
-  in the README with its licence.
+  in the README with its licence. MAME is GPL-2.0-or-later: its licence and notices are served
+  beside it (`COPYING.txt`, `legal/`), and the README and the test page link its source at the tag.
+- MAME's build is committed, never edited: change `tools/build-mame.sh` (its tag, `DRIVERS`) and
+  build again. Its Windows workarounds (MSYS make, not emmake's mingw32-make; `CLANG_VERSION`; emar
+  through a response file; no `-lGL`; wasm-opt on one thread) are said where they are, in the
+  script.

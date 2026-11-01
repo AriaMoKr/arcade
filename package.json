@@ -22,7 +22,8 @@
     "start": "node tools/serve.mjs",
     "test": "node --test \"test/*.test.js\"",
     "types": "tsc -p tsconfig.json && tsc -p tsconfig.strict.json",
-    "preview": "node tools/preview.mjs"
+    "preview": "node tools/preview.mjs",
+    "measure": "node tools/measure-machines.mjs"
   },
   "dependencies": {
     "common": "github:AriaMoKr/common#v0.7.1",

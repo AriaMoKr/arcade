@@ -5,8 +5,11 @@
 // public/ on a free port of its own.
 import { dirname, join, normalize } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { serve, start } from 'common/tools/serve.mjs';
+import { TYPES, serve, start } from 'common/tools/serve.mjs';
 import { ROOM } from '../public/js/config.js';
+
+// MAME (public/mame/arcade.wasm) as GitHub Pages serves it, so the browser compiles it as it loads.
+TYPES['.wasm'] = 'application/wasm';
 
 export { serve };
 export const PUBLIC = join(dirname(fileURLToPath(import.meta.url)), '..', 'public');

@@ -1,2 +1,5 @@
 * text=auto eol=lf
 *.jpg binary
+*.wasm binary
+*.rom binary
+*.nes binary

@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1d1720">
+<meta name="description" content="The arcade's machines without the room: MAME for the web running them one at a time, to see that each runs, and how fast.">
+<meta name="robots" content="noindex">
+<title>arcade: the machines, bare</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect x='6' y='6' width='52' height='52' rx='4' fill='%234f4566'/%3E%3Crect x='6' y='48' width='52' height='10' fill='%235c4433'/%3E%3Crect x='22' y='18' width='20' height='34' rx='2' fill='%23d36fd8'/%3E%3C/svg%3E">
+<script type="importmap">{"imports":{"three":"../vendor/three/build/three.module.js"}}</script>
+<!-- The room's machines without the room (mame-test.js), for testing. -->
+<style>
+  :root { color-scheme: dark; --bg: #1d1720; --fg: #f3e9f5; --dim: #cbbccf; --accent: #d36fd8; --link: #f0a6f3; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 16px/1.5 system-ui, sans-serif; }
+  main { max-width: 52rem; margin: 0 auto; padding: 1rem; }
+  h1 { font-size: 1.5rem; margin: 0.5rem 0; }
+  a { color: var(--link); }
+  ul { list-style: none; padding: 0; display: flex; flex-wrap: wrap; gap: 0.5rem; }
+  button { font: inherit; padding: 0.4rem 0.9rem; border: 0; border-radius: 0.4rem; background: var(--accent); color: var(--bg); cursor: pointer; }
+  button:disabled { opacity: 0.6; cursor: default; }
+  button:focus-visible, input:focus-visible, #screen:focus-visible { outline: 3px solid var(--fg); outline-offset: 2px; }
+  #screen { position: relative; width: 100%; max-width: 48rem; aspect-ratio: 4 / 3; background: #000; }
+  #screen > * { position: absolute; inset: 0; width: 100%; height: 100%; }
+  .machine-frame { border: 0; display: block; pointer-events: none; }
+  .three .machine-frame { position: fixed; inset: auto; left: -10000px; top: 0; width: 352px; height: 296px; }
+  #keys, dl { color: var(--dim); }
+  dl { display: grid; grid-template-columns: max-content 1fr; gap: 0.2rem 1rem; }
+  dt { color: var(--fg); }
+  dd { margin: 0; }
+  pre { white-space: pre-wrap; font-size: 0.85rem; color: var(--dim); }
+</style>
+</head>
+<body>
+<main>
+  <h1>The machines, bare</h1>
+  <p>MAME for the web running the arcade's machines one at a time, as the room will, without the
+    room: to see that each runs, and how fast. <a href="../">To the room</a> ·
+    <a href="https://github.com/AriaMoKr/arcade#the-machines">About the machines and their licences</a></p>
+  <ul id="machines" aria-label="Start a machine"></ul>
+  <p><button type="button" id="stop" disabled>Stop</button>
+    <label><input type="checkbox" id="sound" checked> Sound</label>
+    <span id="vr"></span></p>
+  <p id="state" role="status">No machine is running.</p>
+  <div id="screen" tabindex="0" role="group" aria-label="The machine. While this has the focus, keys go to the machine, and Escape stops it"></div>
+  <p id="keys"></p>
+  <dl id="stats"></dl>
+  <details><summary>MAME's output</summary><pre id="log"></pre></details>
+  <p><small>MAME 0.289 is free software under the GNU GPL, version 2 or later:
+    <a href="COPYING.txt">its licence and notices</a>, <a href="legal/GPL-2.0.txt">the GPL</a>,
+    <a href="legal/emscripten.txt">what Emscripten adds to it</a> and
+    <a href="https://github.com/mamedev/mame/tree/mame0289">its source</a>.</small></p>
+</main>
+<script type="module" src="../js/mame-test.js"></script>
+</body>
+</html>

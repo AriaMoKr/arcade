@@ -6,8 +6,9 @@ A room behind the [Hallway](https://ariamokr.github.io/hallway/)'s door, soon an
 computers, game consoles and arcade machines. For now it is the room
 [AriaMoKr/RoomTemplateEmpty](https://github.com/AriaMoKr/RoomTemplateEmpty) makes, empty: a floor,
 four walls, a ceiling with its lamps, a window onto the afternoon sky, and the doorway back to the
-Hallway, in an arcade's dusk of violet walls and a dark ceiling. The machines come next (below, "The
-machines"). Walk it in VR on a Meta Quest, on a desktop or on a phone. There is nothing to install.
+Hallway, in an arcade's dusk of violet walls and a dark ceiling. The machines come next: for now
+they run on a page of their own (below, "The machines"). Walk it in VR on a Meta Quest, on a desktop
+or on a phone. There is nothing to install.
 
 ![The room as one comes in through the door](public/hallway-preview.jpg)
 
@@ -18,10 +19,90 @@ panel. The window is in the right-hand wall.
 
 ## The machines
 
-None yet. They come once agreed: which emulator runs them, what runs on it (only what its licence
-lets be served from GitHub Pages, each piece listed here with its licence), how each is played on a
-desktop, a phone, in VR and with a TV's remote, and what it costs to download and to run beside the
-room.
+Not in the room yet. For now they run on a bare page of their own,
+[`mame/test.html`](https://ariamokr.github.io/arcade/mame/test.html), one at a time, to see that
+each runs and how fast before it goes in. They come into the room a step at a time: the Nintendo
+first, then the Spectrum with its keyboard, then an arcade cabinet. Breakout can't run fast enough
+on the web (below, "How fast"), so what that cabinet holds is still to be chosen.
+
+| Machine | What runs on it | Its licence |
+|---|---|---|
+| **Nintendo Entertainment System** (Nintendo, 1985) | [Concentration Room](https://github.com/pinobatch/croom-nes) 0.02 (Damian Yerrick, 2010), a game of pairs | GPL-3.0-or-later, and exact copies may be passed on without the source ([its notice](public/mame/software/croom/README.md)) |
+| **ZX Spectrum 48K** (Sinclair Research, 1982) | its ROM: Sinclair BASIC, typed at its keyboard | Amstrad's: passed on with emulators, never for money ([its notice](public/mame/roms/spectrum/README.md)) |
+| **Breakout** (Atari, 1976) | nothing: it is a board of logic chips with no program, which MAME runs chip by chip from its circuit | MAME's (below) |
+
+Only what its licence lets GitHub Pages serve is served for them, a machine's own ROMs included.
+Each file is in `public/mame/` with a README beside it saying what it is, where it came from and its
+licence, and `npm test` checks that every machine's files have one.
+
+On the test page, choose a machine and it starts. Its keys go to it while its screen has the focus
+(choosing a machine gives it the focus; Tab leaves it, and Escape stops the machine):
+
+| Machine | Keys |
+|---|---|
+| Nintendo | arrows: the pad · X: A · Z: B · Enter: Start · Shift: Select |
+| Spectrum | its keyboard: the letters, digits, Enter and Space; Left Shift is CAPS SHIFT, Right Shift SYMBOL SHIFT |
+| Breakout | 5: a coin · 1: Start · ←/→: the paddle · Space: Serve |
+
+`?m=nes` (or `spectrum`, `breakout`) starts that one at once; `?view=3d` shows its screen in 3D, as
+the room will; and `?xr=emulate` does so in an emulated Quest 3, with **Enter VR**.
+
+### MAME
+
+[MAME](https://www.mamedev.org/) 0.289 runs them, built for the web with Emscripten by
+`tools/build-mame.sh` from only the three drivers they need (Breakout's holds Pong and Rebound
+too): `public/mame/arcade.js` and `arcade.wasm`. Each machine runs in a frame of its own (`mame/machine.html`), stepped 60 times a
+second from the page's frame loop (in VR, the headset's) whatever the display's rate, its sound
+going through the page's. Only the machine's own keys reach it, never MAME's (Escape would end it,
+Tab open its menu).
+
+MAME is free software, under the GNU GPL, version 2 or later. Its licence and its parts' notices
+are served beside it, [`public/mame/COPYING.txt`](public/mame/COPYING.txt), with the full texts
+they name in [`public/mame/legal/`](public/mame/legal/), and its source is MAME's own at the tag
+`mame0289`, https://github.com/mamedev/mame/tree/mame0289, built as it is: `tools/build-mame.sh`
+says how. The build holds what Emscripten adds as well, each under its own licence, which
+[`public/mame/legal/emscripten.txt`](public/mame/legal/emscripten.txt) gives: Emscripten's runtime
+(MIT), SDL 3 and SDL_ttf (zlib), FreeType (the FreeType License), HarfBuzz (MIT) and zlib. Portions
+of this software are copyright © 2026 The FreeType Project (www.freetype.org). All rights reserved.
+
+It is committed, as built, so neither `npm install` nor the workflow builds it. To build it again
+(after a change to the machines' drivers, or a new MAME), in MSYS2's UCRT64 shell on Windows, or in
+any shell with Emscripten on Linux or macOS:
+
+```bash
+sh tools/build-mame.sh        # clones MAME once into ~/.cache/arcade/, builds it, copies it into public/mame/
+```
+
+### How fast
+
+`npm run measure` (`tools/measure-machines.mjs`) runs each machine on the test page in headless
+Chrome for 8 seconds: with the CPU as it is, slowed 4× and 6× (Chrome's CPU throttling, standing in
+for a TV's), and in 3D in an emulated Quest 3's VR session. The figure to go by is what a step
+costs, the time MAME takes to emulate 1/60 s, which has to fit into a 60 Hz frame (16.7 ms) with the
+room's own drawing. On an Intel Core i9-14900HX laptop (and its integrated GPU), on 31 October 2026:
+
+| A step: median (95th percentile) | CPU as it is | Slowed 4× | Slowed 6× | VR (emulated) |
+|---|---|---|---|---|
+| Nintendo | 2.0 ms (2.4) | 9.9 ms (18.5) | 13.3 ms (19.4) | 1.4 ms (1.7) |
+| Spectrum | 1.3 ms (1.6) | 7.9 ms (12.6) | 11.7 ms (17.3) | 1.3 ms (1.6) |
+| Breakout | 20.4 ms (25.9) | 143 ms (204) | 292 ms (369) | 20.6 ms (25.4) |
+
+The figures vary by about a fifth from run to run.
+
+- **The Nintendo and the Spectrum keep up.** At full speed a step takes 1–2 ms and the page's main
+  thread is at most 13% busy, in VR too, and each starts within a second (served from the same
+  computer, so with nothing to download). Slowed 4×, both still run at full speed, a step taking
+  about half a frame (the Nintendo's slowest a whole one). Slowed 6×, a step takes most of a frame,
+  so on a TV that slow the room would drop frames while one runs, and the Nintendo falls a little
+  behind (51 steps a second). The TV itself is still to be measured.
+- **Breakout doesn't keep up anywhere.** MAME runs its circuit chip by chip, and a step takes 20 ms
+  even on this laptop (49 steps a second, the main thread always busy) and 143 ms slowed 4×. Pong,
+  the same kind of machine, takes 8 ms, and 50 ms slowed 4×. So Breakout won't go into the room as
+  it is; it stays on the test page for now, to see for yourself.
+
+MAME is 33.6 MB to download (7.0 MB gzipped), and 0.3 MB of JavaScript (0.1 MB), fetched when a
+machine first starts and then kept in the browser's cache. Concentration Room is 25 KB and the
+Spectrum's ROM 16 KB.
 
 ## Moving about
 
@@ -210,6 +291,7 @@ npm start         # http://localhost:8102/
 npm test          # node --test: the config, where you may walk, the way back's address, the vendor list, the page, and tsc's check of public/js/
 npm run types     # tsc's checks alone
 npm run preview   # public/hallway-preview.jpg and public/social.jpg, in headless Chrome
+npm run measure   # how fast each machine runs, in headless Chrome (above, "How fast")
 ```
 
 `public/` is the whole site: any static server can serve it once `npm install` has filled
@@ -282,4 +364,5 @@ the tests (tsc's check among them), through the sites' workflow in
 
 ## License
 
-[MIT](LICENSE).
+[MIT](LICENSE), for the room's own code. `public/mame/` holds MAME and what its machines run, each
+under its own licence (above, "The machines").

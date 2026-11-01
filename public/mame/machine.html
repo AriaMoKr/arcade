@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>A machine (MAME)</title>
+<!-- One of the arcade's machines, run by MAME: a frame of its own in the page that shows it
+     (mame-frame.js, emulator.js). The canvas has no size of its own until MAME runs (see there). -->
+<style>
+  html, body { margin: 0; height: 100%; overflow: hidden; background: #000; }
+  canvas { display: block; }
+  .running canvas { width: 100%; height: 100%; image-rendering: pixelated; }
+</style>
+</head>
+<body>
+<canvas id="canvas" role="img" aria-label="The machine's screen"></canvas>
+<script type="module" src="../js/mame-frame.js"></script>
+</body>
+</html>
