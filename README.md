@@ -275,7 +275,7 @@ slowed 4× the Nintendo fell to 54 steps a second, and slowed 6× only the Atari
   VR. So it never came into the room, and its driver has left MAME's build: the arcade cabinet holds a
   Nintendo running Thwaite instead.
 
-MAME is 30.9 MB to download (6.5 MB gzipped, as GitHub Pages sends it), and 0.3 MB of JavaScript
+MAME is 30.9 MB to download (6.6 MB gzipped, as GitHub Pages sends it), and 0.3 MB of JavaScript
 (0.1 MB), fetched when a machine first starts and then kept in the browser's cache. Concentration
 Room and Thwaite are 25 KB each, the Spectrum's ROM 16 KB, the Vectrex's 8 KB and 2048 2 KB. A
 console starts within a second once MAME is here, and the Spectrum in about one (slowed 6×, the
