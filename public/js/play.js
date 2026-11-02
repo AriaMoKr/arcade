@@ -189,7 +189,12 @@ export class Play {
       this.touch = touch;
       this.#showPad();
     }, { capture: true, passive: true });
-    addEventListener('resize', () => this.#fit());
+    // A phone turned, or its browser's bar come or gone: the picture placed again, and the machine's
+    // buttons in the card's view (overlay.js).
+    addEventListener('resize', () => {
+      this.#fit();
+      this.overlay._scrollToButtons();
+    });
     const refit = new ResizeObserver(() => this.#fit());
     refit.observe(overlay.card);
     refit.observe(overlay.buttons);
@@ -425,13 +430,16 @@ export class Play {
   }
 
   /**
-   * Playing on a screen, or not: the layer over the view (style.css html.playing), a console's pad
+   * Playing on a screen, or not: the layer over the view (style.css html.playing, and html.console
+   * for a console, whose card leaves its pad room on a touch screen, shown or not), a console's pad
    * on a touch screen or a computer's keys, and where the picture goes.
    * @param {boolean} on
    */
   #show(on) {
     this.shown = on;
-    document.documentElement.classList.toggle('playing', on);
+    const html = document.documentElement;
+    html.classList.toggle('playing', on);
+    html.classList.toggle('console', on && !!this.machine?.pad);
     this.#showPad();
   }
 

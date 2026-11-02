@@ -114,7 +114,9 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   picture, for its keys, or the Atari 2600's, for Space and Enter) or the first button, and the
   hints, `playHints`, a console's (its buttons
   by their names, its stick or pad) or a computer's, while one runs; `.machines.running`, and its list item `current` among `machineItems`,
-  so that on a small screen the others leave the card), and the room's hints `MACHINE_HINTS`. Outside a
+  so that on a small screen the others leave the card; where the card scrolls, `_scrollToButtons`
+  brings its buttons into view, down to Stop, as it starts and on a resize), and the room's hints
+  `MACHINE_HINTS`. Outside a
   TV, a hint the card would cover moves beside it when there is room (`_placeHint`, a phone held
   sideways). With
   `tv`, Wave is in the card and the invite is text there (`inviteText`), and the hints are the
@@ -147,7 +149,11 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   beside the card). While a machine plays on a screen, `html.playing`: `#play` over the view (its
   picture pixelated, a vector screen's smoothed, `.vector`; `.machine-host` for MAME's frame, 0 × 0), the card narrower and holding only
   the way back and the machine's buttons, and on a touch screen `.touch-pad` (two rows, one from
-  561 px wide). A computer's keys on the screen, `.machine-keys` (a grid of `--cols`, sized by
+  561 px wide; its D-pad three `--pad-key` high), which the card ends above on a touch screen
+  (`any-pointer: coarse`) while a console plays (`html.console`), shown or not, so that the pad
+  coming for a finger or going for the mouse moves nothing in the card under that press; from 561 px
+  wide and up to 480 px high, a phone on its side, the card tighter and without the machine's name.
+  A computer's keys on the screen, `.machine-keys` (a grid of `--cols`, sized by
   `--pitch`; `.tight` shows a key's own legend alone, `.roomy` the E-mode ones too), a key held or a
   shift down lit, and with a gamepad or the remote the current key ringed (`.nav .current`).
 - The machines. `machines.js`: pure, `MACHINES` (each a `Machine`: MAME's driver, the files it
@@ -232,7 +238,9 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   (on a TV, OK is A, or presses the key ringed; not while the remote is in the card, nor a form
   control's or a button's Enter or Space); Escape, LB/RB and Back stop it. On a touch screen a
   console's pad (`dpadDirections`, pointer capture, `DPAD`; its buttons named for the machine,
-  `#namePad`), shown for a finger and hidden for the mouse.
+  `#namePad`), shown for a finger and hidden for the mouse; `html.console` while a console plays on
+  a screen (`#show`), and on a resize the picture placed again and the machine's buttons in the
+  card's view (`_scrollToButtons`).
 
 ## Conventions
 

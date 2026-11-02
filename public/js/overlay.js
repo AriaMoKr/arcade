@@ -389,8 +389,21 @@ export class Overlay {
     this.machineItems.forEach((item, j) => item.classList.toggle('current', j === i));
     if (i >= 0 && focused === this.machineButtons[i]) (focus ?? /** @type {HTMLElement | undefined} */ (this.machineControls[i].children[0]))?.focus?.();
     else if (was >= 0 && focused && this.machineControls[was]?.contains?.(focused)) this.machineButtons[was]?.focus?.();
+    this._scrollToButtons();
     this._hints = i >= 0 && machine ? playHints(machine) : this._roomHints;
     this.setHint(this._how);
+  }
+
+  /**
+   * While one runs, its buttons in the card's view where the card scrolls (a low phone on its side,
+   * or one with the browser's bar showing, the card ending above the pad: style.css): all of them
+   * where they fit, else down to the last, Stop.
+   */
+  _scrollToButtons() {
+    const g = this.machineControls[this.playing];
+    if (!g || this.card.scrollHeight <= this.card.clientHeight) return;
+    g.scrollIntoView?.({ block: 'nearest' });
+    g.lastElementChild?.scrollIntoView?.({ block: 'nearest' });
   }
 
   /** In a shared session (or paused in one, going through the door), or not: its button leaves, or starts one. */

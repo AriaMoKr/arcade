@@ -55,7 +55,10 @@ it in VR and pull the trigger, or put the dot on it and press A or OK) and you w
 starts. The card has it too, under **Machines**, as a button that does the same.
 
 On a screen its picture then takes the view, as large as it goes beside the card or under it, pixel
-for pixel, and the room waits behind it. In VR you play it on its TV, standing in front of it. While
+for pixel, and the room waits behind it. On a phone its pad is at the foot of the screen and the
+card ends above it: on a phone on its side the card leaves the machine's name out to fit, and where
+it still doesn't, on a lower screen or with the browser's bar showing, it scrolls, showing the
+machine's buttons down to **Stop**. In VR you play it on its TV, standing in front of it. While
 it runs, the card holds its buttons (Start, Select, Reset and Stop; on a TV, A and B too) and
 **Sound**, and the hint says how to play it:
 
