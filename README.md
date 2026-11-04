@@ -320,14 +320,15 @@ slowed 4× and 35 slowed 6×.
   VR. So it never came into the room, and its driver has left MAME's build: the arcade cabinet holds a
   Nintendo running Thwaite instead.
 
-MAME is 40.4 MB to download (7.3 MB gzipped, as GitHub Pages sends it), and 0.3 MB of JavaScript
+MAME is 40.4 MB to download (7.4 MB gzipped, as GitHub Pages sends it), and 0.3 MB of JavaScript
 (0.1 MB), fetched when a machine first starts and then kept in the browser's cache. The Mega Drive
-added 9.5 MB of it (0.7 MB gzipped), most of that MAME's 68000 processors: its driver needs one, and
+added 9.5 MB of it (0.8 MB gzipped), most of that MAME's 68000 processors: its driver needs one, and
 MAME builds every one of the family with it. Concentration Room and Thwaite are 25 KB each, Alex vs
-Bus 512 KB, the Spectrum's ROM 16 KB, the Vectrex's 8 KB and 2048 2 KB. A console starts within a
-second once MAME is here, and the Spectrum in about one (slowed 6×, the consoles within 2 s but the
-Mega Drive in 4, and the Spectrum in 3 to 8), and from the live site, the first time, in under 3 s
-on a fast connection.
+Bus 512 KB (37 KB gzipped: Pages takes a name ending in .md for text, and compresses it), the
+Spectrum's ROM 16 KB, the Vectrex's 8 KB and 2048 2 KB. A console starts within a second once MAME
+is here, and the Spectrum in about one (slowed 6×, the consoles within 2 s but the Mega Drive in 4,
+and the Spectrum in 3 to 8), and from the live site, the first time, in 2 to 3.5 s on a fast
+connection.
 
 ## Moving about
 
