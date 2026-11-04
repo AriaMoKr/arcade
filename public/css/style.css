@@ -225,7 +225,7 @@ html { --pad-key: 42px; }
 .touch-pad {
   position: fixed; left: max(16px, env(safe-area-inset-left)); right: max(16px, env(safe-area-inset-right));
   bottom: calc(max(16px, env(safe-area-inset-bottom)) + var(--buttons, 0px) + 8px);
-  display: grid; grid-template: "dpad . mid" auto "dpad . ab" auto / auto 1fr auto; align-items: end; gap: 10px 8px;
+  display: grid; grid-template: "dpad . mid" auto "dpad . face" auto / auto 1fr auto; align-items: end; gap: 10px 8px;
   pointer-events: none;
 }
 .touch-pad > * { pointer-events: auto; }
@@ -239,14 +239,21 @@ html { --pad-key: 42px; }
 .pad-up { grid-area: up; } .pad-down { grid-area: down; } .pad-left { grid-area: left; } .pad-right { grid-area: right; }
 .pad-mid { grid-area: mid; display: flex; gap: 8px; justify-self: end; }
 .pad-mid .pad-button { min-height: 32px; padding: 4px 12px; border-radius: 999px; font-size: 13px; }
-.pad-ab { grid-area: ab; display: flex; gap: 12px; align-items: flex-start; justify-self: end; }
-.pad-ab .pad-button { width: 58px; height: 58px; margin-top: 18px; border-radius: 50%; font-size: 18px; }
+.pad-face { grid-area: face; display: flex; gap: 12px; align-items: flex-start; justify-self: end; }
+.pad-face .pad-button { width: 58px; height: 58px; margin-top: 18px; border-radius: 50%; font-size: 18px; }
 /* A a little higher than B, as on the pad. */
-.pad-ab .pad-a { margin-top: 0; }
+.pad-face .pad-a { margin-top: 0; }
+/* The Mega Drive's three, A, B and C, rising to the right as on its pad, and smaller where a narrow
+   screen has no room for three beside the D-pad. */
+.pad-face.three { gap: 8px; }
+.pad-face.three .pad-button { --face: min(58px, (100vw - 32px - 3 * var(--pad-key) - 32px) / 3); width: var(--face); height: var(--face); }
+.pad-face.three .pad-a { margin-top: 18px; }
+.pad-face.three .pad-b { margin-top: 9px; }
+.pad-face.three .pad-c { margin-top: 0; }
 /* Wider (a phone on its side, a tablet): in one row, Select and Start in the middle, the picture
    above them all. */
 @media (min-width: 561px) {
-  .touch-pad { grid-template: "dpad mid ab" auto / auto 1fr auto; }
+  .touch-pad { grid-template: "dpad mid face" auto / auto 1fr auto; }
   .pad-mid { justify-self: center; }
 }
 /* While a console plays on a touch screen (html.console, play.js), the card ends above its pad, as it

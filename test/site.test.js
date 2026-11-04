@@ -147,8 +147,8 @@ test("every button of a machine's panel on the wall is a control on the page too
           assert.deepEqual(did, [`play:${i}`]);
         }
         // Running: its buttons in place of that one, each as on the panel; on a TV a console's A and B
-        // too, where they are two (not the Atari 2600's one fire button). A computer's keys are under
-        // its picture (screen-keys.js), each pressing the same key.
+        // (and the Mega Drive's C) too, where they are two (not the Atari 2600's one fire button). A
+        // computer's keys are under its picture (screen-keys.js), each pressing the same key.
         o.setPlaying(i, m);
         assert.ok(o.machineButtons[i].hidden && !o.machineControls[i].hidden && inCard(o.machineControls[i]));
         // Named over them, so that they are told from another machine's button.
@@ -185,8 +185,10 @@ test("every button of a machine's panel on the wall is a control on the page too
           assert.deepEqual(did, [`${id}:${i}`]);
         }
         assert.equal(keys?.keys.length ?? 0, panel.running.filter(([id]) => id.startsWith('key:')).length);
-        assert.deepEqual([...chips.keys()].filter((id) => id !== 'a' && id !== 'b').sort(), panel.running.map(([id]) => id).filter((id) => !id.startsWith('key:')).sort());
-        assert.equal(chips.has('a') && chips.has('b'), tv && !!m.pad && !oneButton(m));
+        assert.deepEqual([...chips.keys()].filter((id) => !['a', 'b', 'c'].includes(id)).sort(), panel.running.map(([id]) => id).filter((id) => !id.startsWith('key:')).sort());
+        const face = tv && !!m.pad && !oneButton(m);
+        assert.equal(chips.has('a') && chips.has('b'), face);
+        assert.equal(chips.has('c'), face && !!m.pad?.c);
         // And how to play it, then how to walk again.
         o.setHint(tv ? 'tv' : 'mouse');
         const ok = `Arrows: its ${m.stick ? 'stick' : 'pad'} · OK: its ${buttonName(m, 'a')} · `;

@@ -285,13 +285,15 @@ function marqueeArt(text) {
 }
 
 /**
- * How to play console m in VR, its buttons by its own names for them (machines.js buttonName).
+ * How to play console m in VR, its buttons by its own names for them (machines.js buttonName): the
+ * left controller's X its Select, or where it has none its C (the Mega Drive's: play.js hand).
  * @param {import('./machines.js').Machine} m
  */
 const vrPad = (m) => {
   const name = (/** @type {string} */ id) => buttonName(m, id);
   const ab = oneButton(m) ? `A or B: its ${name('a')}` : `A and B: its ${name('a')} and ${name('b')}`;
-  return [`Left stick: its ${m.stick ? 'stick' : 'pad'} · ${ab}`, `X: its ${name('select')} · Y: its ${name('start')}`];
+  const x = m.pad?.select ? name('select') : m.pad?.c ? name('c') : '';
+  return [`Left stick: its ${m.stick ? 'stick' : 'pad'} · ${ab}`, `${x ? `X: its ${x} · ` : ''}Y: its ${name('start')}`];
 };
 /** How to type on a computer in VR. */
 const VR_KEYS = ['Trigger: the key pointed at · CAPS SHIFT and SYMBOL SHIFT stay down for the next', 'Left X, Y: CAPS SHIFT, SYMBOL SHIFT · Right A: ENTER · B: DELETE'];
@@ -301,9 +303,9 @@ const RED = '#ff6b5e', GREEN = '#76d671';
 
 /**
  * The panel of a machine's buttons on the wall beside it, in the control panel's enamel (panel.js):
- * its name and what runs on it, Play, or while it runs a console's Select and Start (by its own
- * names for them: the Vectrex's 1 and 2, the Atari 2600's Game Select and Game Reset), Reset and
- * Stop, or a computer's Reset and Stop and its keys
+ * its name and what runs on it, Play, or while it runs a console's Select (where it has one) and
+ * Start (by its own names for them: the Vectrex's 1 and 2, the Atari 2600's Game Select and Game
+ * Reset), Reset and Stop, or a computer's Reset and Stop and its keys
  * (its shifts lit while they are down for the next key); and how to play it in VR. Redrawn only when that changes; the button pointed at is lit by a pane
  * over it, which moves.
  */

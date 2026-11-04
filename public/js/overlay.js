@@ -55,12 +55,14 @@ const MACHINE_HINTS = {
 };
 /** Names in a list: "A, B and C". @param {string[]} names */
 const list = (names) => (names.length > 1 ? `${names.slice(0, -1).join(', ')} and ${names[names.length - 1]}` : names.join(''));
+/** A gamepad's buttons for a console's (play.js): its A, B and X are A, B and C, its Start and Back Start and Select. */
+const GAMEPAD = { a: 'A', b: 'B', c: 'X', start: 'Start', select: 'Back' };
 /**
  * A machine running, on a screen (play.js): how to play it with what was used last, its buttons by
  * its own names for them (machines.js buttonName: the Vectrex's numbered, the Atari 2600's its
- * switches' and its Fire, a gamepad's A or B where they are one button); a computer's, how to type
- * on it, on its keys under its picture too (screen-keys.js). On a TV the card (Menu) has what the
- * remote's keys don't.
+ * switches' and its Fire, a gamepad's A or B where they are one button), and only those it has (the
+ * Mega Drive's C, and no Select); a computer's, how to type on it, on its keys under its picture too
+ * (screen-keys.js). On a TV the card (Menu) has what the remote's keys don't.
  * @param {import('./machines.js').Machine} m
  */
 const playHints = (m) => {
@@ -69,11 +71,16 @@ const playHints = (m) => {
     const name = (/** @type {string} */ id) => buttonName(m, id);
     const way = m.stick ? 'stick' : 'pad';
     const menu = machineButtons(m, true).filter((id) => id !== 'a').map(name);
-    const ab = oneButton(m) ? `A or B: its ${name('a')}` : `A, B: its ${name('a')} and ${name('b')}`;
+    /** Its buttons among `ids`, as a gamepad's and its own: "A, B: its A and B". @param {(keyof typeof GAMEPAD)[]} ids */
+    const pads = (ids) => {
+      const has = ids.filter((id) => m.pad && Object.hasOwn(m.pad, id));
+      return `${has.map((id) => GAMEPAD[id]).join(', ')}: its ${list(has.map(name))}`;
+    };
+    const face = oneButton(m) ? `A or B: its ${name('a')}` : pads(['a', 'b', 'c']);
     return {
       mouse: `${m.help} · Esc: stop`,
       touch: `Play with its ${way} and buttons on the screen · Stop is in the card`,
-      gamepad: `D-pad or left stick: its ${way} · ${ab} · Start, Back: its ${name('start')} and ${name('select')} · LB or RB: stop`,
+      gamepad: `D-pad or left stick: its ${way} · ${face} · ${pads(['start', 'select'])} · LB or RB: stop`,
       tv: `Arrows: its ${way} · OK: its ${name('a')} · Menu: ${list(menu)} · Back: stop`,
       'tv-card': 'Up, down: from button to button · OK: press it · Back: play again',
     };

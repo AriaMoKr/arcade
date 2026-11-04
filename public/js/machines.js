@@ -34,10 +34,11 @@ import { SPECTRUM } from './keyboards.js';
  *   a TV's remote)
  */
 /**
- * A game console's pad: the key of MAME's each of its controls presses.
- * @typedef {{ up: string, down: string, left: string, right: string, a: string, b: string, select: string, start: string }} Pad
+ * A game console's pad: the key of MAME's each of its controls presses. Its buttons A and B, a third
+ * one beside them where it has one (the Mega Drive's C), and Select (where it has one) and Start.
+ * @typedef {{ up: string, down: string, left: string, right: string, a: string, b: string, c?: string, select?: string, start: string }} Pad
  */
-/** A pad's buttons, by the names play.js knows them by: a gamepad's A, B, Back and Start. @typedef {'a' | 'b' | 'select' | 'start'} PadButton */
+/** A pad's buttons, by the names play.js knows them by: a gamepad's A, B, X, Back and Start. @typedef {'a' | 'b' | 'c' | 'select' | 'start'} PadButton */
 /**
  * A file MAME reads: fetched from `url` (relative to public/mame/) and written to `path` in its file
  * system before it starts.
@@ -164,6 +165,25 @@ export const MACHINES = [
     names: { select: 'Game Select', start: 'Game Reset', a: 'Fire' },
     stick: true,
   },
+  {
+    // The Sega Mega Drive, as MAME runs its Japanese model (NTSC: 60 pictures a second, as the room
+    // paces its machines; Europe's was PAL, 50), with Alex vs Bus in its cartridge slot. Its pad's
+    // A, B and C, MAME's Left Ctrl, Left Alt and Space, and its Start, MAME's 1: it has no Select.
+    // In Alex vs Bus left and right run and A, B or C jumps; in its menus B goes back.
+    id: 'megadrive',
+    title: 'Sega Mega Drive',
+    maker: 'Sega',
+    year: 1988,
+    driver: 'megadrij',
+    files: [{ url: 'software/alexvsbus/alexvsbus-pre3.md', path: '/software/alexvsbus.md' }],
+    args: ['-cart', '/software/alexvsbus.md'],
+    // Its 320 × 224 mode, which Alex vs Bus uses.
+    screen: { width: 320, height: 224 },
+    aspect: 4 / 3,
+    keys: { ...ARROWS, KeyZ: 'ControlLeft', KeyX: 'AltLeft', KeyC: 'Space', Enter: 'Digit1' },
+    help: 'Arrows: the pad · Z, X, C: A, B, C · Enter: Start · Alex vs Bus: left and right run, A, B or C jumps, B goes back in a menu',
+    pad: { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', a: 'ControlLeft', b: 'AltLeft', c: 'Space', start: 'Digit1' },
+  },
 ];
 
 /**
@@ -198,9 +218,9 @@ export function machineCodes(m) {
   ])];
 }
 
-/** The room's buttons for a machine, by play.js's names, as a Nintendo's are called. */
+/** The room's buttons for a machine, by play.js's names, as a Nintendo's are called (and the Mega Drive's C). */
 const BUTTON_NAMES = /** @type {Record<string, string | undefined>} */ ({
-  play: 'Play', start: 'Start', select: 'Select', a: 'A', b: 'B', reset: 'Reset', stop: 'Stop',
+  play: 'Play', start: 'Start', select: 'Select', a: 'A', b: 'B', c: 'C', reset: 'Reset', stop: 'Stop',
 });
 
 /**
@@ -223,18 +243,19 @@ export function oneButton(m) {
 }
 
 /**
- * The buttons machine m has in the card while it runs, by play.js's names: a console's Start and
- * Select, or its own buttons in their order (Machine's names), with A and B only on a TV, whose
- * remote's OK is its A, and only where its B is another button; then Reset and Stop. A computer's
- * keys are on the screen instead.
+ * The buttons machine m has in the card while it runs, by play.js's names: a console's Start and its
+ * Select (where it has one), or its own buttons in their order (Machine's names), with A, B and C
+ * (where it has one) only on a TV, whose remote's OK is its A, and only where its B is another
+ * button; then Reset and Stop. A computer's keys are on the screen instead.
  * @param {Machine} m
  * @param {boolean} [tv]
  */
 export function machineButtons(m, tv = false) {
-  if (!m.pad) return ['reset', 'stop'];
-  const own = m.names ? Object.keys(m.names) : ['start', 'select', 'a', 'b'];
-  const ab = tv && !oneButton(m);
-  return [...own.filter((id) => ab || (id !== 'a' && id !== 'b')), 'reset', 'stop'];
+  const p = m.pad;
+  if (!p) return ['reset', 'stop'];
+  const own = m.names ? Object.keys(m.names) : ['start', 'select', 'a', 'b', 'c'].filter((id) => Object.hasOwn(p, id));
+  const face = tv && !oneButton(m);
+  return [...own.filter((id) => face || (id !== 'a' && id !== 'b' && id !== 'c')), 'reset', 'stop'];
 }
 
 /**

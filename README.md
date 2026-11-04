@@ -6,10 +6,10 @@ A room behind the [Hallway](https://ariamokr.github.io/hallway/)'s door, becomin
 computers, game consoles and arcade machines. It is the room
 [AriaMoKr/RoomTemplateEmpty](https://github.com/AriaMoKr/RoomTemplateEmpty) makes (a floor, four
 walls, a ceiling with its lamps, a window onto the afternoon sky, and the doorway back to the
-Hallway), in an arcade's dusk of violet walls and a dark ceiling, and so far five machines to play:
-a Nintendo Entertainment System, a ZX Spectrum, an arcade cabinet, a Vectrex and an Atari 2600
-(below, "The machines"). Walk it and play in VR on a Meta Quest, on a desktop or on a phone. There
-is nothing to install.
+Hallway), in an arcade's dusk of violet walls and a dark ceiling, and so far six machines to play:
+a Nintendo Entertainment System, a ZX Spectrum, an arcade cabinet, a Vectrex, an Atari 2600 and a
+Sega Mega Drive (below, "The machines"). Walk it and play in VR on a Meta Quest, on a desktop or on
+a phone. There is nothing to install.
 
 ![The room as one comes in through the door](public/hallway-preview.jpg)
 
@@ -17,15 +17,17 @@ Behind you as you come in is the doorway you came through, glowing magenta, with
 through it. Walk back through it (or click or tap it, or point at it in VR and pull the trigger) and
 you are back in the Hallway, in front of this room's door. Beside it, on the wall, is the control
 panel. The window is in the right-hand wall: before it, against that wall, the Atari 2600, and past
-it the Nintendo; across the room from the Nintendo, against the left-hand wall, the Spectrum; between
-them, against the far wall and facing you, the arcade cabinet; and across the room from the window,
-against the left-hand wall, the Vectrex.
+it the Nintendo. Against the left-hand wall, across the room from them, stand the Mega Drive, across
+from the Atari 2600, the Vectrex, across from the window, and the Spectrum, across from the
+Nintendo; and between the Spectrum and the Nintendo, against the far wall and facing you, the arcade
+cabinet.
 
 ## The machines
 
-They came into the room a step at a time, and five are in it: the Nintendo, the Spectrum, an arcade
-cabinet, a Vectrex and an Atari 2600 (below, "Playing the Nintendo", "Typing on the Spectrum",
-"Playing the arcade cabinet", "Playing the Vectrex" and "Playing the Atari 2600"). The cabinet holds
+They came into the room a step at a time, and six are in it: the Nintendo, the Spectrum, an arcade
+cabinet, a Vectrex, an Atari 2600 and a Mega Drive (below, "Playing the Nintendo", "Typing on the
+Spectrum", "Playing the arcade cabinet", "Playing the Vectrex", "Playing the Atari 2600" and
+"Playing the Mega Drive"). The cabinet holds
 a Nintendo running [Thwaite](https://github.com/pinobatch/thwaite-nes),
 as Breakout, which was to have been the cabinet's, can't run fast enough on the web (below, "How
 fast"). Each runs on a bare page of its own as well,
@@ -39,6 +41,7 @@ see that it runs and how fast.
 | **Arcade cabinet**, with a Nintendo Entertainment System inside | [Thwaite](https://github.com/pinobatch/thwaite-nes) 0.04 (Damian Yerrick, 2018), fireworks against falling missiles | GPL-3.0-or-later, its source served beside it ([its notice](public/mame/software/thwaite/README.md)) |
 | **Vectrex** (General Consumer Electronics, 1982) | its ROM: Mine Storm, built into it, a ship among drifting mines | Smith Engineering's: copies may be made, never for profit ([its notice](public/mame/roms/vectrex/README.md)) |
 | **Atari 2600** (Atari, 1977) | [2048](https://github.com/chesterbr/2048-2600) (Carlos Duarte do Nascimento, 2014), its tiles slid together, two of a number making the next | MIT ([its notice](public/mame/software/2048/README.md)) |
+| **Sega Mega Drive** (Sega, 1988) | [Alex vs Bus: The Race](https://github.com/M374LX/alexvsbus-md) pre3 (Alexandre Almeida, 2026), a race to catch a bus | GPL-3.0-or-later, its source served beside it; its pictures, music and levels CC BY-SA 4.0 ([its notice](public/mame/software/alexvsbus/README.md)) |
 
 Only what its licence lets GitHub Pages serve is served for them, a machine's own ROMs included.
 Each file is in `public/mame/` with a README beside it saying what it is, where it came from and its
@@ -185,6 +188,35 @@ for it in MAME ([`public/mame/cfg/a2600.cfg`](public/mame/cfg/a2600.cfg)) move t
 arrows too, and the one joystick plays whoever's turn it is. **Reset** switches it off and on: its
 title again, and the high score gone.
 
+### Playing the Mega Drive
+
+It stands against the left-hand wall, across the room from the Atari 2600: a TV on a black stand of
+its time, a video recorder on the shelf under it, and beside the TV the console, black, Alex vs
+Bus's cartridge upright in its slot and its pad in front of it; on the wall over it, a panel with
+**Play**. It is Sega's Japanese model, which shows 60 pictures a second, as the room paces its
+machines (Europe's showed 50). Switched on, it shows Alex vs Bus's title and menu: up and down choose,
+Start, A or C takes the choice, and B goes back. **PLAY**, then **NORMAL** or **HARD**, then a level,
+and Alex runs along the street to catch his bus before it leaves without him, jumping holes and
+crates and picking up coins as the time runs down. Start pauses.
+
+It is chosen, started and played as the Nintendo is (above). Its pad has three buttons, A, B and C,
+and Start, but no Select, so a gamepad's X is its C, as is the left controller's X in VR, and the
+card and its panel hold Start, Reset and Stop:
+
+| | Its pad | A, B, C | Start | Stop |
+|---|---|---|---|---|
+| Desktop | arrows | Z, X, C | Enter | Escape, or **Stop** in the card |
+| Phone | the pad on the screen | the pad's A, B and C | the pad's Start | **Stop** in the card |
+| Gamepad | D-pad or left stick | A, B, X | Start | LB or RB |
+| Headset | left stick | the right controller's A and B, the left controller's X | the left controller's Y | **Stop** on its panel, or walk away |
+| TV remote | arrows | OK is A; B and C in the card (Menu) | in the card (Menu) | Back |
+
+The game keeps how far you have got (the levels and the difficulty opened) on the cartridge, as the
+real one does, but the room starts the console afresh each time, so that lasts only until **Stop**.
+**Reset** is its reset button: the title again. Alex blinks for half a second as he comes back
+after a fall, and a level chosen in the menu blinks before it starts, both small on the screen,
+flickering for a moment rather than as Thwaite's explosions do.
+
 ### The test page
 
 On the test page, choose a machine and it starts. Its keys go to it while its screen has the focus
@@ -197,15 +229,18 @@ On the test page, choose a machine and it starts. Its keys go to it while its sc
 | Arcade cabinet | arrows: aim · Z: fire left (B) · X: fire right (A) · Enter: Start · Shift: Select |
 | Vectrex | arrows: the stick · 1 to 4, or Z, X, C, V: its buttons · Mine Storm: 4 fires, 3 thrusts, 2 escapes |
 | Atari 2600 | arrows: the joystick · Space, Z or X: fire · Enter: Game Reset · Shift: Game Select |
+| Mega Drive | arrows: the pad · Z, X, C: A, B, C · Enter: Start · Alex vs Bus: left and right run, A, B or C jumps, B goes back in a menu |
 
-`?m=nes` (or `spectrum`, `thwaite`, `vectrex`, `a2600`) starts that one at once; `?view=3d` shows its screen
+`?m=nes` (or `spectrum`, `thwaite`, `vectrex`, `a2600`, `megadrive`) starts that one at once; `?view=3d` shows its screen
 in 3D, as the room does; and `?xr=emulate` does so in an emulated Quest 3, with **Enter VR**.
 
 ### MAME
 
 [MAME](https://www.mamedev.org/) 0.289 runs them, built for the web with Emscripten by
-`tools/build-mame.sh` from only the four drivers they need, the Nintendo's (the cabinet's too), the
-Spectrum's, the Vectrex's and the Atari 2600's: `public/mame/arcade.js` and `arcade.wasm`. Each machine runs in a frame of its own
+`tools/build-mame.sh` from only the five drivers they need, the Nintendo's (the cabinet's too), the
+Spectrum's, the Vectrex's, the Atari 2600's and the Mega Drive's: `public/mame/arcade.js` and
+`arcade.wasm`. The Mega Drive's driver holds Sega's other consoles of its line too (the 32X, the
+Mega-CD), which come into the build with it, unplayed. Each machine runs in a frame of its own
 (`mame/machine.html`), stepped 60 times a second from the page's frame loop (in VR, the
 headset's) whatever the display's rate, its sound going through the page's. The page makes up the
 steps it owes, at most three a frame, so a machine keeps time while the page draws at least 20
@@ -235,55 +270,64 @@ sh tools/build-mame.sh        # clones MAME once into ~/.cache/arcade/, builds i
 
 `npm run measure` (`tools/measure-machines.mjs`) runs each machine on the test page in headless
 Chrome for 8 seconds: with the CPU as it is, slowed 4× and 6× (Chrome's CPU throttling, standing in
-for a TV's), and in 3D in an emulated Quest 3's VR session. The figure to go by is what a step
-costs, the time MAME takes to emulate 1/60 s, which has to fit into a 60 Hz frame (16.7 ms) with the
-room's own drawing. On an Intel Core i9-14900HX laptop (drawing with its NVIDIA GeForce RTX 4090
-Laptop GPU), on 1 November 2026, the five in one run, while other work kept about a fifth of its
-32 threads busy:
+for a TV's), and in 3D in an emulated Quest 3's VR session. A machine whose game costs more than
+what it shows once started is played first: the Mega Drive's Alex vs Bus through its menu into its
+first level, Alex running and jumping. The figure to go by is what a step costs, the time MAME takes
+to emulate 1/60 s, which has to fit into a 60 Hz frame (16.7 ms) with the room's own drawing. On an
+Intel Core i9-14900HX laptop (drawing with its NVIDIA GeForce RTX 4090 Laptop GPU), on 3 November
+2026, the six in one run:
 
 | A step: median (95th percentile) | CPU as it is | Slowed 4× | Slowed 6× | VR (emulated) |
 |---|---|---|---|---|
-| Nintendo | 2.3 ms (3.0) | 11.3 ms (15.8) | 18.6 ms (25.3) | 3.0 ms (4.1) |
-| Spectrum | 2.4 ms (3.7) | 12.3 ms (15.4) | 21.9 ms (28.2) | 2.6 ms (3.2) |
-| Arcade cabinet (Thwaite) | 2.4 ms (3.0) | 15.1 ms (19.8) | 20.4 ms (30.3) | 2.3 ms (3.0) |
-| Vectrex | 1.6 ms (2.0) | 9.2 ms (14.0) | 14.9 ms (23.2) | 1.7 ms (2.2) |
-| Atari 2600 | 1.3 ms (1.7) | 7.2 ms (11.3) | 13.2 ms (23.9) | 1.6 ms (2.1) |
+| Nintendo | 2.9 ms (3.9) | 9.4 ms (21.2) | 20.4 ms (46.9) | 2.4 ms (3.3) |
+| Spectrum | 2.2 ms (2.6) | 8.3 ms (15.9) | 7.7 ms (21.7) | 2.2 ms (2.8) |
+| Arcade cabinet (Thwaite) | 2.1 ms (2.9) | 9.5 ms (25.3) | 11.9 ms (39.2) | 3.1 ms (3.8) |
+| Vectrex | 1.6 ms (2.1) | 6.5 ms (17.1) | 8.8 ms (30.7) | 1.6 ms (2.2) |
+| Atari 2600 | 1.4 ms (1.9) | 6.8 ms (15.7) | 17.8 ms (31.8) | 1.3 ms (1.8) |
+| Mega Drive (Alex vs Bus, played) | 3.3 ms (4.8) | 20.4 ms (47.4) | 30.1 ms (68.0) | 3.6 ms (4.8) |
 
 The figures vary from run to run, by up to a third on a quiet laptop, and a busy one slows them
-further. Earlier the same day, with less else running, the first four took 1.2 to 2.0 ms a step as
-it is, 6.5 to 10.4 ms slowed 4× and 9.5 to 15.1 ms slowed 6×, all of them keeping up slowed 4× and
-the Vectrex and the Spectrum slowed 6× too; in a second run of the five, as busy as the one above,
-slowed 4× the Nintendo fell to 54 steps a second, and slowed 6× only the Atari 2600 kept up.
+further: in runs of the first five on 1 November, a step took 6.5 to 15.1 ms slowed 4× and 9.5 to
+21.9 ms slowed 6×, and in one of them, slowed 4×, the Nintendo fell to 54 steps a second. In a run
+of its own an hour before the one above, played the same way, the Mega Drive made 55 steps a second
+slowed 4× and 35 slowed 6×.
 
-- **All five keep up** at full speed and in VR: 60 steps a second, a step taking 3 ms or less and
-  the page's main thread at most a third busy. Slowed 4×, a step takes from two fifths of a 60 Hz
-  frame (the Atari 2600) to nine tenths (the cabinet), and they keep up, but for the cabinet, a
-  little behind in this run (57.5 steps a second). Slowed 6×, a step takes from four fifths of a
-  frame (the Atari 2600) to a frame and a third (the Spectrum), and in this run none kept up: the
-  Atari 2600 and the Vectrex 55 steps a second, the Nintendo and the cabinet 49 and 50, the
-  Spectrum 41, as the page's frames dropped to 14 to 38 a second. So on a TV that slow the room
-  would drop frames while one runs. The TV itself is still to be measured. Played on a screen, the
-  room isn't drawn while a machine runs (its picture covers the view), so a frame holds the
-  machine's steps and its picture alone.
-- **The Atari 2600 is the cheapest of the five**, in every case in the run above, and in the other
-  in every case but one (slowed 4×, the Vectrex was): the least to emulate, a processor at 1.19 MHz,
-  128 bytes of memory and a picture of 176 × 223.
-- **The Vectrex comes next.** Mine Storm draws a few lines a frame, and MAME draws them into a small
-  picture, 240 × 320, which the room smooths: a larger one costs a slow computer more each frame
-  than it adds. Measured alternately at 240 × 320 and 300 × 400, slowed 4×, a step took 5.5 and
-  11.3 ms at the smaller size and 12.7 and 16.3 ms at the larger.
+- **All six keep up** at full speed and in VR: 60 steps a second, a step taking under 4 ms (the
+  Mega Drive's 3.3 and 3.6 the most), and the page's main thread at most a quarter busy as it is; in
+  emulated VR, drawing the screen in 3D 160 times a second, 27 to 57% (the room alone: 28%).
+- **Slowed, the Mega Drive falls behind first.** Slowed 4×, the first five keep up (the Nintendo
+  nearly, 58 steps a second), a step taking from two fifths of a 60 Hz frame (the Vectrex, the
+  Atari 2600) to three fifths (the cabinet); the Mega Drive's takes more than a frame, 20.4 ms, and
+  it made 33 steps a second, the page 12 frames. Slowed 6×, the Spectrum kept up in this run, the
+  Vectrex and the cabinet nearly (55 and 56 steps a second), the Atari 2600 made 41, the Nintendo 36
+  and the Mega Drive 25. So on a TV that slow the room would drop frames while one runs, the Mega
+  Drive's soonest. The TV itself is still to be measured. Played on a screen, the room isn't drawn
+  while a machine runs (its picture covers the view), so a frame holds the machine's steps and its
+  picture alone.
+- **The Mega Drive is the heaviest**: a 68000 at 7.67 MHz with a Z80 beside it for its sound, two
+  sound chips and a picture of 320 × 224. On its title, before it is played, it costs far less (in
+  the run of its own, 4.4 ms a step slowed 4×, keeping up), so its figures are from its game.
+- **The Atari 2600 and the Vectrex are the cheapest**, the 2600 as it is and in VR, the Vectrex
+  slowed, in this run (on 1 November the 2600 in every case but one). The 2600 is the least to
+  emulate, a processor at 1.19 MHz, 128 bytes of memory and a picture of 176 × 223. Mine Storm draws
+  a few lines a frame, and MAME draws them into a small picture, 240 × 320, which the room smooths:
+  a larger one costs a slow computer more each frame than it adds. Measured alternately at 240 × 320
+  and 300 × 400, slowed 4×, a step took 5.5 and 11.3 ms at the smaller size and 12.7 and 16.3 ms at
+  the larger.
 - **Breakout didn't keep up anywhere**, measured the same way on 31 October 2026. MAME runs its
   circuit chip by chip, and a step took 20.3 ms (25.5) even on this laptop, 48 steps a second with
   the main thread always busy; 155 ms (206) slowed 4×, 213 ms (294) slowed 6×, and 21.4 ms (27.4) in
   VR. So it never came into the room, and its driver has left MAME's build: the arcade cabinet holds a
   Nintendo running Thwaite instead.
 
-MAME is 30.9 MB to download (6.6 MB gzipped, as GitHub Pages sends it), and 0.3 MB of JavaScript
-(0.1 MB), fetched when a machine first starts and then kept in the browser's cache. Concentration
-Room and Thwaite are 25 KB each, the Spectrum's ROM 16 KB, the Vectrex's 8 KB and 2048 2 KB. A
-console starts within a second once MAME is here, and the Spectrum in about one (slowed 6×, the
-consoles within 2 s and the Spectrum in 5 to 8), and from the live site, the first time, in under
-3 s on a fast connection.
+MAME is 40.4 MB to download (7.3 MB gzipped, as GitHub Pages sends it), and 0.3 MB of JavaScript
+(0.1 MB), fetched when a machine first starts and then kept in the browser's cache. The Mega Drive
+added 9.5 MB of it (0.7 MB gzipped), most of that MAME's 68000 processors: its driver needs one, and
+MAME builds every one of the family with it. Concentration Room and Thwaite are 25 KB each, Alex vs
+Bus 512 KB, the Spectrum's ROM 16 KB, the Vectrex's 8 KB and 2048 2 KB. A console starts within a
+second once MAME is here, and the Spectrum in about one (slowed 6×, the consoles within 2 s but the
+Mega Drive in 4, and the Spectrum in 3 to 8), and from the live site, the first time, in under 3 s
+on a fast connection.
 
 ## Moving about
 
@@ -354,7 +398,7 @@ is the config's `hallwayDoor()`:
 {
   id: 'arcade',
   title: 'arcade',
-  subtitle: "A room behind the Hallway's door, becoming an arcade of old computers, game consoles and arcade machines: so far a Nintendo Entertainment System, a ZX Spectrum, an arcade cabinet, a Vectrex and an Atari 2600 to play. Walk it and play in VR on a Meta Quest, on a desktop or on a phone.",
+  subtitle: "A room behind the Hallway's door, becoming an arcade of old computers, game consoles and arcade machines: so far a Nintendo Entertainment System, a ZX Spectrum, an arcade cabinet, a Vectrex, an Atari 2600 and a Sega Mega Drive to play. Walk it and play in VR on a Meta Quest, on a desktop or on a phone.",
   sign: 'Arcade',
   url: 'https://ariamokr.github.io/arcade/',
   preview: 'https://ariamokr.github.io/arcade/hallway-preview.jpg',
@@ -433,7 +477,8 @@ through its `tv.js`:
 - While a console runs, the arrows are its pad and OK is its A (the Vectrex's 4, the Atari 2600's
   fire button). **Menu** moves the focus into the card, onto the machine's buttons (Start, Select,
   A, B, Reset and Stop; the Vectrex's 1 to 4, Reset and Stop; the Atari 2600's Game Select, Game
-  Reset, Reset and Stop) and Sound, and **Back** there plays again. **Back** while it plays stops it.
+  Reset, Reset and Stop; the Mega Drive's Start, A, B, C, Reset and Stop) and Sound, and **Back**
+  there plays again. **Back** while it plays stops it.
 - While a computer runs, the arrows go from key to key of its keyboard on the screen, and OK presses
   the one ringed. **Menu** moves the focus into the card, onto Reset, Stop and Sound, and **Back**
   there types again. **Back** while it runs stops it.
@@ -517,10 +562,11 @@ committed:
 - `public/social.jpg`, 1280 × 640: the room from just inside the doorway, a little raised, looking
   down it at four of the machines and the window: the Spectrum and the Nintendo face each other near
   the far wall (so no view of the doorway takes them in), with the arcade cabinet against it between
-  them, and the Vectrex nearer, across from the window. The Atari 2600, between the doorway and the
-  window, is just out of it on the right: no view takes in both it and the Vectrex across the room.
-  The page's `og:image` and `twitter:image` show it, and it is the repository's social preview
-  (Settings → General → Social preview, uploaded by hand).
+  them, and the Vectrex nearer, across from the window. The Atari 2600 and the Mega Drive, across
+  from each other near the doorway, are just out of it, on the right and on the left: no view takes
+  in the 2600 with the Vectrex across the room, nor the Mega Drive with the window. The page's
+  `og:image` and `twitter:image` show it, and it is the repository's social preview (Settings →
+  General → Social preview, uploaded by hand).
 
 Render them again whenever the room changes. Chrome starts through common's `tools/chrome.mjs`, on a
 new profile that is first told the Windows password is not blank, so it never tries a logon to find

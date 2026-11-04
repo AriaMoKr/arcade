@@ -6,12 +6,13 @@
 // keyboard on every screen, under its picture (screen-keys.js), where a gamepad or the remote goes
 // from key to key. Escape, a gamepad's shoulder buttons and a TV's Back (main.js's stepBack) stop it.
 // In VR its screen in the room shows it, and the controllers play it: a console's pad on the left
-// stick, its A and B the right's, X and Y its Select and Start; a computer's keys on the panel beside
-// it, pointed at, its shifts on the left's X and Y, ENTER and DELETE the right's A and B; until a
-// move away (a teleport: controls.js's stand). The card's buttons and the panel on the wall press a
-// console's Start and Select (on a TV, A and B too), reset the machine and stop it; each goes by the
-// console's own name for it (machines.js buttonName: the Vectrex's 1 to 4, the Atari 2600's Game
-// Select and Game Reset), on the screen's pad too, where the 2600's one fire button is its A alone.
+// stick, its A and B the right's, X and Y its Select (the Mega Drive's C, as it has no Select) and
+// Start; a computer's keys on the panel beside it, pointed at, its shifts on the left's X and Y,
+// ENTER and DELETE the right's A and B; until a move away (a teleport: controls.js's stand). The
+// card's buttons and the panel on the wall press a console's Start and Select (on a TV, A, B and C
+// too), reset the machine and stop it; each goes by the console's own name for it (machines.js
+// buttonName: the Vectrex's 1 to 4, the Atari 2600's Game Select and Game Reset), on the screen's pad
+// too, where the 2600's one fire button is its A alone and the Mega Drive's A, B and C are three.
 // A computer's shift pressed on the screen or the panel stays down for the next key.
 //
 // MAME's frame (mame-frame.js) is never seen: it stays the machine's own size, as a larger one
@@ -291,8 +292,8 @@ export class Play {
 
   /**
    * A button for stand i's machine, in the card or on its panel on the wall: 'play', a console's
-   * own ('start', 'select', on a TV 'a' and 'b'), a computer's key ('key:' and MAME's key, on the
-   * panel), 'reset' or 'stop'.
+   * own ('start', 'select', on a TV 'a', 'b' and 'c'), a computer's key ('key:' and MAME's key, on
+   * the panel), 'reset' or 'stop'.
    * @param {number} i
    * @param {string} id
    */
@@ -323,10 +324,10 @@ export class Play {
 
   /**
    * A VR controller, each frame while a machine runs (controls.js's onHand). A console: the left
-   * one's stick is its pad and its X and Y its Select and Start, taking the stick from walking; the
-   * right one's A and B are its own, and its stick still turns. A computer: the left one's X and Y
-   * hold its shifts, and its stick is still (a nudge of it doesn't walk away); the right one's A and B
-   * are ENTER and DELETE.
+   * one's stick is its pad and its X and Y its Select (with none, its C: the Mega Drive's) and Start,
+   * taking the stick from walking; the right one's A and B are its own, and its stick still turns. A
+   * computer: the left one's X and Y hold its shifts, and its stick is still (a nudge of it doesn't
+   * walk away); the right one's A and B are ENTER and DELETE.
    * @param {Hand} hand
    * @param {Gamepad} pad
    * @param {number} ax
@@ -343,7 +344,8 @@ export class Play {
         if (ay > 0.5) h.add(p.down);
         if (ax < -0.5) h.add(p.left);
         if (ax > 0.5) h.add(p.right);
-        if (held(pad, XR_LOWER)) h.add(p.select);
+        const x = p.select ?? p.c;
+        if (x && held(pad, XR_LOWER)) h.add(x);
         if (held(pad, XR_UPPER)) h.add(p.start);
         return true;
       }
@@ -592,8 +594,9 @@ export class Play {
   }
 
   /**
-   * A gamepad, while a machine plays on a screen: a console's pad, A and B, Start and Back (Select);
-   * a computer's keys (padKeys); and a shoulder button stops it.
+   * A gamepad, while a machine plays on a screen: a console's pad, A and B, X (its C, where it has
+   * one), Start and Back (its Select, where it has one); a computer's keys (padKeys); and a shoulder
+   * button stops it.
    * @param {number} now
    */
   #readPad(now) {
@@ -616,7 +619,8 @@ export class Play {
       if (right) h.add(p.right);
       if (this.#pressed(pad, PAD_A)) h.add(p.a);
       if (this.#pressed(pad, PAD_B)) h.add(p.b);
-      if (this.#pressed(pad, PAD_BACK)) h.add(p.select);
+      if (p.c && this.#pressed(pad, PAD_X)) h.add(p.c);
+      if (p.select && this.#pressed(pad, PAD_BACK)) h.add(p.select);
       if (this.#pressed(pad, PAD_START)) h.add(p.start);
       used ||= h.size > 0;
     } else if (m.keyboard) {
@@ -781,8 +785,8 @@ export class Play {
 
   /**
    * The pad on a touch screen: the D-pad (a finger on it holds the way it points, sliding round
-   * it), B and A, Select and Start. A button pressed some other way (a keyboard, a screen reader)
-   * presses it for a moment.
+   * it), B and A (and C), Select and Start. A button pressed some other way (a keyboard, a screen
+   * reader) presses it for a moment.
    */
   #buildPad() {
     /**
@@ -820,7 +824,7 @@ export class Play {
         this.#setDpad(0);
       });
     }
-    const [select, start, b, a] = [['select', 'Select'], ['start', 'Start'], ['b', 'B'], ['a', 'A']].map(([control, label]) => {
+    const [select, start, b, a, c] = [['select', 'Select'], ['start', 'Start'], ['b', 'B'], ['a', 'A'], ['c', 'C']].map(([control, label]) => {
       const pressed = button(control, label);
       pressed.addEventListener('pointerdown', (e) => {
         e.preventDefault();
@@ -831,25 +835,32 @@ export class Play {
       return pressed;
     });
     return el('div', { class: 'touch-pad', role: 'group', 'aria-label': "The machine's pad", hidden: '' },
-      dpad, el('div', { class: 'pad-mid' }, select, start), el('div', { class: 'pad-ab' }, b, a));
+      dpad, el('div', { class: 'pad-mid' }, select, start), el('div', { class: 'pad-face' }, b, a, c));
   }
 
   /**
    * The screen's pad for machine m: its buttons named as m names them (a Nintendo's A, B, Select and
-   * Start; the Vectrex's 1 to 4), each showing its name, and B only where it is another button than
-   * A (not the Atari 2600's one fire button).
+   * Start; the Vectrex's 1 to 4), each showing its name, only those it has (C the Mega Drive's, and
+   * Select not), and B only where it is another button than A (not the Atari 2600's one fire
+   * button). Its face buttons left to right as on its pad: B and A, or the Mega Drive's A, B and C.
    * @param {Machine} m
    */
   #namePad(m) {
+    const p = /** @type {Pad} */ (m.pad);
     this.touchPad.setAttribute('aria-label', `The ${m.title}'s ${m.stick ? 'stick and buttons' : 'pad'}`);
-    for (const id of ['select', 'start', 'b', 'a']) {
+    for (const id of ['select', 'start', 'b', 'a', 'c']) {
       const b = this.padButtons.get(id);
       if (!b) continue;
       const name = buttonName(m, id);
       b.setAttribute('aria-label', name);
       /** @type {HTMLElement} */ (b.firstElementChild).textContent = name;
-      b.hidden = id === 'b' && oneButton(m);
+      b.hidden = !Object.hasOwn(p, id) || (id === 'b' && oneButton(m));
     }
+    const [a, b, c] = ['a', 'b', 'c'].map((id) => /** @type {HTMLElement} */ (this.padButtons.get(id)));
+    const face = /** @type {HTMLElement} */ (a.parentElement);
+    if (p.c) face.append(a, b, c);
+    else face.append(b, a, c);
+    face.classList.toggle('three', !!p.c);
   }
 
   /**

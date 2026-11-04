@@ -172,6 +172,35 @@ export const STANDS = [
     front: { a: -0.13, d: 1.38 },
     about: '2048: its tiles slid together, two of a number making the next',
   },
+  {
+    // The Sega Mega Drive against the left-hand wall, across the room from the Atari 2600: a TV on a
+    // black stand of its time, a video recorder on the shelf under it, and beside the TV the console,
+    // Alex vs Bus's cartridge upright in its slot, and its pad in front of it.
+    machine: 'megadrive',
+    wall: 'left',
+    at: -2.5,
+    parts: [
+      { part: 'stand-left', a: [-0.55, -0.52], y: [0, 0.6], d: [0, 0.48], color: '#1f1e23' },
+      { part: 'stand-right', a: [0.52, 0.55], y: [0, 0.6], d: [0, 0.48], color: '#1f1e23' },
+      { part: 'stand-back', a: [-0.52, 0.52], y: [0.09, 0.6], d: [0, 0.02], color: '#1f1e23' },
+      { part: 'stand-shelf', a: [-0.52, 0.52], y: [0.06, 0.09], d: [0, 0.46], color: '#38373e' },
+      { part: 'stand-top', a: [-0.55, 0.55], y: [0.6, 0.64], d: [0, 0.5], color: '#38373e' },
+      { part: 'video', a: [-0.22, 0.22], y: [0.09, 0.18], d: [0.08, 0.42], color: '#56555c' },
+      { part: 'tv', a: [-0.48, 0.2], y: [0.64, 1.18], d: [0.04, 0.47], color: '#2f2e34' },
+      // 28 × 21 × 6 cm, as the first Mega Drive is: black, the cartridge upright in the slot in its
+      // top, its red light at the front.
+      { part: 'console', a: [0.24, 0.52], y: [0.64, 0.7], d: [0.1, 0.31], color: '#151417' },
+      { part: 'cartridge', a: [0.31, 0.45], y: [0.7, 0.79], d: [0.15, 0.17], color: '#2a2930' },
+      { part: 'light', a: [0.26, 0.28], y: [0.672, 0.682], d: [0.31, 0.312], color: '#d8302a' },
+      // Its pad of three buttons, black.
+      { part: 'pad', a: [0.3, 0.47], y: [0.64, 0.665], d: [0.36, 0.45], color: '#151417' },
+    ],
+    // A 20-inch tube: 4:3.
+    screen: { a: -0.14, y: 0.91, d: 0.471, width: 0.48, height: 0.36 },
+    panel: { a: [0.25, 0.55], y: [1.12, 1.38], d: 0.012 },
+    front: { a: -0.14, d: 1.45 },
+    about: 'Alex vs Bus: a race to catch the bus',
+  },
 ];
 
 /**
@@ -196,19 +225,21 @@ const CONSOLE_PANEL = {
     ['stop', 248, 200, 448, 266],
   ],
 };
+/** The same for a console with no Select (the Mega Drive): its Start across the row. @type {PanelLayout} */
+const START_PANEL = { ...CONSOLE_PANEL, running: [['start', 32, 118, 448, 184], ...CONSOLE_PANEL.running.slice(2)] };
 
 /** On a computer's panel, its keys: ten to a row, four rows, from (x, y), each width × height. */
 export const PANEL_KEYS = { x: 32, y: 112, pitchX: 96, pitchY: 108, width: 88, height: 100 };
 
 /**
- * The panel beside machine m: a console's, or a computer's, 1024 × 640: its name and Play at the
- * top, or while it runs Reset and Stop there, and its keys below (PANEL_KEYS), each a button while
- * it runs ('key:' and MAME's key).
+ * The panel beside machine m: a console's (its Start alone in the row, where it has no Select), or a
+ * computer's, 1024 × 640: its name and Play at the top, or while it runs Reset and Stop there, and
+ * its keys below (PANEL_KEYS), each a button while it runs ('key:' and MAME's key).
  * @param {import('./machines.js').Machine | undefined} m
  * @returns {PanelLayout}
  */
 export function panelLayout(m) {
-  if (!m?.keyboard) return CONSOLE_PANEL;
+  if (!m?.keyboard) return m?.pad && !m.pad.select ? START_PANEL : CONSOLE_PANEL;
   const k = PANEL_KEYS;
   const keys = m.keyboard.rows.flatMap((row, r) => row.map((key, c) => {
     const x = k.x + c * k.pitchX, y = k.y + r * k.pitchY;

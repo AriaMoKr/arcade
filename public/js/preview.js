@@ -32,10 +32,10 @@ export function previewView(p = PREVIEW, from = { x: 0, y: 0, z: -0.6 }) {
  * along with the doorway; with the window in the far wall, from beside the doorway, looking at it.
  * With `also` (points to look among: arcade's machines, two against the side walls near the far
  * one, which no view of the doorway takes in, one against the far wall, one across from the window,
- * and one between the doorway and the window, which only draws the view a little its way, as no view
- * takes it in with the one across from the window), from just inside the doorway, a little raised
- * and to the side across from the window, looking down the room past them, the window's side a
- * little nearer the middle. Pure.
+ * and two across from each other near the doorway, which no view takes in with the others), from
+ * just inside the doorway, a little raised and to the side across from the window, looking down the
+ * room past them, the window's side an eighth of the room's width nearer the middle, so that the
+ * window is in it. Pure.
  * @param {object} L the room's layout (room.js layoutRoom)
  * @param {{ x: number, y: number, z: number }[]} [also]
  */
@@ -55,7 +55,7 @@ export function socialView(L, also = []) {
     const mid = also.reduce((m, p) => ({ x: m.x + p.x / n, y: m.y + p.y / n, z: m.z + p.z / n }), { x: 0, y: 0, z: 0 });
     return {
       eye: { x: side * 0.5, y: EYE + 0.35, z: -0.75 },
-      target: { x: mid.x - side * 0.35, y: mid.y, z: mid.z - 0.9 },
+      target: { x: mid.x - side * L.width * 0.12, y: mid.y, z: mid.z - 0.9 },
     };
   }
   return { eye: { x, y: EYE, z: L.z1 + inset }, target };

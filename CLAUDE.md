@@ -8,12 +8,13 @@ arcade: a WebXR room behind one of the Hallway's doors, becoming an arcade of ol
 consoles and arcade machines (three.js 0.186, plain ES modules, no bundler or build step). It is the
 room AriaMoKr/RoomTemplateEmpty makes (a checkout at `../RoomTemplateEmpty`): a floor, four walls, a
 ceiling with lamps, a window in the right-hand wall onto common's afternoon sky, the doorway back to
-the Hallway, and the control panel beside it; and so far five machines: the NES with Concentration
+the Hallway, and the control panel beside it; and so far six machines: the NES with Concentration
 Room, on its stand against the right-hand wall past the window; across from it, on a desk against
 the left-hand wall, the ZX Spectrum 48K with its BASIC; between them, against the far wall facing
 the doorway, an arcade cabinet with an NES inside running Thwaite; across from the window, on a
-plinth against the left-hand wall, the Vectrex with Mine Storm; and against the right-hand wall
-between the doorway and the window, on a console TV, the Atari 2600 with 2048. Its own are `public/js/config.js`
+plinth against the left-hand wall, the Vectrex with Mine Storm; against the right-hand wall
+between the doorway and the window, on a console TV, the Atari 2600 with 2048; and across from it,
+against the left-hand wall, on a TV stand, the Sega Mega Drive with Alex vs Bus. Its own are `public/js/config.js`
 (7 × 9 m, violet walls, a dark ceiling, the magenta glow), the page's title and link-preview tags,
 package.json, `main.js`'s opening comment, the pictures, these docs and the machines (below); the
 rest is the template's code, which follows the Hallway (https://ariamokr.github.io/hallway/,
@@ -26,9 +27,11 @@ Spectrum's, on every screen), a gamepad, the VR controllers (and the Spectrum's 
 beside it) or the TV's remote. They came into the room a step at a time, each checked and pushed:
 the NES, the Spectrum with its keyboard, then the arcade cabinet holding an NES running Thwaite, the
 user's choice, as Breakout couldn't keep up on the web (README, "How fast"); Breakout's driver has
-left MAME's build. Then the Vectrex, the user's choice of another machine, measured first, and the
-Atari 2600 with 2048 (MIT), the user's choice of the next, measured first too. What comes next is
-the user's to say. `public/` is the whole site. The user asked for the hallway to be left alone, so change `../hallway` only when
+left MAME's build. Then the Vectrex, the user's choice of another machine, measured first, the
+Atari 2600 with 2048 (MIT), the user's choice of the next, measured first too, and the Mega Drive
+with Alex vs Bus (GPL-3.0-or-later, its assets CC BY-SA 4.0), the user's choice of the next,
+measured played (it keeps up at full speed and in VR, and falls behind first slowed). What comes
+next is the user's to say. `public/` is the whole site. The user asked for the hallway to be left alone, so change `../hallway` only when
 asked; its door to here comes in the Hallway's own round (README, "The Hallway's door", is the
 entry to give it).
 
@@ -43,7 +46,7 @@ npm start            # tools/serve.mjs (common's) on config.js's port, 8102
 npm test             # node --test "test/*.test.js", tsc's check among them (test/types.test.js)
 npm run types        # tsc -p tsconfig.json, then -p tsconfig.strict.json, alone
 npm run preview      # tools/preview.mjs: public/hallway-preview.jpg and public/social.jpg (headless Chrome)
-npm run measure      # tools/measure-machines.mjs: each machine's speed on the test page, CPU ÷1/4/6 and emulated VR (headless Chrome)
+npm run measure      # tools/measure-machines.mjs: each machine's speed on the test page, CPU ÷1/4/6 and emulated VR (headless Chrome); a game dearer than its title played first (PLAYED: the Mega Drive's)
 sh tools/build-mame.sh   # MAME into public/mame/ (Emscripten; MSYS2 UCRT64 here), from a clone in ~/.cache/arcade/mame0289
 ```
 
@@ -128,8 +131,9 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
 - `preview.js`: the two pictures (`renderPreview`, hung as the hallway hangs its doorways', and
   `renderSocial`, from `socialView`; with `also`, main.js's the stands' screens, from just inside
   the doorway looking down the room at four of the machines and the window, as two face each other
-  near the far wall and no view takes them in with the doorway; the Atari 2600, near the doorway,
-  is just out of it, as no view takes in both it and the Vectrex across from it).
+  near the far wall and no view takes them in with the doorway; the Atari 2600 and the Mega Drive,
+  across from each other near the doorway, are just out of it, the view turned an eighth of the
+  room's width to the window's side so that the window is in it).
 - `main.js`: the visit and the way back (common's `door.js`; `<id>.visit` in sessionStorage),
   arrival (at the doorway, or back from a piece's link, `?from=<piece id>` with no `back`, in front
   of it with the kept way back), `go(piece)` (fade, then `location.assign`: the way back, or the
@@ -149,7 +153,8 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   beside the card). While a machine plays on a screen, `html.playing`: `#play` over the view (its
   picture pixelated, a vector screen's smoothed, `.vector`; `.machine-host` for MAME's frame, 0 × 0), the card narrower and holding only
   the way back and the machine's buttons, and on a touch screen `.touch-pad` (two rows, one from
-  561 px wide; its D-pad three `--pad-key` high), which the card ends above on a touch screen
+  561 px wide; its D-pad three `--pad-key` high; its face buttons `.pad-face`, the Mega Drive's
+  three `.three`, rising to the right and smaller where a narrow screen needs), which the card ends above on a touch screen
   (`any-pointer: coarse`) while a console plays (`html.console`), shown or not, so that the pad
   coming for a finger or going for the mouse moves nothing in the card under that press; from 561 px
   wide and up to 480 px high, a phone on its side, the card tighter and without the machine's name.
@@ -159,16 +164,19 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
 - The machines. `machines.js`: pure, `MACHINES` (each a `Machine`: MAME's driver, the files it
   reads, fetched into its file system, its screen in pixels and the aspect it is shown at, the
   visitor's keys and MAME's they press (a key or keys together: the Spectrum's Backspace is CAPS
-  SHIFT and 0), never one of MAME's UI keys, tested; a console's `pad`, its controls by name, and
+  SHIFT and 0), never one of MAME's UI keys, tested; a console's `pad`, its controls by name (a C
+  where it has one, the Mega Drive's, and a Select where it has one, the Mega Drive's not), and
   where its buttons aren't a Nintendo's, `names` (the Vectrex's 1 to 4, the Atari 2600's Game
   Select, Game Reset and Fire, in the card's order), with `stick` and a vector screen's `vector`; a
   computer's `keyboard`; the cabinet's `thwaite` is a Nintendo, `NES_KEYS` and `NES_PAD` as the
-  NES's; the `a2600`'s pad has its one fire button as A and B), `RESET` (MAME's soft reset, F3, the
+  NES's; the `a2600`'s pad has its one fire button as A and B; the `megadrive` is Japan's model,
+  `megadrij`, NTSC), `RESET` (MAME's soft reset, F3, the
   room's Reset button's alone), `machineById`, `codesOf`, `machineCodes` (every key of MAME's a
   machine takes), `buttonName(m, id)` (what a button is called on m, else `BUTTON_NAMES`, a
-  Nintendo's), `oneButton(m)` (A and B one button: then "A or B" in the hints, no B on the phone's
+  Nintendo's and C), `oneButton(m)` (A and B one button: then "A or B" in the hints, no B on the phone's
   pad, no A or B in a TV's card), `machineButtons`
-  (the card's while it runs), `mameArgs` (MAME's command line: `-video accel -renderdriver software`, as MAME's
+  (the card's while it runs: Start and Select where it has one; on a TV A, B and C where it has
+  them), `mameArgs` (MAME's command line: `-video accel -renderdriver software`, as MAME's
   web build has no `soft` video; `-cfg_directory /cfg`, where a machine's settings go, among its files;
   `-nothrottle`, as the page paces it; `-sound js` at the page's
   sample rate). `emulator.js`: `Emulator`, one machine at a time in an iframe of its own
@@ -206,7 +214,8 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   `wallTerms`), `layoutStands` (in the room's: the boxes, the footprint, the screen, `front`, where
   one plays), `castStands` (kind `machine` on a box, `stand-panel` with u/v on its panel, nearer
   than room.js's hit), `clampStands`, the panel's buttons (`panelLayout(m)`: a console's, Play
-  stopped, Select, Start, Reset and Stop running; a computer's, 1024 × 640, Play stopped, Reset,
+  stopped, Select, Start, Reset and Stop running, with no Select Start across the row
+  (`START_PANEL`); a computer's, 1024 × 640, Play stopped, Reset,
   Stop and its keys running, `key:<code>`, `PANEL_KEYS`; `standButtonAt`), and `standProblems`
   (tested: a machine there is, inside the room and off the doorway's wall, under the ceiling, clear
   of the window and of the others, its screen and marquee on a part's face, its panel behind none,
@@ -215,15 +224,17 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   each screen a mesh of its own (a vector screen's texture smoothed),
   `live(i, canvas)` while it runs in VR and `still(i, canvas)` once it stops, and `panels`, a
   `StandPanel` each, redrawn only on a change: a console's buttons by `buttonName` and how to play
-  it in VR (`vrPad`); a computer's its keyboard, the legends fitted to
+  it in VR (`vrPad`: the left X its Select, else its C); a computer's its keyboard, the legends fitted to
   each key (`legends`), the shifts down lit and the key pointed at).
 - `play.js`: `Play`, the machines played (README, "Playing the Nintendo", "Typing on the
-  Spectrum", "Playing the arcade cabinet", "Playing the Vectrex", "Playing the Atari 2600"). `choose(i)` (prime the sound, walk up, `start(i)`), `stop()` (the focus back to the
+  Spectrum", "Playing the arcade cabinet", "Playing the Vectrex", "Playing the Atari 2600",
+  "Playing the Mega Drive"). `choose(i)` (prime the sound, walk up, `start(i)`), `stop()` (the focus back to the
   machine's button in the card if it was on the picture or its keys), `stepBack()`, `button(i, id)`
   (the card's and the panel's, a computer's keys `key:<code>` among them), `first()` (the TV's
-  Menu), `hand()` (VR: a console's left stick the pad, Y/X Start/Select, the right hand's A/B; a
-  computer's left X/Y its shifts, the right's A/B ENTER and DELETE), and `frame()`, each frame:
-  steps the emulator, copies a new picture to `canvas` (in VR, onto its screen), reads a gamepad,
+  Menu), `hand()` (VR: a console's left stick the pad, Y/X Start/Select (X the Mega Drive's C), the
+  right hand's A/B; a computer's left X/Y its shifts, the right's A/B ENTER and DELETE), and
+  `frame()`, each frame: steps the emulator, copies a new picture to `canvas` (in VR, onto its
+  screen), reads a gamepad (a console's A, B, X its C, Start, Back its Select),
   and presses what any way of playing holds (`keys`, `padHeld`, `screenHeld`, `handHeld`; a
   gamepad's buttons held at the start not until let go). A computer's keys: a shift pressed on the
   screen or a panel stays down for the next key (`latched`, `latchBits` for the panels; pressed
@@ -303,10 +314,13 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   README with its licence. MAME is GPL-2.0-or-later: its licence and notices are served beside it
   (`COPYING.txt`, `legal/`), and the README, the card and the test page link its source at the tag.
   What its build links goes under GPL-2.0 with it (FreeType under its GPL option, not the FTL). A
-  GPL game is served with its source beside it (Thwaite's zip in `software/thwaite/`, as GPLv3
-  §6(d) allows), unless its licence lets exact copies go without (Concentration Room's).
+  GPL game is served with its source beside it (Thwaite's zip in `software/thwaite/`, Alex vs Bus's
+  in `software/alexvsbus/`, as GPLv3 §6(d) allows), unless its licence lets exact copies go without
+  (Concentration Room's); CC BY-SA assets (Alex vs Bus's) with their authors named beside them.
 - MAME's build is committed, never edited: change `tools/build-mame.sh` (its tag, `DRIVERS`) and
   build again; it passes `REGENIE=1`, as MAME's makefile misses a change of `SOURCES` and would build
   the drivers it was first given. Its Windows workarounds (MSYS make, not emmake's mingw32-make; `CLANG_VERSION`; emar
   through a response file; no `-lGL`; wasm-opt on one thread) are said where they are, in the
-  script.
+  script, as is why one warning stays a warning (`-Wno-error=ignored-pragmas`: the Mega Drive's
+  driver file brings the 32X, whose recompiler's C back end asks for a rounding mode WebAssembly
+  hasn't).

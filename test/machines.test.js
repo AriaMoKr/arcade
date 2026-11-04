@@ -75,7 +75,7 @@ test("only the machine's own keys reach MAME, never one of MAME's own controls (
   }
 });
 
-test("a computer's keys are its keyboard's, and its card has Reset and Stop; a console's, its Start and Select too (on a TV, its A and B where they are two)", () => {
+test("a computer's keys are its keyboard's, and its card has Reset and Stop; a console's, its Start and its Select (where it has one) too (on a TV, its A, B and C, where it has them, and A and B are two)", () => {
   for (const m of MACHINES) {
     const codes = machineCodes(m);
     assert.equal(new Set(codes).size, codes.length);
@@ -86,11 +86,14 @@ test("a computer's keys are its keyboard's, and its card has Reset and Stop; a c
       assert.deepEqual(machineButtons(m), ['reset', 'stop']);
       assert.deepEqual(machineButtons(m, true), ['reset', 'stop']);
     }
-    if (m.pad) {
+    const p = m.pad;
+    if (p) {
+      const own = ['select', 'start'].filter((id) => Object.hasOwn(p, id));
+      const face = ['a', 'b', 'c'].filter((id) => Object.hasOwn(p, id));
       assert.deepEqual(machineButtons(m).slice(-2), ['reset', 'stop']);
-      assert.deepEqual(machineButtons(m).slice(0, -2).sort(), ['select', 'start']);
+      assert.deepEqual(machineButtons(m).slice(0, -2).sort(), own);
       assert.deepEqual(machineButtons(m, true).slice(-2), ['reset', 'stop']);
-      assert.deepEqual(machineButtons(m, true).slice(0, -2).sort(), oneButton(m) ? ['select', 'start'] : ['a', 'b', 'select', 'start']);
+      assert.deepEqual(machineButtons(m, true).slice(0, -2).sort(), oneButton(m) ? own : [...face, ...own].sort());
     }
   }
   // Backspace and the arrows are the Spectrum's own: CAPS SHIFT with 0, and with 5 to 8.
@@ -99,13 +102,15 @@ test("a computer's keys are its keyboard's, and its card has Reset and Stop; a c
   assert.deepEqual(['ArrowLeft', 'ArrowDown', 'ArrowUp', 'ArrowRight'].map((k) => codesOf(spectrum.keys[k])[1]), ['Digit5', 'Digit6', 'Digit7', 'Digit8']);
 });
 
-test("a console's pad presses MAME's keys for its eight controls (A and B one, where it has one button), its own keys among them; MAME's reset only the Reset button's", () => {
+test("a console's pad presses MAME's keys for its controls (its four ways, A, B and Start, and C and Select where it has them; A and B one, where it has one button), its own keys among them; MAME's reset only the Reset button's", () => {
   const ui = new Set(['Escape', 'Tab', 'ScrollLock', 'Pause', 'Backquote', ...Array.from({ length: 12 }, (_, i) => `F${i + 1}`)]);
   const consoles = MACHINES.filter((m) => m.pad);
   assert.ok(consoles.length > 0);
   for (const m of consoles) {
     const pad = /** @type {import('../public/js/machines.js').Pad} */ (m.pad);
-    assert.deepEqual(Object.keys(pad).sort(), ['a', 'b', 'down', 'left', 'right', 'select', 'start', 'up']);
+    const names = Object.keys(pad);
+    for (const control of ['up', 'down', 'left', 'right', 'a', 'b', 'start']) assert.ok(names.includes(control), `${m.id}: no ${control}`);
+    for (const control of names) assert.ok(['up', 'down', 'left', 'right', 'a', 'b', 'c', 'select', 'start'].includes(control), `${m.id}: ${control}`);
     const controls = Object.entries(pad).filter(([control]) => !(control === 'b' && oneButton(m)));
     assert.equal(new Set(controls.map(([, code]) => code)).size, controls.length, `${m.id}: two controls press one key`);
     const own = new Set(Object.values(m.keys).flatMap(codesOf));
@@ -161,6 +166,22 @@ test("the Atari 2600's one fire button is a pad's A and B alike, its own switche
     const mask = 1 << i;
     assert.match(xml, new RegExp(`<port tag=":joyport2:joy:JOY" type="P2_JOYSTICK_${dir}" mask="${mask}" defvalue="${mask}">\\s*<newseq type="standard">KEYCODE_${dir}</newseq>`), dir);
   }
+});
+
+test("the Mega Drive's pad has A, B and C and Start, and no Select: MAME's keys for them, and the visitor's Z, X, C and Enter", () => {
+  const md = /** @type {import('../public/js/machines.js').Machine} */ (machineById('megadrive'));
+  const pad = /** @type {import('../public/js/machines.js').Pad} */ (md.pad);
+  // MAME's (megadriv.cpp's pad: A, B and C its buttons 1 to 3, Left Ctrl, Left Alt and Space; Start
+  // its 1), and the visitor's keys for them, left to right as on the pad.
+  assert.deepEqual([pad.a, pad.b, pad.c, pad.start, pad.select], ['ControlLeft', 'AltLeft', 'Space', 'Digit1', undefined]);
+  assert.deepEqual([md.keys.KeyZ, md.keys.KeyX, md.keys.KeyC, md.keys.Enter], [pad.a, pad.b, pad.c, pad.start]);
+  assert.ok(!oneButton(md));
+  // In the card: Start, Reset and Stop; on a TV, whose OK is its A, its B and C too.
+  assert.deepEqual(machineButtons(md).map((id) => buttonName(md, id)), ['Start', 'Reset', 'Stop']);
+  assert.deepEqual(machineButtons(md, true).map((id) => buttonName(md, id)), ['Start', 'A', 'B', 'C', 'Reset', 'Stop']);
+  // Japan's model, NTSC: 60 pictures a second, as the room paces its machines (Europe's is PAL, 50).
+  assert.equal(md.driver, 'megadrij');
+  assert.deepEqual(md.args, ['-cart', md.files[0].path]);
 });
 
 test("a key event's key for its code, as a US keyboard gives it", () => {

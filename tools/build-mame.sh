@@ -10,7 +10,7 @@
 set -eu
 
 TAG=mame0289
-DRIVERS=src/mame/nintendo/nes.cpp,src/mame/sinclair/spectrum.cpp,src/mame/miltonbradley/vectrex.cpp,src/mame/atari/a2600.cpp
+DRIVERS=src/mame/nintendo/nes.cpp,src/mame/sinclair/spectrum.cpp,src/mame/miltonbradley/vectrex.cpp,src/mame/atari/a2600.cpp,src/mame/sega/mdconsole.cpp
 JOBS=${1:-$(nproc 2>/dev/null || echo 4)}
 ROOT=$(cd "$(dirname "$0")/.." && pwd)
 OUT=$ROOT/public/mame
@@ -57,10 +57,14 @@ CLANG_VERSION=$(emcc -v 2>&1 >/dev/null | sed -n 's/^clang version \([0-9][0-9.]
 # 6.0.12, wasm-opt 133).
 case $(uname -s) in MINGW* | MSYS* | CYGWIN*) export BINARYEN_CORES="${BINARYEN_CORES:-1}" ;; esac
 # REGENIE=1 makes the project files again each time: MAME's makefile doesn't see a change of
-# SOURCES, and would build the drivers it was first given.
+# SOURCES, and would build the drivers it was first given. The Mega Drive's file holds the 32X too,
+# whose SH-2s bring in the recompiler's C back end (drcbec.cpp): its `#pragma STDC FENV_ACCESS ON`
+# is only a warning for WebAssembly, which has no rounding modes to set, but MAME makes warnings
+# errors; that one stays a warning.
 CC=emcc CXX=em++ LD=emcc NM=emnm RANLIB=emranlib \
   make SUBTARGET=arcade SOURCES="$DRIVERS" REGENIE=1 SYMBOLS=0 PYTHON_EXECUTABLE=python3 \
-  CLANG_VERSION="$CLANG_VERSION" AR="sh $EMAR" LIBS='$(LDDEPS) -lm -lpthread' -j"$JOBS"
+  CLANG_VERSION="$CLANG_VERSION" AR="sh $EMAR" LIBS='$(LDDEPS) -lm -lpthread' \
+  ARCHOPTS_CXX=-Wno-error=ignored-pragmas -j"$JOBS"
 
 mkdir -p "$OUT"
 cp arcade.js arcade.wasm "$OUT/"

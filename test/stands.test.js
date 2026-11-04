@@ -87,7 +87,7 @@ test('one walks round a stand, not through it, and stands where it says to play 
   }
 });
 
-test("a panel's buttons: Play while stopped; while it runs a console's Select, Start, Reset and Stop, a computer's Reset, Stop and keys; none overlapping, all on it", () => {
+test("a panel's buttons: Play while stopped; while it runs a console's Select (where it has one), Start, Reset and Stop, a computer's Reset, Stop and keys; none overlapping, all on it", () => {
   for (const s of S) {
     const m = machineById(s.machine);
     const layout = s.buttons;
@@ -105,7 +105,7 @@ test("a panel's buttons: Play while stopped; while it runs a console's Select, S
     assert.deepEqual(layout.stopped.map((b) => b[0]), ['play']);
     const running = layout.running.map((b) => b[0]);
     if (m?.keyboard) assert.deepEqual(running, ['reset', 'stop', ...m.keyboard.rows.flat().map((k) => `key:${k.code}`)]);
-    else assert.deepEqual(running.sort(), ['reset', 'select', 'start', 'stop']);
+    else assert.deepEqual(running.sort(), ['reset', ...(m?.pad?.select ? ['select'] : []), 'start', 'stop']);
     assert.equal(standButtonAt(layout, 0.005, 0.995, false), null);
   }
 });

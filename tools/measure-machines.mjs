@@ -34,6 +34,17 @@ const seconds = Number(opts.seconds);
 const rates = opts.rates.split(',').map(Number);
 const machines = opts.only ? MACHINES.filter((m) => opts.only?.split(',').includes(m.id)) : MACHINES;
 
+/**
+ * A machine played while it is measured, where what it shows once started (a title, a menu) costs
+ * less than its game: MAME's keys pressed one after another, then some held and one pressed again
+ * and again. The Mega Drive's Alex vs Bus: Start three times (PLAY, NORMAL, LEVEL 1), then running
+ * right and jumping.
+ * @type {Record<string, { presses: string[], hold: string[], again: string }>}
+ */
+const PLAYED = {
+  megadrive: { presses: ['Digit1', 'Digit1', 'Digit1'], hold: ['ArrowRight'], again: 'ControlLeft' },
+};
+
 /** MAME's own files, as they are and gzipped (level 6, as a web server would). */
 function downloads() {
   return ['arcade.wasm', 'arcade.js'].map((name) => {
@@ -103,6 +114,17 @@ try {
         row.presenting = await until('window.test.presenting()', 10000);
       }
       await sleep(3000); // started: settle
+      const played = PLAYED[s.m.id];
+      if (played) {
+        // A second and a half between presses at full speed, longer slowed down, as it runs slower.
+        const pause = 1500 * Math.max(1, s.rate / 2);
+        for (const code of played.presses) {
+          await page.evaluate(`window.test.emulator.tap(${JSON.stringify(code)}, 8)`);
+          await sleep(pause);
+        }
+        await page.evaluate(`(() => { for (const code of ${JSON.stringify(played.hold)}) window.test.emulator.key(code, true); setInterval(() => window.test.emulator.tap(${JSON.stringify(played.again)}, 10), 1200); })()`);
+        await sleep(pause);
+      }
       Object.assign(row, await measure('window.since = window.test.counts()', 'window.test.stats(window.since)'));
       if (opts.shots && s.rate === 1 && !s.vr) {
         const png = await page.evaluate(`window.test.emulator.canvas.toDataURL('image/png')`);
