@@ -367,11 +367,12 @@ MAME is 40.8 MB to download (7.5 MB gzipped, as GitHub Pages sends it), and 0.3 
 (0.1 MB), fetched when a machine first starts and then kept in the browser's cache. The Mega Drive
 added 9.5 MB of it (0.8 MB gzipped), most of that MAME's 68000 processors: its driver needs one, and
 MAME builds every one of the family with it; the Game Boy added 0.4 MB (0.1 MB gzipped).
-Concentration Room and Thwaite are 25 KB each, Alex vs Bus 512 KB (37 KB gzipped: Pages takes a name
-ending in .md for text, and compresses it), Tobu Tobu Girl 256 KB, the Spectrum's ROM 16 KB, the
-Vectrex's 8 KB, 2048 2 KB and the Game Boy's boot ROM 256 bytes. A console starts within a second
-once MAME is here, and the Spectrum in about one (slowed 6×, the consoles within 3 s and the
-Spectrum within 9), and from the live site, the first time, in 2 to 3.5 s on a fast connection.
+Concentration Room and Thwaite are 25 KB each, Alex vs Bus 512 KB, Tobu Tobu Girl 256 KB, the
+Spectrum's ROM 16 KB, the Vectrex's 8 KB, 2048 2 KB and the Game Boy's boot ROM 256 bytes, and Pages
+gzips them too, whatever their type: Alex vs Bus to 37 KB and Tobu Tobu Girl to 58 KB (it takes Alex
+vs Bus's name, ending in .md, for text, and the room reads it as bytes, unchanged). A console starts
+within a second once MAME is here, and the Spectrum in about one (slowed 6×, the consoles within 3 s
+and the Spectrum within 9), and from the live site, the first time, in 1 to 4 s on a fast connection.
 
 ## Moving about
 
