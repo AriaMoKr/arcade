@@ -184,6 +184,24 @@ test("the Mega Drive's pad has A, B and C and Start, and no Select: MAME's keys 
   assert.deepEqual(md.args, ['-cart', md.files[0].path]);
 });
 
+test("the Game Boy's buttons are a Nintendo's, on the NES's keys, and its boot ROM is where MAME looks for Nintendo's", () => {
+  const gb = /** @type {import('../public/js/machines.js').Machine} */ (machineById('gameboy'));
+  const nes = /** @type {import('../public/js/machines.js').Machine} */ (machineById('nes'));
+  // MAME's (gb.cpp: A and B its buttons 2 and 1, Left Alt and Left Ctrl; Start and Select its 1 and
+  // 5), as the NES's are, and the visitor's keys for them the same.
+  assert.deepEqual(gb.pad, nes.pad);
+  assert.deepEqual(gb.keys, nes.keys);
+  assert.deepEqual(machineButtons(gb).map((id) => buttonName(gb, id)), ['Start', 'Select', 'Reset', 'Stop']);
+  // SameBoy's boot ROM, 256 bytes, under the name of the gameboy's first BIOS, dmg_boot.bin; the
+  // game in its cartridge slot; its LCD, 160 × 144.
+  const boot = gb.files.find((f) => f.path === '/roms/gameboy/dmg_boot.bin');
+  assert.ok(boot, "the Game Boy's boot ROM");
+  assert.equal(readFileSync(join(mame, boot.url)).length, 256);
+  assert.equal(gb.driver, 'gameboy');
+  assert.deepEqual(gb.args, ['-cart', /** @type {{ path: string }} */ (gb.files.find((f) => f.path.startsWith('/software/'))).path]);
+  assert.deepEqual(gb.screen, { width: 160, height: 144 });
+});
+
 test("a key event's key for its code, as a US keyboard gives it", () => {
   assert.equal(keyOf('KeyA'), 'a');
   assert.equal(keyOf('Digit5'), '5');

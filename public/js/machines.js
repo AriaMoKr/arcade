@@ -184,6 +184,29 @@ export const MACHINES = [
     help: 'Arrows: the pad · Z, X, C: A, B, C · Enter: Start · Alex vs Bus: left and right run, A, B or C jumps, B goes back in a menu',
     pad: { up: 'ArrowUp', down: 'ArrowDown', left: 'ArrowLeft', right: 'ArrowRight', a: 'ControlLeft', b: 'AltLeft', c: 'Space', start: 'Digit1' },
   },
+  {
+    // The Game Boy, the first, with Tobu Tobu Girl in its cartridge slot. The boot ROM it runs first
+    // is SameBoy's (roms/gameboy/), as Nintendo's can't be passed on: MAME, which knows Nintendo's by
+    // its checksum, notes the difference in its log and runs it. Its buttons are a Nintendo's, MAME's
+    // keys for them the NES's. In Tobu Tobu Girl left and right move, A with a direction dashes, B
+    // held flies up, and Start pauses; in its menus left and right choose and A takes the choice.
+    id: 'gameboy',
+    title: 'Game Boy',
+    maker: 'Nintendo',
+    year: 1989,
+    driver: 'gameboy',
+    files: [
+      { url: 'roms/gameboy/dmg_boot.bin', path: '/roms/gameboy/dmg_boot.bin' },
+      { url: 'software/tobutobugirl/tobu.gb', path: '/software/tobu.gb' },
+    ],
+    args: ['-cart', '/software/tobu.gb'],
+    // Its LCD's 160 × 144 pixels, square: 10:9.
+    screen: { width: 160, height: 144 },
+    aspect: 10 / 9,
+    keys: NES_KEYS,
+    help: 'Arrows: the pad · X: A · Z: B · Enter: Start · Shift: Select · Tobu Tobu Girl: left and right move, A with a direction dashes, B held flies up',
+    pad: NES_PAD,
+  },
 ];
 
 /**

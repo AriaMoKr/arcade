@@ -36,14 +36,21 @@ const machines = opts.only ? MACHINES.filter((m) => opts.only?.split(',').includ
 
 /**
  * A machine played while it is measured, where what it shows once started (a title, a menu) costs
- * less than its game: MAME's keys pressed one after another, then some held and one pressed again
- * and again. The Mega Drive's Alex vs Bus: Start three times (PLAY, NORMAL, LEVEL 1), then running
- * right and jumping.
- * @type {Record<string, { presses: string[], hold: string[], again: string }>}
+ * less than its game, or where playing it is what it is for: from its `after`th step, MAME's keys
+ * pressed one after another, then some held and one pressed again and again. Counted in its own
+ * steps of 1/60 s, so that its presses come at the same moments of its time however slowly it runs.
+ * The Mega Drive's Alex vs Bus: Start three times (PLAY, NORMAL, LEVEL 1), then running right and
+ * jumping. The Game Boy's Tobu Tobu Girl, whose two logos wait for their tunes, a quarter of a minute
+ * from switching on: Start three times (out of its intro, past its title, PLAINS), then flying up
+ * (B) now and then.
+ * @type {Record<string, { after?: number, presses: string[], hold: string[], again: string }>}
  */
 const PLAYED = {
   megadrive: { presses: ['Digit1', 'Digit1', 'Digit1'], hold: ['ArrowRight'], again: 'ControlLeft' },
+  gameboy: { after: 1000, presses: ['Digit1', 'Digit1', 'Digit1'], hold: [], again: 'ControlLeft' },
 };
+/** Its steps between one press and the next: a second and a half of its time. */
+const GAP = 90;
 
 /** MAME's own files, as they are and gzipped (level 6, as a web server would). */
 function downloads() {
@@ -116,14 +123,17 @@ try {
       await sleep(3000); // started: settle
       const played = PLAYED[s.m.id];
       if (played) {
-        // A second and a half between presses at full speed, longer slowed down, as it runs slower.
-        const pause = 1500 * Math.max(1, s.rate / 2);
+        /** Until it has run `n` steps since it started. @param {number} n */
+        const reach = (n) => until(`window.test.counts().steps >= ${n}`, 180000);
+        /** `GAP` more of its steps from now. */
+        const gap = async () => reach(Number(await page.evaluate('window.test.counts().steps')) + GAP);
+        await reach(played.after ?? 0);
         for (const code of played.presses) {
           await page.evaluate(`window.test.emulator.tap(${JSON.stringify(code)}, 8)`);
-          await sleep(pause);
+          await gap();
         }
         await page.evaluate(`(() => { for (const code of ${JSON.stringify(played.hold)}) window.test.emulator.key(code, true); setInterval(() => window.test.emulator.tap(${JSON.stringify(played.again)}, 10), 1200); })()`);
-        await sleep(pause);
+        await gap();
       }
       Object.assign(row, await measure('window.since = window.test.counts()', 'window.test.stats(window.since)'));
       if (opts.shots && s.rate === 1 && !s.vr) {

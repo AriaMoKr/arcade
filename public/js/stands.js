@@ -201,6 +201,39 @@ export const STANDS = [
     front: { a: -0.14, d: 1.45 },
     about: 'Alex vs Bus: a race to catch the bus',
   },
+  {
+    // The Game Boy against the far wall, to the right of the cabinet: six times its size, as a shop
+    // might have stood one in its window, upright on a plinth, Tobu Tobu Girl's cartridge in its top.
+    // Its face as on the real one, 90 × 148 mm: the screen in its grey surround with the red light to
+    // its left, the pad, B and A, Select and Start, and the speaker's slots.
+    machine: 'gameboy',
+    wall: 'far',
+    at: 2,
+    parts: [
+      { part: 'plinth', a: [-0.33, 0.33], y: [0, 0.6], d: [0, 0.44], color: '#2b2a31' },
+      { part: 'plinth-top', a: [-0.35, 0.35], y: [0.6, 0.64], d: [0, 0.46], color: '#3c3b43' },
+      { part: 'support', a: [-0.1, 0.1], y: [0.64, 1.1], d: [0.06, 0.12], color: '#3c3b43' },
+      { part: 'body', a: [-0.27, 0.27], y: [0.64, 1.528], d: [0.12, 0.312], color: '#c9c5bf' },
+      { part: 'cartridge', a: [-0.17, 0.17], y: [1.48, 1.56], d: [0.125, 0.173], color: '#8f8b87' },
+      { part: 'surround', a: [-0.228, 0.228], y: [1.084, 1.456], d: [0.312, 0.316], color: '#5a5b6c' },
+      { part: 'light', a: [-0.198, -0.18], y: [1.264, 1.282], d: [0.316, 0.318], color: '#d8302a' },
+      { part: 'pad-across', a: [-0.213, -0.063], y: [0.916, 0.964], d: [0.312, 0.328], color: '#1e1d21' },
+      { part: 'pad-up-down', a: [-0.162, -0.114], y: [0.865, 1.015], d: [0.312, 0.328], color: '#1e1d21' },
+      { part: 'button-b', a: [0.06, 0.12], y: [0.874, 0.934], d: [0.312, 0.33], color: '#8c2050' },
+      { part: 'button-a', a: [0.156, 0.216], y: [0.922, 0.982], d: [0.312, 0.33], color: '#8c2050' },
+      { part: 'button-select', a: [-0.084, -0.012], y: [0.76, 0.784], d: [0.312, 0.318], color: '#86848c' },
+      { part: 'button-start', a: [0, 0.072], y: [0.76, 0.784], d: [0.312, 0.318], color: '#86848c' },
+      // The speaker's six slots, slanting up to the right.
+      ...[0, 1, 2, 3, 4, 5].map((i) => /** @type {Part} */ ({
+        part: `speaker-${i + 1}`, a: [0.1 + 0.024 * i, 0.112 + 0.024 * i], y: [0.69 + 0.012 * i, 0.78 + 0.012 * i], d: [0.312, 0.313], color: '#8f8b86',
+      })),
+    ],
+    // Its LCD, 47 × 43 mm and 160 × 144 pixels: 10:9.
+    screen: { a: 0, y: 1.261, d: 0.317, width: 0.28, height: 0.252 },
+    panel: { a: [0.45, 0.75], y: [1.12, 1.38], d: 0.012 },
+    front: { a: 0, d: 0.97 },
+    about: 'Tobu Tobu Girl, a chase into the sky, whose screen flashes',
+  },
 ];
 
 /**

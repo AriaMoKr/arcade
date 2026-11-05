@@ -8,10 +8,11 @@ arcade: a WebXR room behind one of the Hallway's doors, becoming an arcade of ol
 consoles and arcade machines (three.js 0.186, plain ES modules, no bundler or build step). It is the
 room AriaMoKr/RoomTemplateEmpty makes (a checkout at `../RoomTemplateEmpty`): a floor, four walls, a
 ceiling with lamps, a window in the right-hand wall onto common's afternoon sky, the doorway back to
-the Hallway, and the control panel beside it; and so far six machines: the NES with Concentration
+the Hallway, and the control panel beside it; and so far seven machines: the NES with Concentration
 Room, on its stand against the right-hand wall past the window; across from it, on a desk against
 the left-hand wall, the ZX Spectrum 48K with its BASIC; between them, against the far wall facing
-the doorway, an arcade cabinet with an NES inside running Thwaite; across from the window, on a
+the doorway, an arcade cabinet with an NES inside running Thwaite, and to its right a Game Boy six
+times its size on a plinth, with Tobu Tobu Girl; across from the window, on a
 plinth against the left-hand wall, the Vectrex with Mine Storm; against the right-hand wall
 between the doorway and the window, on a console TV, the Atari 2600 with 2048; and across from it,
 against the left-hand wall, on a TV stand, the Sega Mega Drive with Alex vs Bus. Its own are `public/js/config.js`
@@ -30,8 +31,11 @@ user's choice, as Breakout couldn't keep up on the web (README, "How fast"); Bre
 left MAME's build. Then the Vectrex, the user's choice of another machine, measured first, the
 Atari 2600 with 2048 (MIT), the user's choice of the next, measured first too, and the Mega Drive
 with Alex vs Bus (GPL-3.0-or-later, its assets CC BY-SA 4.0), the user's choice of the next,
-measured played (it keeps up at full speed and in VR, and falls behind first slowed). What comes
-next is the user's to say. `public/` is the whole site. The user asked for the hallway to be left alone, so change `../hallway` only when
+measured played (it keeps up at full speed and in VR, and falls behind first slowed). Then the
+Game Boy with Tobu Tobu Girl (MIT, its assets CC BY 4.0), switched on by SameBoy's boot ROM (MIT)
+in place of Nintendo's, the user's choice of the next, measured played too (it keeps up at full
+speed and in VR); its whole screen flashes as each try starts, so its `about` says so, as
+Thwaite's says its explosions flicker. What comes next is the user's to say. `public/` is the whole site. The user asked for the hallway to be left alone, so change `../hallway` only when
 asked; its door to here comes in the Hallway's own round (README, "The Hallway's door", is the
 entry to give it).
 
@@ -46,7 +50,7 @@ npm start            # tools/serve.mjs (common's) on config.js's port, 8102
 npm test             # node --test "test/*.test.js", tsc's check among them (test/types.test.js)
 npm run types        # tsc -p tsconfig.json, then -p tsconfig.strict.json, alone
 npm run preview      # tools/preview.mjs: public/hallway-preview.jpg and public/social.jpg (headless Chrome)
-npm run measure      # tools/measure-machines.mjs: each machine's speed on the test page, CPU ÷1/4/6 and emulated VR (headless Chrome); a game dearer than its title played first (PLAYED: the Mega Drive's)
+npm run measure      # tools/measure-machines.mjs: each machine's speed on the test page, CPU ÷1/4/6 and emulated VR (headless Chrome); a game played first where playing it costs more or is the point (PLAYED: the Mega Drive's, the Game Boy's, its presses counted in the machine's own steps)
 sh tools/build-mame.sh   # MAME into public/mame/ (Emscripten; MSYS2 UCRT64 here), from a clone in ~/.cache/arcade/mame0289
 ```
 
@@ -130,7 +134,7 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   (`aria-describedby`). `presence.js`: the session's status and notices in words.
 - `preview.js`: the two pictures (`renderPreview`, hung as the hallway hangs its doorways', and
   `renderSocial`, from `socialView`; with `also`, main.js's the stands' screens, from just inside
-  the doorway looking down the room at four of the machines and the window, as two face each other
+  the doorway looking down the room at five of the machines and the window, as two face each other
   near the far wall and no view takes them in with the doorway; the Atari 2600 and the Mega Drive,
   across from each other near the doorway, are just out of it, the view turned an eighth of the
   room's width to the window's side so that the window is in it).
@@ -169,8 +173,9 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   where its buttons aren't a Nintendo's, `names` (the Vectrex's 1 to 4, the Atari 2600's Game
   Select, Game Reset and Fire, in the card's order), with `stick` and a vector screen's `vector`; a
   computer's `keyboard`; the cabinet's `thwaite` is a Nintendo, `NES_KEYS` and `NES_PAD` as the
-  NES's; the `a2600`'s pad has its one fire button as A and B; the `megadrive` is Japan's model,
-  `megadrij`, NTSC), `RESET` (MAME's soft reset, F3, the
+  NES's, and so is the `gameboy` (MAME's gb.cpp takes the same keys; its boot ROM SameBoy's, under
+  the name of Nintendo's, `roms/gameboy/dmg_boot.bin`); the `a2600`'s pad has its one fire button
+  as A and B; the `megadrive` is Japan's model, `megadrij`, NTSC), `RESET` (MAME's soft reset, F3, the
   room's Reset button's alone), `machineById`, `codesOf`, `machineCodes` (every key of MAME's a
   machine takes), `buttonName(m, id)` (what a button is called on m, else `BUTTON_NAMES`, a
   Nintendo's and C), `oneButton(m)` (A and B one button: then "A or B" in the hints, no B on the phone's
@@ -210,7 +215,9 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   from `ROOMY` on for E mode's legends, and never under 28 px).
 - `stands.js`: pure, as room.js is. `STANDS` (each a `Stand`: its machine, its wall and `at` along
   it, its parts as boxes, its screen, its panel on the wall, a computer's `keys` on its top, an
-  arcade cabinet's `marquee`, how far in front one plays, `about`), laid out in the wall's terms (`a` along, `y` up, `d` out;
+  arcade cabinet's `marquee`, how far in front one plays, `about`: what runs on it, and a game's
+  flicker or flashing, Thwaite's and Tobu Tobu Girl's, so that the card, the panel and a screen
+  reader say so), laid out in the wall's terms (`a` along, `y` up, `d` out;
   `wallTerms`), `layoutStands` (in the room's: the boxes, the footprint, the screen, `front`, where
   one plays), `castStands` (kind `machine` on a box, `stand-panel` with u/v on its panel, nearer
   than room.js's hit), `clampStands`, the panel's buttons (`panelLayout(m)`: a console's, Play
@@ -228,7 +235,7 @@ on `localhost` only: open http://localhost:8102/, not 127.0.0.1 (or pass `--host
   each key (`legends`), the shifts down lit and the key pointed at).
 - `play.js`: `Play`, the machines played (README, "Playing the Nintendo", "Typing on the
   Spectrum", "Playing the arcade cabinet", "Playing the Vectrex", "Playing the Atari 2600",
-  "Playing the Mega Drive"). `choose(i)` (prime the sound, walk up, `start(i)`), `stop()` (the focus back to the
+  "Playing the Mega Drive", "Playing the Game Boy"). `choose(i)` (prime the sound, walk up, `start(i)`), `stop()` (the focus back to the
   machine's button in the card if it was on the picture or its keys), `stepBack()`, `button(i, id)`
   (the card's and the panel's, a computer's keys `key:<code>` among them), `first()` (the TV's
   Menu), `hand()` (VR: a console's left stick the pad, Y/X Start/Select (X the Mega Drive's C), the

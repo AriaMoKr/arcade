@@ -18,7 +18,7 @@ export const ROOM = {
   /** Its name: the page's <title> and the card's heading. */
   title: 'arcade',
   /** The page's <meta name="description">, word for word: the Hallway's plaque by its door shows it. */
-  description: "A room behind the Hallway's door, becoming an arcade of old computers, game consoles and arcade machines: so far a Nintendo Entertainment System, a ZX Spectrum, an arcade cabinet, a Vectrex, an Atari 2600 and a Sega Mega Drive to play. Walk it and play in VR on a Meta Quest, on a desktop or on a phone.",
+  description: "A room behind the Hallway's door, becoming an arcade of old computers, game consoles and arcade machines: so far a Nintendo Entertainment System, a ZX Spectrum, an arcade cabinet, a Vectrex, an Atari 2600, a Sega Mega Drive and a Game Boy to play. Walk it and play in VR on a Meta Quest, on a desktop or on a phone.",
   /** What kind of place it is, on the sign over its door in the Hallway. */
   sign: 'Arcade',
   /** Where it is published, on GitHub Pages: https://ariamokr.github.io/<repository>/. */

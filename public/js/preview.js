@@ -31,7 +31,7 @@ export function previewView(p = PREVIEW, from = { x: 0, y: 0, z: -0.6 }) {
  * doorway's wall. With the window in a side wall, the side across from it, so the window is in view
  * along with the doorway; with the window in the far wall, from beside the doorway, looking at it.
  * With `also` (points to look among: arcade's machines, two against the side walls near the far
- * one, which no view of the doorway takes in, one against the far wall, one across from the window,
+ * one, which no view of the doorway takes in, two against the far wall, one across from the window,
  * and two across from each other near the doorway, which no view takes in with the others), from
  * just inside the doorway, a little raised and to the side across from the window, looking down the
  * room past them, the window's side an eighth of the room's width nearer the middle, so that the
