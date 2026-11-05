@@ -35,7 +35,8 @@ measured played (it keeps up at full speed and in VR, and falls behind first slo
 Game Boy with Tobu Tobu Girl (MIT, its assets CC BY 4.0), switched on by SameBoy's boot ROM (MIT)
 in place of Nintendo's, the user's choice of the next, measured played too (it keeps up at full
 speed and in VR); its whole screen flashes as each try starts, so its `about` says so, as
-Thwaite's says its explosions flicker. What comes next is the user's to say. `public/` is the whole site. The user asked for the hallway to be left alone, so change `../hallway` only when
+Thwaite's says its explosions flicker: the user chose that warning over patching the flash out of
+the game, which stays as released. What comes next is the user's to say. `public/` is the whole site. The user asked for the hallway to be left alone, so change `../hallway` only when
 asked; its door to here comes in the Hallway's own round (README, "The Hallway's door", is the
 entry to give it).
 
